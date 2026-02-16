@@ -1,6 +1,6 @@
 # LAB68DEV CV Builder
 
-A brutalist SaaS resume builder application built with Next.js 16, featuring passwordless authentication, six resume templates, and PDF export with dynamic font support.
+A brutalist SaaS resume builder application built with Next.js 16, featuring email-only authentication, six resume templates, and PDF export with dynamic font support.
 
 ## Tech Stack
 
@@ -8,16 +8,15 @@ A brutalist SaaS resume builder application built with Next.js 16, featuring pas
 - **Language:** TypeScript (strict mode)
 - **Database:** Neon (Serverless Postgres)
 - **ORM:** Drizzle ORM 0.45.1
-- **Authentication:** Auth.js v5 (passwordless magic links via Resend)
+- **Authentication:** Auth.js v5 (email-only, Credentials provider)
 - **Styling:** Tailwind CSS 4 (brutalist design system)
 - **State Management:** Zustand 5.0.11
 - **PDF Export:** @react-pdf/renderer 4.3.2
-- **Email:** Resend 6.9.2
 - **Fonts:** 10 Google Fonts (Inter, Roboto, Lato, Open Sans, Montserrat, Raleway, Merriweather, Playfair Display, Source Sans 3, Nunito)
 
 ## Features
 
-- Passwordless authentication with magic links (sign-in and sign-up toggle)
+- Email-only authentication with auto-registration (sign-in and sign-up toggle)
 - Dashboard with bento grid layout
 - Split-view resume builder (form + live preview)
 - Auto-save with 2-second debounce
@@ -47,13 +46,7 @@ DATABASE_URL="postgresql://user:password@host.neon.tech/dbname?sslmode=require"
 # Auth.js
 AUTH_SECRET="your-secret-here"  # Generate with: npx auth secret
 AUTH_URL="http://localhost:3000"  # Do NOT set this on Vercel (auto-detected)
-
-# Resend (for magic links)
-AUTH_RESEND_KEY="re_xxxxxxxxxxxxxxxxx"
-EMAIL_FROM="noreply@yourdomain.com"
 ```
-
-Get your Resend API key at [https://resend.com/api-keys](https://resend.com/api-keys).
 
 ### 3. Database Setup
 
@@ -68,7 +61,7 @@ This creates the following tables:
 - `users` -- User accounts
 - `accounts` -- OAuth/email provider links
 - `sessions` -- Session tokens
-- `verification_tokens` -- Magic link tokens
+- `verification_tokens` -- Auth.js tokens
 - `resumes` -- Resume data (JSONB storage)
 
 ### 4. Run Development Server
@@ -89,29 +82,6 @@ npm run db:studio     # Open Drizzle Studio (database GUI)
 npm run db:drop       # Drop all tables (destructive)
 ```
 
-## Domain Management
-
-A CLI script is included for managing Resend sending domains. It requires `AUTH_RESEND_KEY` in `.env.local`.
-
-```bash
-npm run resend:domains add example.com          # Add a new domain
-npm run resend:domains list                     # List all domains
-npm run resend:domains get <domain-id>          # Show domain details and DNS records
-npm run resend:domains verify <domain-id>       # Trigger verification
-npm run resend:domains update <id> [flags]      # Update tracking settings
-npm run resend:domains remove <domain-id>       # Delete a domain
-```
-
-Update flags: `--open-tracking`, `--no-open-tracking`, `--click-tracking`, `--no-click-tracking`.
-
-Typical workflow:
-
-1. Add the domain: `npm run resend:domains add yourdomain.com`
-2. Retrieve DNS records: `npm run resend:domains get <id>`
-3. Add the DNS records to your domain provider
-4. Verify: `npm run resend:domains verify <id>`
-5. Update `EMAIL_FROM` in `.env.local` to use the verified domain
-
 ## Project Structure
 
 ```
@@ -122,7 +92,7 @@ src/
 │   ├── api/export/[id]/           # PDF export endpoint (Node.js runtime)
 │   ├── builder/[id]/              # Resume builder route
 │   ├── dashboard/                 # User dashboard
-│   ├── login/                     # Auth pages (login, verify, error)
+│   ├── login/                     # Auth page (email-only login)
 │   ├── globals.css                # Brutalist design system
 │   └── layout.tsx                 # Root layout
 ├── components/
@@ -183,11 +153,10 @@ The design intentionally feels raw and industrial -- no smooth gradients, no rou
 ## Authentication Flow
 
 1. User enters email on `/login`
-2. Magic link sent via Resend
-3. User clicks link in email
-4. Redirected to `/login/verify` (confirmation page)
-5. Auth.js validates token and creates session
-6. Redirected to `/dashboard`
+2. Auth.js Credentials provider looks up the email in the database
+3. If the email exists, the user is signed in
+4. If the email does not exist, a new account is auto-created
+5. JWT session is established and the user is redirected to `/dashboard`
 
 ## Resume Builder
 
@@ -220,7 +189,7 @@ Website, LinkedIn, and GitHub links are rendered as clickable elements in both t
 
 1. Push to GitHub
 2. Import the repository in Vercel
-3. Set environment variables: `DATABASE_URL`, `AUTH_SECRET`, `AUTH_RESEND_KEY`, `EMAIL_FROM`
+3. Set environment variables: `DATABASE_URL`, `AUTH_SECRET`
 4. Do not set `AUTH_URL` -- Vercel auto-detects it via `VERCEL_URL`
 5. Deploy
 
@@ -229,8 +198,6 @@ Website, LinkedIn, and GitHub links are rendered as clickable elements in both t
 ```bash
 DATABASE_URL="postgresql://..."
 AUTH_SECRET="..."           # Generate a new secret for production
-AUTH_RESEND_KEY="re_..."
-EMAIL_FROM="noreply@yourdomain.com"
 ```
 
 ## Troubleshooting
@@ -238,12 +205,6 @@ EMAIL_FROM="noreply@yourdomain.com"
 ### JWTSessionError: no matching decryption secret
 
 Middleware is running on public routes. Verify that `src/middleware.ts` matcher config only includes protected routes (`/dashboard/*`, `/api/resumes/*`, `/api/export/*`).
-
-### Magic link not sending
-
-1. Verify `AUTH_RESEND_KEY` is set correctly
-2. Check `EMAIL_FROM` is a verified domain in Resend
-3. Check the Resend dashboard for email logs
 
 ### Database connection errors
 
