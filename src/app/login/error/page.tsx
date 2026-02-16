@@ -113,7 +113,7 @@ function ErrorContent() {
             <li className="flex">
               <span className="font-bold mr-3 font-mono">03.</span>
               <span>
-                Check that you're using the same email address for both
+                Check that you&apos;re using the same email address for both
                 requests
               </span>
             </li>
