@@ -19,6 +19,9 @@ const archivoBlack = Archivo_Black({
 export const metadata: Metadata = {
   title: "lab68dev CV Builder",
   description: "Raw. Structured. Anti-AI. Build your resume at lab68dev.",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
