@@ -107,7 +107,7 @@ function ErrorContent() {
             <li className="flex">
               <span className="font-bold mr-3 font-mono">02.</span>
               <span>
-                Ensure you're clicking the most recent link from your email
+                Ensure you&apos;re clicking the most recent link from your email
               </span>
             </li>
             <li className="flex">
