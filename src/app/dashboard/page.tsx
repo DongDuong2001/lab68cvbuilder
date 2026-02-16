@@ -1,7 +1,6 @@
 import { auth, signOut } from "@/auth";
 import { redirect } from "next/navigation";
 import { getUserResumes } from "@/actions/resume";
-import Link from "next/link";
 import { CreateResumeButton } from "@/components/dashboard/create-resume-button";
 import { ResumeCard } from "@/components/dashboard/resume-card";
 
