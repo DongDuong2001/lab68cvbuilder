@@ -32,7 +32,7 @@ function LoginForm() {
         // Redirect to verify page
         window.location.href = `/login/verify?email=${encodeURIComponent(email)}`;
       }
-    } catch (err) {
+    } catch {
       setError("An unexpected error occurred.");
       setIsLoading(false);
     }
