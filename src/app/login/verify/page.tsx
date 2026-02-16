@@ -103,7 +103,7 @@ function VerifyContent() {
             TROUBLESHOOTING
           </span>
           <p className="text-xs text-gray-600">
-            Didn't receive the email? Check your spam folder. The email may
+            Didn&apos;t receive the email? Check your spam folder. The email may
             take up to 2 minutes to arrive.
           </p>
         </div>
