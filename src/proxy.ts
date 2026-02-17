@@ -1,7 +1,7 @@
-export { auth as middleware } from "@/auth";
+export { auth as proxy } from "@/auth";
 
 /**
- * Middleware configuration — only runs on protected routes.
+ * Proxy configuration — only runs on protected routes.
  * Public routes (/, /login, etc.) are excluded to avoid JWT
  * decryption errors when no session exists.
  */
