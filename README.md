@@ -1,229 +1,95 @@
 # LAB68DEV CV Builder
 
-A brutalist SaaS resume builder application built with Next.js 16, featuring email-only authentication, six resume templates, and PDF export with dynamic font support.
+> A brutalist SaaS resume builder — engineered for speed, clarity, and pixel-perfect PDF output.
 
-## Tech Stack
+<br/>
 
-- **Framework:** Next.js 16.1.6 (App Router, React 19, Turbopack)
-- **Language:** TypeScript (strict mode)
-- **Database:** Neon (Serverless Postgres)
-- **ORM:** Drizzle ORM 0.45.1
-- **Authentication:** Auth.js v5 (email-only, Credentials provider)
-- **Styling:** Tailwind CSS 4 (brutalist design system)
-- **State Management:** Zustand 5.0.11
-- **PDF Export:** @react-pdf/renderer 4.3.2
-- **Fonts:** 10 Google Fonts (Inter, Roboto, Lato, Open Sans, Montserrat, Raleway, Merriweather, Playfair Display, Source Sans 3, Nunito)
+<a href="https://unikorn.vn/p/lab68dev-cv-builder?ref=embed" target="_blank">
+  <img src="https://unikorn.vn/api/widgets/badge/lab68dev-cv-builder?theme=light" alt="lab68dev CV Builder trên Unikorn.vn" width="256" height="64" />
+</a>
+&nbsp;
+<a href="https://unikorn.vn/p/lab68dev-cv-builder?ref=embed" target="_blank">
+  <img src="https://unikorn.vn/api/widgets/badge/lab68dev-cv-builder/rank?theme=light&type=daily" alt="lab68dev CV Builder - Hàng ngày" width="250" height="64" />
+</a>
+
+<br/><br/>
+
+---
 
 ## Features
 
-- Email-only authentication with auto-registration (sign-in and sign-up toggle)
-- Dashboard with bento grid layout
-- Split-view resume builder (form + live preview)
-- Auto-save with 2-second debounce
-- Six resume templates with matching PDF export
-- Clickable URLs in both preview and PDF (website, LinkedIn, GitHub)
-- 10 Google Fonts selectable per resume
-- Tag-based input for skills and project technologies
-- Row-level security (RLS) via Server Actions
-- Mobile-responsive with preview toggle
+### Authentication
 
-## Getting Started
+- Email-only sign-in with auto-registration — no password required
+- JWT-based sessions with protected routes via middleware
 
-### 1. Install Dependencies
+### Resume Builder
 
-```bash
-npm install
-```
+- **Split-view editor** — live preview updates as you type
+- **Auto-save** — debounced 2‑second save with visible status indicator (`SAVING` / `SAVED`)
+- **Five section types:** Personal Info, Experience, Education, Skills, Projects
+- **Tag-based input** for skills and project technologies
+- **10 Google Fonts** selectable per resume, applied to both preview and PDF export
 
-### 2. Environment Variables
+### Templates
 
-Create a `.env.local` file in the project root:
+| Template | Style |
+|----------|-------|
+| **Lab Protocol** | Brutalist sidebar — black 2.5‑inch sidebar with white text |
+| **The Executive** | Traditional top‑down with professional summary header |
+| **Mono Stack** | Developer-oriented — monospace code-style section headers |
+| **Clean Slate** | Minimal — generous whitespace, subtle section dividers |
+| **Bold Impact** | High contrast — bold typography, strong visual hierarchy |
+| **Compact Pro** | Dense layout for fitting maximum content on one page |
 
-```bash
-# Neon Database
-DATABASE_URL="postgresql://user:password@host.neon.tech/dbname?sslmode=require"
+### PDF Export
 
-# Auth.js
-AUTH_SECRET="your-secret-here"  # Generate with: npx auth secret
-AUTH_URL="http://localhost:3000"  # Do NOT set this on Vercel (auto-detected)
-```
+- One-click export to PDF with matching template fidelity
+- Clickable hyperlinks preserved in exported PDF (website, LinkedIn, GitHub)
+- Dynamic font loading — selected Google Font is embedded in the PDF
 
-### 3. Database Setup
+### Dashboard
 
-Push the Drizzle schema to your Neon database:
+- Bento grid layout for resume management
+- Create, rename, and delete resumes
+- Instant navigation to any resume's builder view
 
-```bash
-npm run db:push
-```
-
-This creates the following tables:
-
-- `users` -- User accounts
-- `accounts` -- OAuth/email provider links
-- `sessions` -- Session tokens
-- `verification_tokens` -- Auth.js tokens
-- `resumes` -- Resume data (JSONB storage)
-
-### 4. Run Development Server
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Database Scripts
-
-```bash
-npm run db:generate   # Generate migrations
-npm run db:migrate    # Apply migrations
-npm run db:push       # Push schema changes (development)
-npm run db:studio     # Open Drizzle Studio (database GUI)
-npm run db:drop       # Drop all tables (destructive)
-```
-
-## Project Structure
-
-```
-src/
-├── actions/
-│   └── resume.ts                  # Server Actions with RLS
-├── app/
-│   ├── api/export/[id]/           # PDF export endpoint (Node.js runtime)
-│   ├── builder/[id]/              # Resume builder route
-│   ├── dashboard/                 # User dashboard
-│   ├── login/                     # Auth page (email-only login)
-│   ├── globals.css                # Brutalist design system
-│   └── layout.tsx                 # Root layout
-├── components/
-│   ├── builder/
-│   │   ├── forms/                 # PersonalInfo, Experience, Education, Skills, Projects
-│   │   ├── templates/             # 6 preview templates
-│   │   ├── builder-client.tsx     # Auto-save + split-view logic
-│   │   ├── builder-form.tsx       # Tabbed form navigation
-│   │   ├── builder-header.tsx     # Title, template/font selectors, export
-│   │   └── builder-preview.tsx    # 8.5 x 11 inch paper preview
-│   ├── dashboard/                 # CreateResumeButton, ResumeCard
-│   └── pdf/                       # 6 PDF templates (@react-pdf/renderer)
-├── db/
-│   ├── index.ts                   # Drizzle + Neon client
-│   └── schema.ts                  # Database schema + types
-├── hooks/
-│   └── use-debounce.ts            # Auto-save debounce (2s delay)
-├── lib/
-│   ├── constants.ts               # EMPTY_RESUME_DATA, TEMPLATES
-│   ├── fonts.ts                   # Google Fonts configuration
-│   ├── pdf-font-loader.ts         # Dynamic PDF font registration
-│   └── url-helpers.ts             # URL normalization and display labels
-├── store/
-│   └── resume-store.ts            # Zustand state management
-├── types/
-│   └── next-auth.d.ts             # Session type augmentation
-├── auth.ts                        # Auth.js v5 configuration
-└── middleware.ts                  # Route protection
-```
-
-## Templates
-
-Six templates are available, each with a matching preview component and PDF component:
-
-| Template | Style | Layout |
-|----------|-------|--------|
-| Lab Protocol | Brutalist sidebar | Black 2.5-inch sidebar with white text; contact, links, skills, and education on the sidebar; experience and projects in the main area |
-| The Executive | Traditional top-down | Large header with contact info, professional summary, traditional section ordering |
-| Mono Stack | Developer-oriented | Monospace typography, code-style section headers, technical layout |
-| Clean Slate | Minimal | Generous whitespace, clean lines, subtle section dividers |
-| Bold Impact | High contrast | Bold typography, strong visual hierarchy, prominent section headers |
-| Compact Pro | Space-efficient | Dense layout optimized for fitting maximum content on one page |
+---
 
 ## Design Philosophy
 
-This application follows a brutalist design aesthetic:
+Built on a **brutalist aesthetic** — raw, functional, and intentional:
 
-- Zero border radius -- square corners everywhere
-- Monochrome palette -- black and white only
-- Inverted focus states -- black background, white text
-- Visible borders -- 1px black borders on all interactive elements
-- Monospace labels -- uppercase, tracking-wider
-- Grid overlays on the landing page
-- Industrial typography using the Archivo font family
+- Zero border radius — square corners everywhere
+- Monochrome palette — black and white only
+- Visible 1px borders on all interactive elements
+- Inverted focus states — black background, white text on focus
+- Monospace labels in uppercase with wide letter-spacing
+- Grid overlay on the landing page for an industrial feel
 
-The design intentionally feels raw and industrial -- no smooth gradients, no rounded corners, no subtle shadows. Pure function.
+No smooth gradients. No rounded pills. Pure function.
 
-## Authentication Flow
+---
 
-1. User enters email on `/login`
-2. Auth.js Credentials provider looks up the email in the database
-3. If the email exists, the user is signed in
-4. If the email does not exist, a new account is auto-created
-5. JWT session is established and the user is redirected to `/dashboard`
+## Stack
 
-## Resume Builder
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 (App Router, React 19, Turbopack) |
+| Language | TypeScript (strict) |
+| Database | Neon (Serverless Postgres) |
+| ORM | Drizzle ORM |
+| Auth | Auth.js v5 — Credentials provider |
+| Styling | Tailwind CSS 4 |
+| State | Zustand |
+| PDF | @react-pdf/renderer |
 
-### Form Sections
-
-- **Personal Info:** Name, email, phone, location, website, LinkedIn, GitHub, summary
-- **Experience:** Company, position, dates, location, description, highlights
-- **Education:** Institution, degree, field, GPA, dates
-- **Skills:** Categories with tag-based input
-- **Projects:** Name, URL, description, technologies (tags), highlights
-
-### Auto-Save
-
-- Debounced with 2-second delay
-- Saves on every field change
-- Shows save status in header (SAVING / SAVED with timestamp)
-- Uses Zustand dirty tracking to prevent unnecessary saves
-
-### Font Selection
-
-Each resume can use one of 10 Google Fonts. The selected font applies to both the live preview and the exported PDF. Fonts are loaded dynamically for PDF rendering via `pdf-font-loader.ts`.
-
-### Clickable URLs
-
-Website, LinkedIn, and GitHub links are rendered as clickable elements in both the preview and exported PDF. Display labels are auto-generated (for example, `github.com/username` instead of the full URL).
-
-## Deployment
-
-### Vercel
-
-1. Push to GitHub
-2. Import the repository in Vercel
-3. Set environment variables: `DATABASE_URL`, `AUTH_SECRET`
-4. Do not set `AUTH_URL` -- Vercel auto-detects it via `VERCEL_URL`
-5. Deploy
-
-### Environment Variables for Production
-
-```bash
-DATABASE_URL="postgresql://..."
-AUTH_SECRET="..."           # Generate a new secret for production
-```
-
-## Troubleshooting
-
-### JWTSessionError: no matching decryption secret
-
-Middleware is running on public routes. Verify that `src/middleware.ts` matcher config only includes protected routes (`/dashboard/*`, `/api/resumes/*`, `/api/export/*`).
-
-### Database connection errors
-
-1. Verify `DATABASE_URL` is correct
-2. Check the Neon dashboard for the connection string
-3. Ensure `?sslmode=require` is in the connection string
-4. Run `npm run db:push` to create tables
-
-### PDF export not working
-
-1. Check browser console for errors
-2. Verify the `/api/export/[id]` route is protected by middleware
-3. Check that resume data is saved before exporting
-4. The export route requires Node.js runtime (not Edge)
+---
 
 ## License
 
-Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for the full text.
+Licensed under the [Apache License 2.0](LICENSE).
 
-## Credits
+---
 
-Built with brutalist design principles by lab68dev.
+<sub>Built with brutalist design principles by <a href="https://www.youtube.com/@lab68dev">lab68dev</a>.</sub>
