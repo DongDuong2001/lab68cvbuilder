@@ -72,10 +72,10 @@ export async function GET(
         "Content-Disposition": `inline; filename="${filename}"`,
       },
     });
-  } catch (error: any) {
-    console.error("PDF export error:", error);
-    return NextResponse.json(
-      { error: "Failed to generate PDF", details: error?.message },
+  } catch (error: unknown) {
+    console.error(`[export] Generic PDF generation error:`, error);
+    return new NextResponse(
+      `Error generating PDF: ${(error as Error).message || "Unknown error"}`,
       { status: 500 }
     );
   }

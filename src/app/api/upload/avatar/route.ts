@@ -56,10 +56,10 @@ export async function POST(request: NextRequest) {
             url: result.secure_url,
             publicId: result.public_id,
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Avatar upload error:", error);
         return NextResponse.json(
-            { error: error.message || "Upload failed" },
+            { error: (error as Error).message || "Upload failed" },
             { status: 500 }
         );
     }

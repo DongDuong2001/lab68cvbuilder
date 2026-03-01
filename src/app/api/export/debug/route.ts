@@ -22,9 +22,7 @@ const PDF_TEMPLATES: Record<TemplateId, PDFComponentType> = {
     "ats": AtsPDF,
 };
 
-export async function GET(
-    request: NextRequest,
-) {
+export async function GET() {
     try {
         const id = "f18ef1ef-109f-4089-b061-6ccf51135389";
         const resume = await getResume(id);
@@ -46,6 +44,7 @@ export async function GET(
             fontFamily: pdfFontFamily,
         });
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const stream = await renderToStream(PDFElement as any);
 
         return new NextResponse(stream as unknown as ReadableStream, {
@@ -53,9 +52,9 @@ export async function GET(
                 "Content-Type": "application/pdf",
             },
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
         return NextResponse.json(
-            { error: "Debug failure", message: error.message, stack: error.stack },
+            { error: "Debug failure", message: (error as Error).message, stack: (error as Error).stack },
             { status: 500 }
         );
     }

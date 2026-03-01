@@ -51,7 +51,8 @@ export async function registerPDFFont(
 
     // Parse @font-face blocks from the CSS response
     const fontFaceBlocks = css.split("@font-face").slice(1);
-    const fonts: Array<{ src: string; fontWeight: number; fontStyle?: string }> = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fonts: Array<{ src: string; fontWeight: number; fontStyle?: any }> = [];
 
     for (const block of fontFaceBlocks) {
       const weightMatch = block.match(/font-weight:\s*(\d+)/);
@@ -64,7 +65,8 @@ export async function registerPDFFont(
         fonts.push({
           src: urlMatch[1],
           fontWeight: parseInt(weightMatch[1]),
-          fontStyle: styleMatch ? styleMatch[1] : "normal",
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          fontStyle: (styleMatch ? styleMatch[1] : "normal") as any,
         });
       }
     }

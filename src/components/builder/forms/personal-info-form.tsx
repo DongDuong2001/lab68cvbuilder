@@ -53,8 +53,8 @@ export function PersonalInfoForm() {
 
       const { url } = await res.json();
       updateField("avatarUrl", url);
-    } catch (err: any) {
-      alert(err.message || "Failed to upload image. Please try again.");
+    } catch (err: unknown) {
+      alert((err as Error).message || "Failed to upload image. Please try again.");
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -114,8 +114,8 @@ export function PersonalInfoForm() {
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
                 className={`border border-black px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors duration-150 ${isUploading
-                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                    : "hover:bg-black hover:text-white"
+                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                  : "hover:bg-black hover:text-white"
                   }`}
               >
                 {isUploading ? "Uploading..." : personalInfo.avatarUrl ? "Change Photo" : "Upload Photo"}
