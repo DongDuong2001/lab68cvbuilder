@@ -1,0 +1,13 @@
+{
+    "Index": {
+        "label": "SYS.INIT // LAB68DEV STUDIO",
+        "title": "TẠO CV",
+        "description": "Nguyên bản. Tinh gọn. Xây dựng hồ sơ của bạn với sự chính xác tại <b>lab68dev</b>.",
+        "enterLab": "Bắt Đầu →",
+        "viewTemplates": "Xem Mẫu"
+    },
+    "Common": {
+        "login": "ĐĂNG NHẬP",
+        "cvBuilder": "TẠO CV"
+    }
+}

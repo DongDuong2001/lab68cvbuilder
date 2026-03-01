@@ -1,0 +1,13 @@
+{
+    "Index": {
+        "label": "SYS.INIT // LAB68DEV STUDIO",
+        "title": "CV BUILDER",
+        "description": "Raw. Structured. Build your resume with precision at <b>lab68dev</b>.",
+        "enterLab": "Enter the Lab →",
+        "viewTemplates": "View Templates"
+    },
+    "Common": {
+        "login": "LOG IN",
+        "cvBuilder": "CV BUILDER"
+    }
+}
