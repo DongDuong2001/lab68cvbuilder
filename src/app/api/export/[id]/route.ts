@@ -4,12 +4,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getResume } from "@/actions/resume";
 import { renderToStream } from "@react-pdf/renderer";
-import { LabProtocolPDF } from "@/components/pdf/lab-protocol-pdf";
+import { CreativePDF } from "@/components/pdf/creative-pdf";
 import { ExecutivePDF } from "@/components/pdf/executive-pdf";
-import { MonoStackPDF } from "@/components/pdf/mono-stack-pdf";
-import { CleanSlatePDF } from "@/components/pdf/clean-slate-pdf";
-import { BoldImpactPDF } from "@/components/pdf/bold-impact-pdf";
-import { CompactProPDF } from "@/components/pdf/compact-pro-pdf";
+import { HarvardPDF } from "@/components/pdf/harvard-pdf";
+import { AtsPDF } from "@/components/pdf/ats-pdf";
 import type { TemplateId } from "@/lib/constants";
 import { getFontById } from "@/lib/fonts";
 import { registerPDFFont } from "@/lib/pdf-font-loader";
@@ -19,12 +17,10 @@ import type { ResumeData } from "@/db/schema";
 type PDFComponentType = React.ComponentType<{ data: ResumeData; fontFamily?: string }>;
 
 const PDF_TEMPLATES: Record<TemplateId, PDFComponentType> = {
-  "lab-protocol": LabProtocolPDF,
-  "the-executive": ExecutivePDF,
-  "mono-stack": MonoStackPDF,
-  "clean-slate": CleanSlatePDF,
-  "bold-impact": BoldImpactPDF,
-  "compact-pro": CompactProPDF,
+  "creative": CreativePDF,
+  "executive": ExecutivePDF,
+  "harvard": HarvardPDF,
+  "ats": AtsPDF,
 };
 
 export async function GET(
@@ -57,7 +53,7 @@ export async function GET(
     const pdfFontFamily = fontRegistered ? fontConfig.name : "Archivo";
 
     // Render PDF based on template — lookup from map with fallback
-    const Component = PDF_TEMPLATES[resume.templateId as TemplateId] || LabProtocolPDF;
+    const Component = PDF_TEMPLATES[resume.templateId as TemplateId] || HarvardPDF;
     const PDFElement = React.createElement(Component, {
       data: resume.data,
       fontFamily: pdfFontFamily,
@@ -73,13 +69,13 @@ export async function GET(
     return new NextResponse(stream as unknown as ReadableStream, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Disposition": `inline; filename="${filename}"`,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("PDF export error:", error);
     return NextResponse.json(
-      { error: "Failed to generate PDF" },
+      { error: "Failed to generate PDF", details: error?.message },
       { status: 500 }
     );
   }
