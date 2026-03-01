@@ -151,17 +151,43 @@ export function ProjectsForm() {
                 />
               </div>
 
-              <div>
-                <label className="label-mono block mb-2">URL</label>
-                <input
-                  type="url"
-                  value={project.url || ""}
-                  onChange={(e) =>
-                    updateProject(project.id, { url: e.target.value })
-                  }
-                  placeholder="https://github.com/you/project"
-                  className="w-full border border-gray-400 bg-transparent px-3 py-2 focus:border-black focus:bg-black focus:text-white transition-all duration-150"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="label-mono block mb-2">PROJECT_URL</label>
+                  <input
+                    type="url"
+                    value={project.url || ""}
+                    onChange={(e) =>
+                      updateProject(project.id, { url: e.target.value })
+                    }
+                    placeholder="https://myproject.com"
+                    className="w-full border border-gray-400 bg-transparent px-3 py-2 focus:border-black focus:bg-black focus:text-white transition-all duration-150"
+                  />
+                </div>
+                <div>
+                  <label className="label-mono block mb-2">GITHUB_URL</label>
+                  <input
+                    type="url"
+                    value={project.githubUrl || ""}
+                    onChange={(e) =>
+                      updateProject(project.id, { githubUrl: e.target.value })
+                    }
+                    placeholder="https://github.com/you/repo"
+                    className="w-full border border-gray-400 bg-transparent px-3 py-2 focus:border-black focus:bg-black focus:text-white transition-all duration-150"
+                  />
+                </div>
+                <div>
+                  <label className="label-mono block mb-2">WEBSITE_URL</label>
+                  <input
+                    type="url"
+                    value={project.websiteUrl || ""}
+                    onChange={(e) =>
+                      updateProject(project.id, { websiteUrl: e.target.value })
+                    }
+                    placeholder="https://myproject.vercel.app"
+                    className="w-full border border-gray-400 bg-transparent px-3 py-2 focus:border-black focus:bg-black focus:text-white transition-all duration-150"
+                  />
+                </div>
               </div>
 
               <div>
