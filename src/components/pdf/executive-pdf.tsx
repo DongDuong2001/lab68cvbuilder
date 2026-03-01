@@ -10,20 +10,12 @@ import {
 import type { ResumeData } from "@/db/schema";
 import { ensureHref } from "@/lib/url-helpers";
 
-// Register fonts
-Font.register({
-  family: "Archivo",
-  fonts: [
-    { src: "https://fonts.gstatic.com/s/archivo/v19/k3kQo8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTTNDJp8B1oJ0vyVQ.ttf", fontWeight: 400 },
-    { src: "https://fonts.gstatic.com/s/archivo/v19/k3kQo8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTTNXts8B1oJ0vyVQ.ttf", fontWeight: 700 },
-    { src: "https://fonts.gstatic.com/s/archivo/v19/k3kQo8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTTNUds8B1oJ0vyVQ.ttf", fontWeight: 900 },
-  ],
-});
+
 
 const styles = StyleSheet.create({
   page: {
     backgroundColor: "#FFFFFF",
-    fontFamily: "Archivo",
+    fontFamily: "Helvetica",
     padding: 40,
   },
   header: {
@@ -189,7 +181,7 @@ export function ExecutivePDF({ data, fontFamily }: PDFTemplateProps) {
 
   return (
     <Document>
-      <Page size="A4" style={{ ...styles.page, fontFamily: fontFamily || "Archivo" }}>
+      <Page size="A4" style={{ ...styles.page, fontFamily: fontFamily || "Helvetica" }}>
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.name}>{personalInfo.fullName || "YOUR NAME"}</Text>
@@ -311,6 +303,15 @@ export function ExecutivePDF({ data, fontFamily }: PDFTemplateProps) {
             {projects.map((project) => (
               <View key={project.id} style={styles.projectItem}>
                 <Text style={styles.projectName}>{project.name}</Text>
+                {(project.url || project.githubUrl || project.websiteUrl) && (
+                  <View style={{ flexDirection: "row", gap: 4, marginBottom: 3 }}>
+                    {project.url && <Link src={project.url} style={{ fontSize: 8, color: "#666666" }}>Project</Link>}
+                    {project.url && (project.githubUrl || project.websiteUrl) && <Text style={{ fontSize: 8, color: "#999999" }}>|</Text>}
+                    {project.githubUrl && <Link src={project.githubUrl} style={{ fontSize: 8, color: "#666666" }}>GitHub</Link>}
+                    {project.githubUrl && project.websiteUrl && <Text style={{ fontSize: 8, color: "#999999" }}>|</Text>}
+                    {project.websiteUrl && <Link src={project.websiteUrl} style={{ fontSize: 8, color: "#666666" }}>Website</Link>}
+                  </View>
+                )}
                 {project.technologies.length > 0 && (
                   <Text style={styles.projectTech}>
                     {project.technologies.join(" • ")}

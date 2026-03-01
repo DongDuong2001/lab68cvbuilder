@@ -6,25 +6,18 @@ import {
   StyleSheet,
   Font,
   Link,
+  Image,
 } from "@react-pdf/renderer";
 import type { ResumeData } from "@/db/schema";
 import { ensureHref } from "@/lib/url-helpers";
 
-// Register fonts (using system fonts as fallback)
-Font.register({
-  family: "Archivo",
-  fonts: [
-    { src: "https://fonts.gstatic.com/s/archivo/v19/k3kQo8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTTNDJp8B1oJ0vyVQ.ttf", fontWeight: 400 },
-    { src: "https://fonts.gstatic.com/s/archivo/v19/k3kQo8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTTNXts8B1oJ0vyVQ.ttf", fontWeight: 700 },
-    { src: "https://fonts.gstatic.com/s/archivo/v19/k3kQo8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTTNUds8B1oJ0vyVQ.ttf", fontWeight: 900 },
-  ],
-});
+
 
 const styles = StyleSheet.create({
   page: {
     flexDirection: "row",
     backgroundColor: "#FFFFFF",
-    fontFamily: "Archivo",
+    fontFamily: "Helvetica",
   },
   sidebar: {
     width: "30%",
@@ -150,7 +143,7 @@ interface PDFTemplateProps {
   fontFamily?: string;
 }
 
-export function LabProtocolPDF({ data, fontFamily }: PDFTemplateProps) {
+export function CreativePDF({ data, fontFamily }: PDFTemplateProps) {
   const { personalInfo, experience, education, skills, projects } = data;
 
   const formatDate = (dateStr: string, current: boolean) => {
@@ -169,9 +162,19 @@ export function LabProtocolPDF({ data, fontFamily }: PDFTemplateProps) {
 
   return (
     <Document>
-      <Page size="A4" style={{ ...styles.page, fontFamily: fontFamily || "Archivo" }}>
+      <Page size="A4" style={{ ...styles.page, fontFamily: fontFamily || "Helvetica" }}>
         {/* Sidebar */}
         <View style={styles.sidebar}>
+          {/* Avatar */}
+          {personalInfo.avatarUrl && (
+            <View style={{ alignItems: "center", marginBottom: 15 }}>
+              <Image
+                src={personalInfo.avatarUrl}
+                style={{ width: 80, height: 80, borderRadius: 40, objectFit: "cover" }}
+              />
+            </View>
+          )}
+
           <View>
             <Text style={styles.name}>{personalInfo.fullName || "YOUR NAME"}</Text>
             <View style={styles.divider} />
@@ -289,6 +292,15 @@ export function LabProtocolPDF({ data, fontFamily }: PDFTemplateProps) {
               {projects.map((project) => (
                 <View key={project.id} style={styles.experienceItem}>
                   <Text style={styles.expPosition}>{project.name}</Text>
+                  {(project.url || project.githubUrl || project.websiteUrl) && (
+                    <View style={{ flexDirection: "row", gap: 4, marginBottom: 3 }}>
+                      {project.url && <Link src={project.url} style={{ fontSize: 8, color: "#666666" }}>Project</Link>}
+                      {project.url && (project.githubUrl || project.websiteUrl) && <Text style={{ fontSize: 8, color: "#999999" }}>|</Text>}
+                      {project.githubUrl && <Link src={project.githubUrl} style={{ fontSize: 8, color: "#666666" }}>GitHub</Link>}
+                      {project.githubUrl && project.websiteUrl && <Text style={{ fontSize: 8, color: "#999999" }}>|</Text>}
+                      {project.websiteUrl && <Link src={project.websiteUrl} style={{ fontSize: 8, color: "#666666" }}>Website</Link>}
+                    </View>
+                  )}
                   {project.description && (
                     <Text style={styles.expDescription}>{project.description}</Text>
                   )}

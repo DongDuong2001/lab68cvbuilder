@@ -10,17 +10,10 @@ import {
 import type { ResumeData } from "@/db/schema";
 import { ensureHref } from "@/lib/url-helpers";
 
-Font.register({
-  family: "Archivo",
-  fonts: [
-    { src: "https://fonts.gstatic.com/s/archivo/v19/k3kQo8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTTNDJp8B1oJ0vyVQ.ttf", fontWeight: 400 },
-    { src: "https://fonts.gstatic.com/s/archivo/v19/k3kQo8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTTNXts8B1oJ0vyVQ.ttf", fontWeight: 700 },
-    { src: "https://fonts.gstatic.com/s/archivo/v19/k3kQo8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTTNUds8B1oJ0vyVQ.ttf", fontWeight: 900 },
-  ],
-});
+
 
 const s = StyleSheet.create({
-  page: { backgroundColor: "#FFFFFF", fontFamily: "Archivo", padding: 40, fontSize: 9 },
+  page: { backgroundColor: "#FFFFFF", fontFamily: "Helvetica", padding: 40, fontSize: 9 },
   header: { alignItems: "center", marginBottom: 24 },
   name: { fontSize: 26, fontWeight: 700, letterSpacing: -0.5, marginBottom: 8, color: "#000000" },
   contactRow: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", fontSize: 8, color: "#999999" },
@@ -50,7 +43,7 @@ const s = StyleSheet.create({
 
 interface PDFTemplateProps { data: ResumeData; fontFamily?: string }
 
-export function CleanSlatePDF({ data, fontFamily }: PDFTemplateProps) {
+export function HarvardPDF({ data, fontFamily }: PDFTemplateProps) {
   const { personalInfo, experience, education, skills, projects } = data;
 
   const fmtDate = (d: string) => {
@@ -61,7 +54,7 @@ export function CleanSlatePDF({ data, fontFamily }: PDFTemplateProps) {
 
   return (
     <Document>
-      <Page size="A4" style={{ ...s.page, fontFamily: fontFamily || "Archivo" }}>
+      <Page size="A4" style={{ ...s.page, fontFamily: fontFamily || "Helvetica" }}>
         {/* Header */}
         <View style={s.header}>
           <Text style={s.name}>{personalInfo.fullName || "YOUR NAME"}</Text>
@@ -153,6 +146,15 @@ export function CleanSlatePDF({ data, fontFamily }: PDFTemplateProps) {
                 </View>
                 <View style={s.contentCol}>
                   <Text style={s.projName}>{p.name}</Text>
+                  {(p.url || p.githubUrl || p.websiteUrl) && (
+                    <View style={{ flexDirection: "row", gap: 4, marginBottom: 2 }}>
+                      {p.url && <Link src={p.url} style={{ fontSize: 7, color: "#999999" }}>Project</Link>}
+                      {p.url && (p.githubUrl || p.websiteUrl) && <Text style={{ fontSize: 7, color: "#cccccc" }}>|</Text>}
+                      {p.githubUrl && <Link src={p.githubUrl} style={{ fontSize: 7, color: "#999999" }}>GitHub</Link>}
+                      {p.githubUrl && p.websiteUrl && <Text style={{ fontSize: 7, color: "#cccccc" }}>|</Text>}
+                      {p.websiteUrl && <Link src={p.websiteUrl} style={{ fontSize: 7, color: "#999999" }}>Website</Link>}
+                    </View>
+                  )}
                   {p.description ? <Text style={s.desc}>{p.description}</Text> : null}
                   {p.highlights.map((h, i) => (
                     <View key={i} style={s.bulletItem}>

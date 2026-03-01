@@ -10,17 +10,10 @@ import {
 import type { ResumeData } from "@/db/schema";
 import { ensureHref } from "@/lib/url-helpers";
 
-Font.register({
-  family: "Archivo",
-  fonts: [
-    { src: "https://fonts.gstatic.com/s/archivo/v19/k3kQo8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTTNDJp8B1oJ0vyVQ.ttf", fontWeight: 400 },
-    { src: "https://fonts.gstatic.com/s/archivo/v19/k3kQo8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTTNXts8B1oJ0vyVQ.ttf", fontWeight: 700 },
-    { src: "https://fonts.gstatic.com/s/archivo/v19/k3kQo8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTTNUds8B1oJ0vyVQ.ttf", fontWeight: 900 },
-  ],
-});
+
 
 const s = StyleSheet.create({
-  page: { backgroundColor: "#FFFFFF", fontFamily: "Archivo", fontSize: 8, padding: 28 },
+  page: { backgroundColor: "#FFFFFF", fontFamily: "Helvetica", fontSize: 8, padding: 28 },
   /* Header — single dense row */
   headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 2 },
   name: { fontSize: 16, fontWeight: 900, letterSpacing: -0.5 },
@@ -63,7 +56,7 @@ const s = StyleSheet.create({
 
 interface PDFTemplateProps { data: ResumeData; fontFamily?: string }
 
-export function CompactProPDF({ data, fontFamily }: PDFTemplateProps) {
+export function AtsPDF({ data, fontFamily }: PDFTemplateProps) {
   const { personalInfo, experience, education, skills, projects } = data;
 
   const fmtDate = (d: string) => {
@@ -74,7 +67,7 @@ export function CompactProPDF({ data, fontFamily }: PDFTemplateProps) {
 
   return (
     <Document>
-      <Page size="A4" style={{ ...s.page, fontFamily: fontFamily || "Archivo" }}>
+      <Page size="A4" style={{ ...s.page, fontFamily: fontFamily || "Helvetica" }}>
         {/* Header row */}
         <View style={s.headerRow}>
           <Text style={s.name}>{personalInfo.fullName || "YOUR NAME"}</Text>
@@ -126,6 +119,15 @@ export function CompactProPDF({ data, fontFamily }: PDFTemplateProps) {
                 {projects.map((p) => (
                   <View key={p.id} style={s.projItem}>
                     <Text style={s.projName}>{p.name}</Text>
+                    {(p.url || p.githubUrl || p.websiteUrl) && (
+                      <View style={{ flexDirection: "row", gap: 4, marginBottom: 2 }}>
+                        {p.url && <Link src={p.url} style={{ fontSize: 7, color: "#666666" }}>Project</Link>}
+                        {p.url && (p.githubUrl || p.websiteUrl) && <Text style={{ fontSize: 7, color: "#999999" }}>|</Text>}
+                        {p.githubUrl && <Link src={p.githubUrl} style={{ fontSize: 7, color: "#666666" }}>GitHub</Link>}
+                        {p.githubUrl && p.websiteUrl && <Text style={{ fontSize: 7, color: "#999999" }}>|</Text>}
+                        {p.websiteUrl && <Link src={p.websiteUrl} style={{ fontSize: 7, color: "#666666" }}>Website</Link>}
+                      </View>
+                    )}
                     {p.technologies.length > 0 && <Text style={s.projTech}>{p.technologies.join(" · ")}</Text>}
                     {p.description ? <Text style={s.projDesc}>{p.description}</Text> : null}
                     {p.highlights.map((h, i) => (
