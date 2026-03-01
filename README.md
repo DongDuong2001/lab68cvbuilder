@@ -2,23 +2,17 @@
 
 > A brutalist SaaS resume builder — engineered for speed, clarity, and pixel-perfect PDF output.
 
-<br/>
-
 <a href="https://unikorn.vn/p/lab68dev-cv-builder?ref=embed" target="_blank">
   <img src="https://unikorn.vn/api/widgets/badge/lab68dev-cv-builder?theme=light" alt="lab68dev CV Builder trên Unikorn.vn" width="256" height="64" />
 </a>
 &nbsp;
 <a href="https://unikorn.vn/p/lab68dev-cv-builder?ref=embed" target="_blank">
-  <img src="https://unikorn.vn/api/widgets/badge/lab68dev-cv-builder/rank?theme=light&type=daily" alt="lab68dev CV Builder - Hàng ngày" width="250" height="64" />
+  <img src="https://unikorn.vn/api/widgets/badge/lab68dev-cv-builder/rank?theme=light&type=daily" alt="lab68dev CV Builder - Daily" width="250" height="64" />
 </a>
-<a href="https://unikorn.vn/p/lab68dev-cv-builder?ref=embed" target="_blank"><img src="https://unikorn.vn/api/widgets/badge/lab68dev-cv-builder/rank?theme=light&type=weekly" alt="lab68dev CV Builder - Hàng tuần" style="width: 250px; height: 64px;" width="250" height="64" />
+<a href="https://unikorn.vn/p/lab68dev-cv-builder?ref=embed" target="_blank"><img src="https://unikorn.vn/api/widgets/badge/lab68dev-cv-builder/rank?theme=light&type=weekly" alt="lab68dev CV Builder - Weekly" style="width: 250px; height: 64px;" width="250" height="64" />
 </a>
 
-<br/>
-
-**[→ View on Unikorn.vn](https://unikorn.vn/p/lab68dev-cv-builder)**
-
-<br/>
+**[View on Unikorn.vn](https://unikorn.vn/p/lab68dev-cv-builder)**
 
 ---
 
@@ -32,26 +26,28 @@
 ### Resume Builder
 
 - **Split-view editor** — live preview updates as you type
-- **Auto-save** — debounced 2‑second save with visible status indicator (`SAVING` / `SAVED`)
+- **Auto-save** — debounced 2-second save with visible status indicator
 - **Five section types:** Personal Info, Experience, Education, Skills, Projects
 - **Tag-based input** for skills and project technologies
-- **10 Google Fonts** selectable per resume, applied to both preview and PDF export
+- **Project Links** — each project supports separate Project URL, GitHub URL, and Website URL displayed as `Project | GitHub | Website`
+- **Avatar Upload** — optional profile photo for the Creative / Portfolio template, powered by Cloudinary with face-detection cropping (up to 10MB)
+- **11 Google Fonts** selectable per resume, including Calibri, Inter, Raleway, Montserrat, and more
+- **Bilingual** — full English and Vietnamese (Tiếng Việt) support via next-intl
 
 ### Templates
 
 | Template | Style |
 |----------|-------|
-| **Lab Protocol** | Brutalist sidebar — black 2.5‑inch sidebar with white text |
-| **The Executive** | Traditional top‑down with professional summary header |
-| **Mono Stack** | Developer-oriented — monospace code-style section headers |
-| **Clean Slate** | Minimal — generous whitespace, subtle section dividers |
-| **Bold Impact** | High contrast — bold typography, strong visual hierarchy |
-| **Compact Pro** | Dense layout for fitting maximum content on one page |
+| **Harvard Style** | Classic academic — left date column with structured content blocks |
+| **Creative / Portfolio** | Brutalist sidebar — black 2.5-inch sidebar with optional avatar photo |
+| **ATS-Optimized** | Two-column clean layout optimized for Applicant Tracking Systems |
+| **Executive / Leadership** | Traditional top-down with professional summary header |
 
 ### PDF Export
 
-- One-click export to PDF with matching template fidelity
-- Clickable hyperlinks preserved in exported PDF (website, LinkedIn, GitHub)
+- **Preview before download** — fullscreen modal with the rendered PDF in an iframe
+- One-click export with matching template fidelity
+- Clickable hyperlinks preserved in exported PDF (website, LinkedIn, GitHub, project links)
 - Dynamic font loading — selected Google Font is embedded in the PDF
 
 ### Dashboard
@@ -71,13 +67,12 @@ Built on a **brutalist aesthetic** — raw, functional, and intentional:
 - Visible 1px borders on all interactive elements
 - Inverted focus states — black background, white text on focus
 - Monospace labels in uppercase with wide letter-spacing
-- Grid overlay on the landing page for an industrial feel
 
 No smooth gradients. No rounded pills. Pure function.
 
 ---
 
-## Stack
+## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -89,12 +84,43 @@ No smooth gradients. No rounded pills. Pure function.
 | Styling | Tailwind CSS 4 |
 | State | Zustand |
 | PDF | @react-pdf/renderer |
+| Image Upload | Cloudinary |
+| i18n | next-intl (EN / VI) |
+| Font | IBM Plex Sans (UI) + 11 Google Fonts (CV) |
+
+---
+
+## Getting Started
+
+```bash
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env.local
+# Edit .env.local with your credentials
+
+# Push database schema
+npx drizzle-kit push
+
+# Run development server
+npm run dev
+```
+
+### Required Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_URL` | Neon Postgres connection string |
+| `AUTH_SECRET` | Auth.js session secret |
+| `AUTH_URL` | Auth callback URL |
+| `CLOUDINARY_URL` | Cloudinary connection string for avatar uploads |
 
 ---
 
 ## Support the Project
 
-If this tool saves you time, a coffee goes a long way. ☕
+If this tool saves you time, a coffee goes a long way.
 
 <table>
   <tr>
