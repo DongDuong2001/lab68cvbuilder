@@ -88,6 +88,7 @@ export type ResumeData = {
     linkedin?: string;
     github?: string;
     summary?: string;
+    avatarUrl?: string;
   };
   experience: Array<{
     id: string;
@@ -122,6 +123,8 @@ export type ResumeData = {
     name: string;
     description: string;
     url?: string;
+    githubUrl?: string;
+    websiteUrl?: string;
     technologies: string[];
     highlights: string[];
   }>;
@@ -146,7 +149,7 @@ export const resumes = pgTable("resumes", {
     .references(() => users.id, { onDelete: "cascade" }),
   title: text("title").notNull().default("Untitled Resume"),
   data: jsonb("data").$type<ResumeData>().notNull(),
-  templateId: text("template_id").notNull().default("lab-protocol"),
+  templateId: text("template_id").notNull().default("ats"),
   fontFamily: text("font_family").notNull().default("inter"),
   isPublic: boolean("is_public").notNull().default(false),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
