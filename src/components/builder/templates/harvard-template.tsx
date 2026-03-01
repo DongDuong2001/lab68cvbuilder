@@ -5,7 +5,7 @@ interface TemplateProps {
   data: ResumeData;
 }
 
-export function CleanSlateTemplate({ data }: TemplateProps) {
+export function HarvardTemplate({ data }: TemplateProps) {
   const { personalInfo, experience, education, skills, projects } = data;
 
   const formatDate = (dateStr: string) => {
@@ -146,6 +146,21 @@ export function CleanSlateTemplate({ data }: TemplateProps) {
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-black">{project.name}</h3>
+                  {(project.url || project.githubUrl || project.websiteUrl) && (
+                    <div className="flex items-center gap-1 text-[10px] text-gray-400 mb-1">
+                      {project.url && (
+                        <a href={ensureHref(project.url)} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-black">Project</a>
+                      )}
+                      {project.url && (project.githubUrl || project.websiteUrl) && <span>|</span>}
+                      {project.githubUrl && (
+                        <a href={ensureHref(project.githubUrl)} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-black">GitHub</a>
+                      )}
+                      {project.githubUrl && project.websiteUrl && <span>|</span>}
+                      {project.websiteUrl && (
+                        <a href={ensureHref(project.websiteUrl)} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-black">Website</a>
+                      )}
+                    </div>
+                  )}
                   {project.description && (
                     <p className="text-xs text-gray-600 leading-relaxed mb-1">{project.description}</p>
                   )}

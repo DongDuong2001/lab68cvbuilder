@@ -5,7 +5,7 @@ interface TemplateProps {
   data: ResumeData;
 }
 
-export function CompactProTemplate({ data }: TemplateProps) {
+export function AtsTemplate({ data }: TemplateProps) {
   const { personalInfo, experience, education, skills, projects } = data;
 
   const formatDate = (dateStr: string) => {
@@ -135,6 +135,21 @@ export function CompactProTemplate({ data }: TemplateProps) {
                     <span className="text-[10px] text-gray-400">[{project.technologies.join(", ")}]</span>
                   )}
                 </div>
+                {(project.url || project.githubUrl || project.websiteUrl) && (
+                  <div className="flex items-center gap-1 text-[10px] text-gray-500">
+                    {project.url && (
+                      <a href={ensureHref(project.url)} target="_blank" rel="noopener noreferrer" className="hover:underline">Project</a>
+                    )}
+                    {project.url && (project.githubUrl || project.websiteUrl) && <span>|</span>}
+                    {project.githubUrl && (
+                      <a href={ensureHref(project.githubUrl)} target="_blank" rel="noopener noreferrer" className="hover:underline">GitHub</a>
+                    )}
+                    {project.githubUrl && project.websiteUrl && <span>|</span>}
+                    {project.websiteUrl && (
+                      <a href={ensureHref(project.websiteUrl)} target="_blank" rel="noopener noreferrer" className="hover:underline">Website</a>
+                    )}
+                  </div>
+                )}
                 {project.description && (
                   <p className="text-[11px] text-gray-700">{project.description}</p>
                 )}

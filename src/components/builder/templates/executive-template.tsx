@@ -157,12 +157,22 @@ export function ExecutiveTemplate({ data }: TemplateProps) {
               <div key={project.id}>
                 <h3 className="text-base font-bold leading-tight mb-1">
                   {project.name}
-                  {project.url && (
-                    <a href={ensureHref(project.url)} target="_blank" rel="noopener noreferrer" className="text-xs font-normal text-gray-600 ml-2 hover:underline">
-                      (Link)
-                    </a>
-                  )}
                 </h3>
+                {(project.url || project.githubUrl || project.websiteUrl) && (
+                  <div className="flex items-center gap-1 text-xs text-gray-600 mb-2">
+                    {project.url && (
+                      <a href={ensureHref(project.url)} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-black">Project</a>
+                    )}
+                    {project.url && (project.githubUrl || project.websiteUrl) && <span className="text-gray-400">|</span>}
+                    {project.githubUrl && (
+                      <a href={ensureHref(project.githubUrl)} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-black">GitHub</a>
+                    )}
+                    {project.githubUrl && project.websiteUrl && <span className="text-gray-400">|</span>}
+                    {project.websiteUrl && (
+                      <a href={ensureHref(project.websiteUrl)} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-black">Website</a>
+                    )}
+                  </div>
+                )}
                 {project.description && (
                   <p className="text-sm leading-relaxed mb-2">{project.description}</p>
                 )}

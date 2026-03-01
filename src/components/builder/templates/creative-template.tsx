@@ -5,7 +5,7 @@ interface TemplateProps {
   data: ResumeData;
 }
 
-export function LabProtocolTemplate({ data }: TemplateProps) {
+export function CreativeTemplate({ data }: TemplateProps) {
   const { personalInfo, experience, education, skills, projects } = data;
 
   const formatDate = (dateStr: string, current: boolean) => {
@@ -28,6 +28,17 @@ export function LabProtocolTemplate({ data }: TemplateProps) {
     <div className="flex h-full text-black bg-white">
       {/* Sidebar */}
       <div className="w-[2.5in] bg-black text-white p-8 flex flex-col">
+        {/* Avatar */}
+        {personalInfo.avatarUrl && (
+          <div className="mb-6 flex justify-center">
+            <img
+              src={personalInfo.avatarUrl}
+              alt={personalInfo.fullName}
+              className="w-24 h-24 rounded-full object-cover border-2 border-white"
+            />
+          </div>
+        )}
+
         <div className="mb-8">
           <h1 className="text-2xl font-black tracking-tighter leading-tight break-words mb-1">
             {personalInfo.fullName || "YOUR NAME"}
@@ -180,6 +191,21 @@ export function LabProtocolTemplate({ data }: TemplateProps) {
                   <div className="flex justify-between items-start mb-1">
                     <h3 className="font-bold text-base leading-tight">{project.name}</h3>
                   </div>
+                  {(project.url || project.githubUrl || project.websiteUrl) && (
+                    <div className="flex items-center gap-1 text-[10px] opacity-60 mb-1">
+                      {project.url && (
+                        <a href={ensureHref(project.url)} target="_blank" rel="noopener noreferrer" className="hover:underline">Project</a>
+                      )}
+                      {project.url && (project.githubUrl || project.websiteUrl) && <span>|</span>}
+                      {project.githubUrl && (
+                        <a href={ensureHref(project.githubUrl)} target="_blank" rel="noopener noreferrer" className="hover:underline">GitHub</a>
+                      )}
+                      {project.githubUrl && project.websiteUrl && <span>|</span>}
+                      {project.websiteUrl && (
+                        <a href={ensureHref(project.websiteUrl)} target="_blank" rel="noopener noreferrer" className="hover:underline">Website</a>
+                      )}
+                    </div>
+                  )}
                   {project.description && (
                     <p className="text-xs leading-relaxed mb-2">{project.description}</p>
                   )}
