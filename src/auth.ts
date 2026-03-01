@@ -107,10 +107,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
      */
     authorized({ auth: session, request }) {
       const isAuthenticated = !!session?.user;
-      const isProtected = request.nextUrl.pathname.startsWith("/dashboard");
+
+      // Support missing locale or explicit locales /en, /vi
+      const isProtected = request.nextUrl.pathname.match(/^(\/(en|vi))?\/dashboard/);
 
       if (isProtected && !isAuthenticated) {
-        const loginUrl = new URL("/login", request.nextUrl.origin);
+        // Extract locale to maintain it during login redirect
+        const match = request.nextUrl.pathname.match(/^\/(en|vi)\//);
+        const locale = match ? match[1] : '';
+        const loginPath = locale ? `/${locale}/login` : '/login';
+
+        const loginUrl = new URL(loginPath, request.nextUrl.origin);
         loginUrl.searchParams.set("callbackUrl", request.nextUrl.pathname);
         return Response.redirect(loginUrl);
       }

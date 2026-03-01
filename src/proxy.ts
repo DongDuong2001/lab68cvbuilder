@@ -1,14 +1,13 @@
-export { auth as proxy } from "@/auth";
+import { auth } from '@/auth';
+import createMiddleware from 'next-intl/middleware';
+import { routing } from './i18n/routing';
 
-/**
- * Proxy configuration — only runs on protected routes.
- * Public routes (/, /login, etc.) are excluded to avoid JWT
- * decryption errors when no session exists.
- */
+const handleI18nRouting = createMiddleware(routing);
+
+export default auth((req) => {
+    return handleI18nRouting(req);
+});
+
 export const config = {
-  matcher: [
-    "/dashboard/:path*",
-    "/api/resumes/:path*",
-    "/api/export/:path*",
-  ],
+    matcher: ['/((?!api|_next|_vercel|.*\\..*).*)']
 };

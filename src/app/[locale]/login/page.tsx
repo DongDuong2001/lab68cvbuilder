@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
@@ -109,22 +109,20 @@ function LoginForm() {
             <button
               type="button"
               onClick={() => { setMode("login"); setError(null); }}
-              className={`flex-1 py-3 text-sm font-bold uppercase tracking-widest transition-all duration-150 ${
-                mode === "login"
+              className={`flex-1 py-3 text-sm font-bold uppercase tracking-widest transition-all duration-150 ${mode === "login"
                   ? "bg-black text-white"
                   : "bg-white text-black hover:bg-gray-100"
-              }`}
+                }`}
             >
               LOG IN
             </button>
             <button
               type="button"
               onClick={() => { setMode("register"); setError(null); }}
-              className={`flex-1 py-3 text-sm font-bold uppercase tracking-widest border-l border-black transition-all duration-150 ${
-                mode === "register"
+              className={`flex-1 py-3 text-sm font-bold uppercase tracking-widest border-l border-black transition-all duration-150 ${mode === "register"
                   ? "bg-black text-white"
                   : "bg-white text-black hover:bg-gray-100"
-              }`}
+                }`}
             >
               SIGN UP
             </button>

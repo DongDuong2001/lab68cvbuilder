@@ -2,29 +2,25 @@
 
 import { useEffect } from "react";
 import { useResumeStore } from "@/store/resume-store";
-import { LabProtocolTemplate } from "./templates/lab-protocol-template";
+import { CreativeTemplate } from "./templates/creative-template";
 import { ExecutiveTemplate } from "./templates/executive-template";
-import { MonoStackTemplate } from "./templates/mono-stack-template";
-import { CleanSlateTemplate } from "./templates/clean-slate-template";
-import { BoldImpactTemplate } from "./templates/bold-impact-template";
-import { CompactProTemplate } from "./templates/compact-pro-template";
+import { HarvardTemplate } from "./templates/harvard-template";
+import { AtsTemplate } from "./templates/ats-template";
 import type { ResumeData } from "@/db/schema";
 import type { TemplateId } from "@/lib/constants";
 import { ComponentType } from "react";
 import { getGoogleFontsCSSUrl, getCSSFontFamily } from "@/lib/fonts";
 
 const TEMPLATE_COMPONENTS: Record<TemplateId, ComponentType<{ data: ResumeData }>> = {
-  "lab-protocol": LabProtocolTemplate,
-  "the-executive": ExecutiveTemplate,
-  "mono-stack": MonoStackTemplate,
-  "clean-slate": CleanSlateTemplate,
-  "bold-impact": BoldImpactTemplate,
-  "compact-pro": CompactProTemplate,
+  "creative": CreativeTemplate,
+  "executive": ExecutiveTemplate,
+  "harvard": HarvardTemplate,
+  "ats": AtsTemplate,
 };
 
 export function BuilderPreview() {
   const { templateId, fontFamily, data } = useResumeStore();
-  const Template = TEMPLATE_COMPONENTS[templateId as TemplateId] || LabProtocolTemplate;
+  const Template = TEMPLATE_COMPONENTS[templateId as TemplateId] || HarvardTemplate;
 
   // Dynamically load the selected Google Font
   useEffect(() => {

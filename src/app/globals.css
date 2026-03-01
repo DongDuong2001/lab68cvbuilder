@@ -12,8 +12,8 @@
   --color-gray-700: #404040;
   --color-gray-800: #262626;
   --color-gray-900: #171717;
-  --font-archivo: var(--font-archivo);
-  --font-mono: var(--font-archivo-mono);
+  --font-sans: var(--font-ibm-plex-sans);
+  --font-mono: var(--font-ibm-plex-sans);
 }
 
 /* ===== LAB68DEV BRUTALIST RESET ===== */
@@ -28,7 +28,7 @@ html {
 }
 
 body {
-  font-family: var(--font-archivo), system-ui, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #FFFFFF;
@@ -67,7 +67,7 @@ input, textarea, select {
   border: 1px solid #000000;
   background: transparent;
   color: #000000;
-  font-family: var(--font-archivo), system-ui, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
   padding: 0.75rem 1rem;
   transition: all 0.15s ease;
 }
@@ -95,7 +95,7 @@ button {
   border: 1px solid #000000;
   background: transparent;
   color: #000000;
-  font-family: var(--font-archivo), system-ui, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-size: 0.75rem;
@@ -111,7 +111,7 @@ button:hover {
 
 /* Monospace label utility */
 .label-mono {
-  font-family: var(--font-archivo-mono), monospace;
+  font-family: var(--font-mono), monospace;
   font-size: 0.625rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;

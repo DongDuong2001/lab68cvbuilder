@@ -1,8 +1,11 @@
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { useTranslations } from "next-intl";
 
 export default function HomePage() {
+  const t = useTranslations("Index");
+
   return (
     <>
       <Header />
@@ -22,14 +25,12 @@ export default function HomePage() {
         <div className="relative z-10 max-w-2xl w-full">
           {/* Technical label */}
           <span className="label-mono block mb-4">
-            SYS.INIT // LAB68DEV STUDIO
+            {t("label")}
           </span>
 
           {/* Hero heading */}
           <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.85] mb-8">
-            CV
-            <br />
-            BUILDER
+            {t("title")}
           </h1>
 
           {/* Divider */}
@@ -37,8 +38,9 @@ export default function HomePage() {
 
           {/* Description */}
           <p className="text-sm font-light tracking-wide max-w-md mb-12 leading-relaxed">
-            Raw. Structured. Anti-AI. Build your resume with precision
-            at <span className="font-bold">lab68dev</span>.
+            {t.rich("description", {
+              b: (chunks) => <span className="font-bold">{chunks}</span>,
+            })}
           </p>
 
           {/* CTA */}
@@ -47,13 +49,13 @@ export default function HomePage() {
               href="/login"
               className="border border-black px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-colors duration-150"
             >
-              Enter the Lab →
+              {t("enterLab")}
             </Link>
             <Link
               href="/login"
               className="border border-gray-300 px-8 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 hover:border-black hover:text-black transition-colors duration-150"
             >
-              View Templates
+              {t("viewTemplates")}
             </Link>
           </div>
         </div>

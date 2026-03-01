@@ -6,7 +6,7 @@ import { ResumeCard } from "@/components/dashboard/resume-card";
 import { ProductsDropdown } from "@/components/layout/products-dropdown";
 import { Footer } from "@/components/layout/footer";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -106,7 +106,7 @@ export default async function DashboardPage() {
           </div>
         )}
 
-        </main>
+      </main>
       <Footer />
     </div>
   );

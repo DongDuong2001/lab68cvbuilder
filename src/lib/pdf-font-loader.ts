@@ -32,7 +32,7 @@ export async function registerPDFFont(
   if (registeredFonts.has(fontName)) return true;
 
   try {
-    const weights = [400, 700, 900];
+    const weights = ["400", "400i", "700", "700i", "900", "900i"];
     const weightParam = weights.join(",");
     const apiUrl = `https://fonts.googleapis.com/css?family=${encodeURIComponent(googleFamily)}:${weightParam}`;
 
@@ -51,10 +51,11 @@ export async function registerPDFFont(
 
     // Parse @font-face blocks from the CSS response
     const fontFaceBlocks = css.split("@font-face").slice(1);
-    const fonts: Array<{ src: string; fontWeight: number }> = [];
+    const fonts: Array<{ src: string; fontWeight: number; fontStyle?: string }> = [];
 
     for (const block of fontFaceBlocks) {
       const weightMatch = block.match(/font-weight:\s*(\d+)/);
+      const styleMatch = block.match(/font-style:\s*([a-z]+)/);
       const urlMatch = block.match(
         /url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/
       );
@@ -63,6 +64,7 @@ export async function registerPDFFont(
         fonts.push({
           src: urlMatch[1],
           fontWeight: parseInt(weightMatch[1]),
+          fontStyle: styleMatch ? styleMatch[1] : "normal",
         });
       }
     }

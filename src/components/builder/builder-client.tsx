@@ -66,18 +66,16 @@ export function BuilderClient({ resume }: BuilderClientProps) {
       <div className="flex-1 flex overflow-hidden">
         {/* Left Panel - Form */}
         <div
-          className={`w-full lg:w-1/2 overflow-y-auto border-r border-black ${
-            isMobilePreview ? "hidden lg:block" : "block"
-          }`}
+          className={`w-full lg:w-1/2 overflow-y-auto border-r border-black ${isMobilePreview ? "hidden lg:block" : "block"
+            }`}
         >
           <BuilderForm />
         </div>
 
         {/* Right Panel - Preview */}
         <div
-          className={`w-full lg:w-1/2 overflow-y-auto bg-gray-50 ${
-            isMobilePreview ? "block" : "hidden lg:block"
-          }`}
+          className={`w-full lg:w-1/2 overflow-y-auto bg-gray-50 ${isMobilePreview ? "block" : "hidden lg:block"
+            }`}
         >
           <BuilderPreview />
         </div>

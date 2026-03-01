@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import Image from "next/image";
 
 const SOCIAL_LINKS = [
@@ -59,7 +59,7 @@ export function Footer() {
               </span>
             </div>
             <p className="text-xs text-gray-500 leading-relaxed max-w-xs">
-              Raw. Structured. Anti-AI. Building developer tools with brutalist
+              Raw. Structured. Building developer tools with brutalist
               precision.
             </p>
           </div>
