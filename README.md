@@ -9,8 +9,6 @@
 <a href="https://unikorn.vn/p/lab68dev-cv-builder?ref=embed" target="_blank">
   <img src="https://unikorn.vn/api/widgets/badge/lab68dev-cv-builder/rank?theme=light&type=daily" alt="lab68dev CV Builder - Daily" width="250" height="64" />
 </a>
-<a href="https://unikorn.vn/p/lab68dev-cv-builder?ref=embed" target="_blank"><img src="https://unikorn.vn/api/widgets/badge/lab68dev-cv-builder/rank?theme=light&type=weekly" alt="lab68dev CV Builder - Weekly" style="width: 250px; height: 64px;" width="250" height="64" />
-</a>
 
 **[View on Unikorn.vn](https://unikorn.vn/p/lab68dev-cv-builder)**
 
