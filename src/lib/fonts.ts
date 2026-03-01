@@ -8,6 +8,13 @@
 
 export const CV_FONTS = [
   {
+    id: "calibri",
+    name: "Calibri",
+    googleFamily: "Carlito",
+    category: "sans-serif" as const,
+    description: "Classic professional CV font",
+  },
+  {
     id: "archivo",
     name: "Archivo",
     googleFamily: "Archivo",
