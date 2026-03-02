@@ -3,19 +3,70 @@
 import { useRef, useState } from "react";
 import { useResumeStore } from "@/store/resume-store";
 
+// ── Validation Helpers ────────────────────────────────────────
+const MAX_NAME_LENGTH = 100;
+const MAX_SUMMARY_LENGTH = 500;
+const MAX_PHONE_LENGTH = 20;
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_REGEX = /^[+\d\s\-().]*$/;
+
+/** Strip HTML tags to prevent XSS in rendered output */
+function sanitize(value: string): string {
+  return value.replace(/<[^>]*>/g, "");
+}
+
 export function PersonalInfoForm() {
   const { data, setData } = useResumeStore();
   const { personalInfo } = data;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const updateField = (field: keyof typeof personalInfo, value: string) => {
+    // Sanitize all text input
+    const clean = sanitize(value);
+
+    // Clear any error for this field
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+
     setData({
       ...data,
       personalInfo: {
         ...personalInfo,
-        [field]: value,
+        [field]: clean,
       },
+    });
+  };
+
+  // ── Field-level validation on blur ──────────────────────────
+  const validateField = (field: string, value: string) => {
+    let error = "";
+
+    switch (field) {
+      case "fullName":
+        if (!value.trim()) error = "Name is required";
+        else if (value.length > MAX_NAME_LENGTH) error = `Max ${MAX_NAME_LENGTH} characters`;
+        break;
+      case "email":
+        if (!value.trim()) error = "Email is required";
+        else if (!EMAIL_REGEX.test(value)) error = "Enter a valid email address";
+        break;
+      case "phone":
+        if (value && !PHONE_REGEX.test(value))
+          error = "Use digits, spaces, +, -, or parentheses only";
+        break;
+    }
+
+    setErrors((prev) => {
+      const next = { ...prev };
+      if (error) next[field] = error;
+      else delete next[field];
+      return next;
     });
   };
 
@@ -66,6 +117,13 @@ export function PersonalInfoForm() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  /** Helper: input class with error state */
+  const inputClass = (field: string) =>
+    `w-full border bg-transparent px-4 py-3 transition-all duration-150 ${errors[field]
+      ? "border-red-500 focus:bg-red-50 focus:text-red-900"
+      : "border-black focus:bg-black focus:text-white"
+    }`;
+
   return (
     <div className="max-w-3xl space-y-6">
       <div>
@@ -88,6 +146,7 @@ export function PersonalInfoForm() {
           <div className="flex items-center gap-4">
             {personalInfo.avatarUrl ? (
               <div className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={personalInfo.avatarUrl}
                   alt="Avatar"
@@ -141,9 +200,21 @@ export function PersonalInfoForm() {
             type="text"
             value={personalInfo.fullName}
             onChange={(e) => updateField("fullName", e.target.value)}
+            onBlur={(e) => validateField("fullName", e.target.value)}
             placeholder="John Doe"
-            className="w-full border border-black bg-transparent px-4 py-3 focus:bg-black focus:text-white transition-all duration-150"
+            maxLength={MAX_NAME_LENGTH}
+            className={inputClass("fullName")}
           />
+          <div className="flex justify-between mt-1">
+            {errors.fullName ? (
+              <span className="text-xs text-red-500 font-medium">{errors.fullName}</span>
+            ) : (
+              <span />
+            )}
+            <span className="label-mono text-gray-400 text-[10px]">
+              {personalInfo.fullName.length}/{MAX_NAME_LENGTH}
+            </span>
+          </div>
         </div>
 
         {/* Email */}
@@ -153,9 +224,13 @@ export function PersonalInfoForm() {
             type="email"
             value={personalInfo.email}
             onChange={(e) => updateField("email", e.target.value)}
+            onBlur={(e) => validateField("email", e.target.value)}
             placeholder="john@example.com"
-            className="w-full border border-black bg-transparent px-4 py-3 focus:bg-black focus:text-white transition-all duration-150"
+            className={inputClass("email")}
           />
+          {errors.email && (
+            <span className="text-xs text-red-500 font-medium mt-1 block">{errors.email}</span>
+          )}
         </div>
 
         {/* Phone */}
@@ -164,10 +239,24 @@ export function PersonalInfoForm() {
           <input
             type="tel"
             value={personalInfo.phone || ""}
-            onChange={(e) => updateField("phone", e.target.value)}
+            onChange={(e) => {
+              // Only allow valid phone characters
+              if (PHONE_REGEX.test(e.target.value) || e.target.value === "") {
+                updateField("phone", e.target.value);
+              }
+            }}
+            onBlur={(e) => validateField("phone", e.target.value)}
             placeholder="+1 (555) 123-4567"
-            className="w-full border border-black bg-transparent px-4 py-3 focus:bg-black focus:text-white transition-all duration-150"
+            maxLength={MAX_PHONE_LENGTH}
+            className={inputClass("phone")}
           />
+          {errors.phone ? (
+            <span className="text-xs text-red-500 font-medium mt-1 block">{errors.phone}</span>
+          ) : (
+            <span className="text-[10px] text-gray-400 mt-1 block">
+              Digits, spaces, +, -, or parentheses
+            </span>
+          )}
         </div>
 
         {/* Location */}
@@ -178,6 +267,7 @@ export function PersonalInfoForm() {
             value={personalInfo.location || ""}
             onChange={(e) => updateField("location", e.target.value)}
             placeholder="San Francisco, CA"
+            maxLength={100}
             className="w-full border border-black bg-transparent px-4 py-3 focus:bg-black focus:text-white transition-all duration-150"
           />
         </div>
@@ -223,13 +313,18 @@ export function PersonalInfoForm() {
           <label className="label-mono block mb-2">PROFESSIONAL_SUMMARY</label>
           <textarea
             value={personalInfo.summary || ""}
-            onChange={(e) => updateField("summary", e.target.value)}
+            onChange={(e) => {
+              if (e.target.value.length <= MAX_SUMMARY_LENGTH) {
+                updateField("summary", e.target.value);
+              }
+            }}
             placeholder="A brief professional summary or objective statement..."
             rows={6}
+            maxLength={MAX_SUMMARY_LENGTH}
             className="w-full border border-black bg-transparent px-4 py-3 focus:bg-black focus:text-white transition-all duration-150 resize-none"
           />
           <span className="label-mono text-gray-500 text-xs block mt-2">
-            {personalInfo.summary?.length || 0} / 500 characters
+            {personalInfo.summary?.length || 0} / {MAX_SUMMARY_LENGTH} characters
           </span>
         </div>
       </div>
