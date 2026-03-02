@@ -57,7 +57,7 @@ export function AtsTemplate({ data }: TemplateProps) {
           <div className="space-y-0.5">
             {skills.map((cat) => (
               <div key={cat.id} className="text-[11px]">
-                <span className="font-bold">{cat.category}: </span>
+                <span className="font-bold">{cat.category}:&nbsp;</span>
                 <span className="text-gray-700">{cat.items.join(", ")}</span>
               </div>
             ))}

@@ -137,8 +137,8 @@ export function ExecutiveTemplate({ data }: TemplateProps) {
           </h2>
           <div className="space-y-2">
             {skills.map((category) => (
-              <div key={category.id} className="flex text-sm">
-                <span className="font-bold min-w-[120px]">{category.category}:</span>
+              <div key={category.id} className="flex text-sm gap-2">
+                <span className="font-bold min-w-[120px] shrink-0">{category.category}:</span>
                 <span>{category.items.join(", ")}</span>
               </div>
             ))}
