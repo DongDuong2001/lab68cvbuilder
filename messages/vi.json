@@ -1,13 +1,39 @@
 {
     "Index": {
         "label": "SYS.INIT // LAB68DEV STUDIO",
-        "title": "TẠO CV",
-        "description": "Nguyên bản. Tinh gọn. Xây dựng hồ sơ của bạn với sự chính xác tại <b>lab68dev</b>.",
-        "enterLab": "Bắt Đầu →",
-        "viewTemplates": "Xem Mẫu"
+        "title": "resume.build()",
+        "description": "Tinh gọn. Cấu trúc chuẩn xác. Hồ sơ chuyên nghiệp <b>dành riêng cho lập trình viên và nhà thiết kế.</b>",
+        "enterLab": "Khởi Tạo →",
+        "viewTemplates": "Xem Mẫu CV",
+        "Features": {
+            "title": "TÍNH NĂNG",
+            "pdfTitle": "Xuất PDF Siêu Tốc",
+            "pdfDesc": "Kết xuất (render) ngay trên trình duyệt. Không cần chờ đợi. Các bản PDF rõ nét, hoàn hảo tới từng pixel.",
+            "atsTitle": "Tối Ưu ATS",
+            "atsDesc": "Cấu trúc dữ liệu chuẩn xác vượt qua mọi bộ lọc tự động và Hệ thống Tuyển dụng tự động (ATS).",
+            "templatesTitle": "Giao Diện Cao Cấp",
+            "templatesDesc": "Bốn giao diện thiết kế theo chuẩn kiến trúc chuyên nghiệp, phù hợp nhiều giai đoạn sự nghiệp.",
+            "freeTitle": "Mở Hoàn Toàn",
+            "freeDesc": "Không thu phí. Không đóng dấu mờ (watermark). Xuất file CV của bạn hoàn toàn miễn phí, mãi mãi."
+        },
+        "Templates": {
+            "title": "CÁC LOẠI GIAO DIỆN",
+            "executiveTitle": "Executive",
+            "executiveDesc": "Bố cục dày đặc thông tin, phù hợp cho cấp quản lý.",
+            "harvardTitle": "Kiểu Harvard",
+            "harvardDesc": "Định dạng truyền thống, mang tính hàn lâm, uy tín cao.",
+            "creativeTitle": "Creative (Sáng Tạo)",
+            "creativeDesc": "Typography phá cách, hỗ trợ ảnh đại diện cho thiết kế.",
+            "atsTitle": "ATS Chuẩn Xác",
+            "atsDesc": "Đạt độ tương thích tối đa để hệ thống tuyển dụng đọc."
+        },
+        "CTA": {
+            "title": "Sẵn sàng khởi tạo?",
+            "subtitle": "Đóng gói toàn bộ kinh nghiệm của bạn thành một tài liệu hoàn hảo."
+        }
     },
     "Common": {
         "login": "ĐĂNG NHẬP",
-        "cvBuilder": "TẠO CV"
+        "cvBuilder": "RESUME.BUILD()"
     }
 }

@@ -1,13 +1,39 @@
 {
     "Index": {
         "label": "SYS.INIT // LAB68DEV STUDIO",
-        "title": "CV BUILDER",
-        "description": "Raw. Structured. Build your resume with precision at <b>lab68dev</b>.",
-        "enterLab": "Enter the Lab →",
-        "viewTemplates": "View Templates"
+        "title": "resume.build()",
+        "description": "No fluff. Just structured, ATS-friendly, brutalist resumes <b>engineered for developers and designers.</b>",
+        "enterLab": "Initialize →",
+        "viewTemplates": "View Templates",
+        "Features": {
+            "title": "SYSTEM SPECS",
+            "pdfTitle": "Instant PDF Export",
+            "pdfDesc": "Client-side rendering. Zero waiting time. Pixel-perfect brutalist PDFs generated directly in your browser.",
+            "atsTitle": "ATS-Optimized",
+            "atsDesc": "Clean semantic structures guaranteed to pass automated parsers and Applicant Tracking Systems.",
+            "templatesTitle": "Premium Layouts",
+            "templatesDesc": "Four professionally crafted architectural templates tailored for different career stages.",
+            "freeTitle": "Always Open",
+            "freeDesc": "No paywalls. No watermarks. Export your professional resume completely free, forever."
+        },
+        "Templates": {
+            "title": "AVAILABLE TEMPLATES",
+            "executiveTitle": "Executive",
+            "executiveDesc": "Dense, high-information layout for senior roles.",
+            "harvardTitle": "Harvard Style",
+            "harvardDesc": "Traditional, academic, highly respected format.",
+            "creativeTitle": "Creative",
+            "creativeDesc": "Bold typography with avatar support for designers.",
+            "atsTitle": "ATS Strict",
+            "atsDesc": "Maximized compatibility for automated screening."
+        },
+        "CTA": {
+            "title": "Ready to build?",
+            "subtitle": "Compile your professional history into a pixel-perfect document."
+        }
     },
     "Common": {
         "login": "LOG IN",
-        "cvBuilder": "CV BUILDER"
+        "cvBuilder": "RESUME.BUILD()"
     }
 }
