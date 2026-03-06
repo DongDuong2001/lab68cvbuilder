@@ -43,7 +43,7 @@ export function HarvardTemplate({ data }: TemplateProps) {
       {/* Summary */}
       {personalInfo.summary && (
         <section className="mb-10 max-w-2xl mx-auto text-center">
-          <p className="text-sm leading-relaxed text-gray-600 italic">
+          <p className="text-sm leading-relaxed text-gray-600">
             {personalInfo.summary}
           </p>
         </section>

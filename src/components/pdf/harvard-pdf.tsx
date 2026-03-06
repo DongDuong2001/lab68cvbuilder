@@ -20,7 +20,7 @@ const s = StyleSheet.create({
   contactItem: { marginHorizontal: 6, marginBottom: 3 },
   separator: { width: 1, height: 8, backgroundColor: "#DDDDDD", marginHorizontal: 4 },
   divider: { width: 50, height: 0.5, backgroundColor: "#DDDDDD", marginTop: 12 },
-  summary: { fontSize: 9, lineHeight: 1.5, color: "#666666", textAlign: "center", marginBottom: 20, fontStyle: "italic", maxWidth: 400 },
+  summary: { fontSize: 9, lineHeight: 1.5, color: "#666666", textAlign: "center", marginBottom: 20, maxWidth: 400 },
   section: { marginBottom: 20 },
   sectionTitle: { fontSize: 8, fontWeight: 600, textTransform: "uppercase", letterSpacing: 3, color: "#AAAAAA", marginBottom: 12 },
   row: { flexDirection: "row", marginBottom: 14 },
