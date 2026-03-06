@@ -15,7 +15,14 @@ export const metadata: Metadata = {
   title: "lab68dev CV Builder",
   description: "Raw. Structured. Build your resume at lab68dev.",
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/design-mode/favicon.ico", sizes: "any" },
+      { url: "/design-mode/lab68dev_logo.png", type: "image/png" },
+    ],
+    apple: [
+      { url: "/design-mode/lab68dev_logo.png", type: "image/png" },
+    ],
+    shortcut: "/design-mode/favicon.ico",
   },
 };
 
