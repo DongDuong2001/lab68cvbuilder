@@ -12,6 +12,9 @@ export function AtsTemplate({ data, labels, dateLocale }: TemplateProps) {
   const l = labels ?? getPdfLabels("en");
   const dl = dateLocale ?? getDateLocale("en");
   const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
+  const completeEducation = education.filter(
+    (edu) => edu.institution.trim() && edu.degree.trim() && edu.field.trim() && edu.startDate.trim()
+  );
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "";
@@ -107,11 +110,11 @@ export function AtsTemplate({ data, labels, dateLocale }: TemplateProps) {
       )}
 
       {/* Education - inline */}
-      {education.length > 0 && (
+      {completeEducation.length > 0 && (
         <section className="mb-4">
           <h2 className="text-xs font-bold uppercase mb-2">{l.education}</h2>
           <div className="space-y-1.5">
-            {education.map((edu) => (
+            {completeEducation.map((edu) => (
               <div key={edu.id} className="flex justify-between items-baseline">
                 <div>
                   <span className="text-[12px] font-bold">{edu.degree} in {edu.field}</span>
