@@ -166,6 +166,9 @@ interface PDFTemplateProps {
 
 export function ExecutivePDF({ data, fontFamily, labels, dateLocale }: PDFTemplateProps) {
   const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
+  const completeEducation = education.filter(
+    (edu) => edu.institution.trim() && edu.degree.trim() && edu.field.trim() && edu.startDate.trim()
+  );
   const l = labels ?? getPdfLabels("en");
   const dl = dateLocale ?? getDateLocale("en");
 
@@ -260,10 +263,10 @@ export function ExecutivePDF({ data, fontFamily, labels, dateLocale }: PDFTempla
         )}
 
         {/* Education */}
-        {education.length > 0 && (
+        {completeEducation.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{l.education}</Text>
-            {education.map((edu) => (
+            {completeEducation.map((edu) => (
               <View key={edu.id} style={styles.educationItem}>
                 <View style={styles.educationHeader}>
                   <Text style={styles.educationDegree}>
