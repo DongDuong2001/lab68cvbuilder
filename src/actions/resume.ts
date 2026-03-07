@@ -5,6 +5,7 @@ import { resumes } from "@/db/schema";
 import { auth } from "@/auth";
 import { eq, and } from "drizzle-orm";
 import type { ResumeData } from "@/db/schema";
+import { sanitizeResumeData } from "@/lib/sanitize-resume";
 
 /**
  * Helper: Get the authenticated user ID or throw.
@@ -98,10 +99,15 @@ export async function updateResume(
 ) {
   const userId = await getAuthUserId();
 
+  const sanitizedPayload = {
+    ...data,
+    ...(data.data ? { data: sanitizeResumeData(data.data) } : {}),
+  };
+
   const [updated] = await db
     .update(resumes)
     .set({
-      ...data,
+      ...sanitizedPayload,
       updatedAt: new Date(),
     })
     .where(and(eq(resumes.id, resumeId), eq(resumes.userId, userId)))
