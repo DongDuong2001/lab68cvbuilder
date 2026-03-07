@@ -14,6 +14,9 @@ import { registerPDFFont } from "@/lib/pdf-font-loader";
 import React from "react";
 import type { ResumeData } from "@/db/schema";
 import { type PdfLabels, getPdfLabels, getDateLocale } from "@/lib/pdf-labels";
+import { createRateLimiter, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
+
+const limiter = createRateLimiter({ limit: 10, windowSeconds: 60 });
 
 type PDFComponentType = React.ComponentType<{ data: ResumeData; fontFamily?: string; labels?: PdfLabels; dateLocale?: string }>;
 
@@ -30,6 +33,11 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+
+    // Rate limit by client IP
+    const ip = getClientIp(request.headers);
+    const rl = limiter.check(ip);
+    if (!rl.allowed) return rateLimitResponse(rl.retryAfterSeconds);
 
     // Read PDF locale from query string
     const locale = request.nextUrl.searchParams.get("locale") || "en";

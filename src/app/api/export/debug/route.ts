@@ -1,6 +1,6 @@
 export const runtime = "nodejs";
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getResume } from "@/actions/resume";
 import { renderToStream } from "@react-pdf/renderer";
 import { CreativePDF } from "@/components/pdf/creative-pdf";
@@ -12,6 +12,9 @@ import { getFontById } from "@/lib/fonts";
 import { registerPDFFont } from "@/lib/pdf-font-loader";
 import React from "react";
 import type { ResumeData } from "@/db/schema";
+import { createRateLimiter, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
+
+const limiter = createRateLimiter({ limit: 3, windowSeconds: 60 });
 
 type PDFComponentType = React.ComponentType<{ data: ResumeData; fontFamily?: string }>;
 
@@ -22,8 +25,13 @@ const PDF_TEMPLATES: Record<TemplateId, PDFComponentType> = {
     "ats": AtsPDF,
 };
 
-export async function GET() {
+export async function GET(request: NextRequest) {
     try {
+        // Rate limit by client IP
+        const ip = getClientIp(request.headers);
+        const rl = limiter.check(ip);
+        if (!rl.allowed) return rateLimitResponse(rl.retryAfterSeconds);
+
         const id = "f18ef1ef-109f-4089-b061-6ccf51135389";
         const resume = await getResume(id);
         if (!resume) {

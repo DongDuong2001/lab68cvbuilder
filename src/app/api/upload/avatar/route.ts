@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
+import { createRateLimiter, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
 
 // Configure Cloudinary from CLOUDINARY_URL env var
 // CLOUDINARY_URL format: cloudinary://API_KEY:API_SECRET@CLOUD_NAME
@@ -8,9 +9,15 @@ cloudinary.config({
 });
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const limiter = createRateLimiter({ limit: 5, windowSeconds: 60 });
 
 export async function POST(request: NextRequest) {
     try {
+        // Rate limit by client IP
+        const ip = getClientIp(request.headers);
+        const rl = limiter.check(ip);
+        if (!rl.allowed) return rateLimitResponse(rl.retryAfterSeconds);
+
         const formData = await request.formData();
         const file = formData.get("file") as File | null;
 
