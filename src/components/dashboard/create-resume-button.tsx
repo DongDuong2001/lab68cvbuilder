@@ -15,7 +15,7 @@ export function CreateResumeButton({ variant = "default" }: CreateResumeButtonPr
   const handleCreate = async () => {
     setIsCreating(true);
     try {
-      const resume = await createResume("Untitled Resume", "lab-protocol");
+      const resume = await createResume("Untitled Resume", "harvard");
       router.push(`/builder/${resume.id}`);
     } catch (error) {
       console.error("Failed to create resume:", error);
