@@ -58,6 +58,9 @@ interface PDFTemplateProps { data: ResumeData; fontFamily?: string; labels?: Pdf
 
 export function AtsPDF({ data, fontFamily, labels, dateLocale }: PDFTemplateProps) {
   const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
+  const completeEducation = education.filter(
+    (edu) => edu.institution.trim() && edu.degree.trim() && edu.field.trim() && edu.startDate.trim()
+  );
   const l = labels ?? getPdfLabels("en");
   const dl = dateLocale ?? getDateLocale("en");
 
@@ -177,10 +180,10 @@ export function AtsPDF({ data, fontFamily, labels, dateLocale }: PDFTemplateProp
             )}
 
             {/* Education */}
-            {education.length > 0 && (
+            {completeEducation.length > 0 && (
               <View style={s.sectionGap}>
                 <Text style={s.sectionTitle}>{l.education}</Text>
-                {education.map((edu) => (
+                {completeEducation.map((edu) => (
                   <View key={edu.id} style={s.eduItem}>
                     <Text style={s.eduDegree}>{edu.degree}</Text>
                     <Text style={s.eduSchool}>{edu.field} — {edu.institution}</Text>
