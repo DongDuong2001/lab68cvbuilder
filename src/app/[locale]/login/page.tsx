@@ -16,6 +16,12 @@ function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (email.length > 254) {
+      setError("Email address must not exceed 254 characters (RFC 5321).");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
