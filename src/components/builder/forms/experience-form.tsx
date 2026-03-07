@@ -1,11 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import { useResumeStore } from "@/store/resume-store";
 import type { ResumeData } from "@/db/schema";
+
+function isEndBeforeStart(start: string, end: string): boolean {
+  if (!start || !end) return false;
+  return end < start; // "YYYY-MM" strings compare lexicographically correctly
+}
 
 export function ExperienceForm() {
   const { data, setData } = useResumeStore();
   const { experience } = data;
+  const [dateErrors, setDateErrors] = useState<Record<string, string>>({});
 
   const MAX_DESCRIPTION_LENGTH = 500;
 
@@ -176,9 +183,18 @@ export function ExperienceForm() {
                   <input
                     type="month"
                     value={exp.startDate}
-                    onChange={(e) =>
-                      updateExperience(exp.id, { startDate: e.target.value })
-                    }
+                    onChange={(e) => {
+                      const newStart = e.target.value;
+                      if (isEndBeforeStart(newStart, exp.endDate || "")) {
+                        setDateErrors((prev) => ({
+                          ...prev,
+                          [exp.id]: "End date cannot be before start date.",
+                        }));
+                      } else {
+                        setDateErrors((prev) => { const next = { ...prev }; delete next[exp.id]; return next; });
+                      }
+                      updateExperience(exp.id, { startDate: newStart });
+                    }}
                     className="w-full border border-gray-400 bg-transparent px-3 py-2 focus:border-black focus:bg-black focus:text-white transition-all duration-150"
                   />
                 </div>
@@ -187,14 +203,30 @@ export function ExperienceForm() {
                   <input
                     type="month"
                     value={exp.endDate || ""}
-                    onChange={(e) =>
-                      updateExperience(exp.id, { endDate: e.target.value })
-                    }
+                    onChange={(e) => {
+                      const newEnd = e.target.value;
+                      if (isEndBeforeStart(exp.startDate, newEnd)) {
+                        setDateErrors((prev) => ({
+                          ...prev,
+                          [exp.id]: "End date cannot be before start date.",
+                        }));
+                        return; // block storing an invalid end date
+                      }
+                      setDateErrors((prev) => { const next = { ...prev }; delete next[exp.id]; return next; });
+                      updateExperience(exp.id, { endDate: newEnd });
+                    }}
                     disabled={exp.current}
-                    className="w-full border border-gray-400 bg-transparent px-3 py-2 focus:border-black focus:bg-black focus:text-white transition-all duration-150 disabled:opacity-50"
+                    className={`w-full border bg-transparent px-3 py-2 focus:border-black focus:bg-black focus:text-white transition-all duration-150 disabled:opacity-50 ${
+                      dateErrors[exp.id] ? "border-red-500" : "border-gray-400"
+                    }`}
                   />
                 </div>
               </div>
+              {dateErrors[exp.id] && (
+                <p className="text-xs text-red-600 font-medium mt-1">
+                  {dateErrors[exp.id]}
+                </p>
+              )}
 
               {/* Current role */}
               <div className="flex items-center gap-2">
