@@ -20,7 +20,7 @@ async function getAuthUserId(): Promise<string> {
 
 // ── CREATE ──────────────────────────────────────────────────
 
-export async function createResume(title: string, templateId: string = "lab-protocol") {
+export async function createResume(title: string, templateId: string = "harvard") {
   const userId = await getAuthUserId();
 
   const defaultData: ResumeData = {
@@ -129,4 +129,32 @@ export async function deleteResume(resumeId: string) {
   }
 
   return deleted;
+}
+
+// ── DUPLICATE ───────────────────────────────────────────────
+
+export async function duplicateResume(resumeId: string) {
+  const userId = await getAuthUserId();
+
+  const [source] = await db
+    .select()
+    .from(resumes)
+    .where(and(eq(resumes.id, resumeId), eq(resumes.userId, userId)));
+
+  if (!source) {
+    throw new Error("Resume not found or unauthorized");
+  }
+
+  const [copy] = await db
+    .insert(resumes)
+    .values({
+      userId,
+      title: `${source.title} (Copy)`,
+      templateId: source.templateId,
+      fontFamily: source.fontFamily,
+      data: source.data,
+    })
+    .returning();
+
+  return copy;
 }

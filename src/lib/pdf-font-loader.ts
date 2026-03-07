@@ -50,9 +50,9 @@ export async function registerPDFFont(
     const css = await response.text();
 
     // Parse @font-face blocks from the CSS response
+    type FontStyle = "normal" | "italic" | "oblique";
     const fontFaceBlocks = css.split("@font-face").slice(1);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const fonts: Array<{ src: string; fontWeight: number; fontStyle?: any }> = [];
+    const fonts: Array<{ src: string; fontWeight: number; fontStyle?: FontStyle }> = [];
 
     for (const block of fontFaceBlocks) {
       const weightMatch = block.match(/font-weight:\s*(\d+)/);
@@ -62,11 +62,11 @@ export async function registerPDFFont(
       );
 
       if (weightMatch && urlMatch) {
+        const style = styleMatch ? styleMatch[1] : "normal";
         fonts.push({
           src: urlMatch[1],
           fontWeight: parseInt(weightMatch[1]),
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          fontStyle: (styleMatch ? styleMatch[1] : "normal") as any,
+          fontStyle: (style === "italic" || style === "oblique" ? style : "normal") as FontStyle,
         });
       }
     }

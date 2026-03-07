@@ -6,6 +6,10 @@ import { ExperienceForm } from "./forms/experience-form";
 import { EducationForm } from "./forms/education-form";
 import { SkillsForm } from "./forms/skills-form";
 import { ProjectsForm } from "./forms/projects-form";
+import { CertificationsForm } from "./forms/certifications-form";
+import { LanguagesForm } from "./forms/languages-form";
+import { ResumeScorePanel } from "./resume-score";
+import { AISuggestionsPanel } from "./ai-suggestions";
 
 const SECTIONS = [
   { id: "personal", label: "Personal Info", component: PersonalInfoForm },
@@ -13,6 +17,10 @@ const SECTIONS = [
   { id: "education", label: "Education", component: EducationForm },
   { id: "skills", label: "Skills", component: SkillsForm },
   { id: "projects", label: "Projects", component: ProjectsForm },
+  { id: "certifications", label: "Certifications", component: CertificationsForm },
+  { id: "languages", label: "Languages", component: LanguagesForm },
+  { id: "score", label: "Score", component: ResumeScorePanel },
+  { id: "suggestions", label: "Tips", component: AISuggestionsPanel },
 ] as const;
 
 export function BuilderForm() {

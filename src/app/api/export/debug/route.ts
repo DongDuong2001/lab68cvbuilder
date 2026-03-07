@@ -1,6 +1,6 @@
 export const runtime = "nodejs";
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getResume } from "@/actions/resume";
 import { renderToStream } from "@react-pdf/renderer";
 import { CreativePDF } from "@/components/pdf/creative-pdf";

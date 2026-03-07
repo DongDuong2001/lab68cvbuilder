@@ -3,7 +3,7 @@
 import { Link } from "@/i18n/routing";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { deleteResume } from "@/actions/resume";
+import { deleteResume, duplicateResume } from "@/actions/resume";
 import type { Resume } from "@/db/schema";
 import { TEMPLATES } from "@/lib/constants";
 
@@ -13,6 +13,7 @@ interface ResumeCardProps {
 
 export function ResumeCard({ resume }: ResumeCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDuplicating, setIsDuplicating] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const router = useRouter();
 
@@ -32,6 +33,18 @@ export function ResumeCard({ resume }: ResumeCardProps) {
       console.error("Failed to delete resume:", error);
       setIsDeleting(false);
       setShowDeleteConfirm(false);
+    }
+  };
+
+  const handleDuplicate = async () => {
+    setIsDuplicating(true);
+    try {
+      await duplicateResume(resume.id);
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to duplicate resume:", error);
+    } finally {
+      setIsDuplicating(false);
     }
   };
 
@@ -75,6 +88,13 @@ export function ResumeCard({ resume }: ResumeCardProps) {
           >
             Edit
           </Link>
+          <button
+            onClick={handleDuplicate}
+            disabled={isDuplicating}
+            className="border border-gray-400 px-4 py-2 text-xs font-bold uppercase tracking-wider hover:border-black hover:bg-black hover:text-white transition-colors duration-150 disabled:opacity-50"
+          >
+            {isDuplicating ? "..." : "⧉"}
+          </button>
           <button
             onClick={() => setShowDeleteConfirm(true)}
             className="border border-gray-400 px-4 py-2 text-xs font-bold uppercase tracking-wider hover:border-red-600 hover:text-red-600 transition-colors duration-150"

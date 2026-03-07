@@ -4,11 +4,11 @@ import {
   Text,
   View,
   StyleSheet,
-  Font,
   Link,
 } from "@react-pdf/renderer";
 import type { ResumeData } from "@/db/schema";
 import { ensureHref } from "@/lib/url-helpers";
+import { type PdfLabels, getPdfLabels, getDateLocale } from "@/lib/pdf-labels";
 
 
 
@@ -41,30 +41,32 @@ const s = StyleSheet.create({
   projTech: { fontSize: 7, color: "#BBBBBB", marginBottom: 3 },
 });
 
-interface PDFTemplateProps { data: ResumeData; fontFamily?: string }
+interface PDFTemplateProps { data: ResumeData; fontFamily?: string; labels?: PdfLabels; dateLocale?: string }
 
-export function HarvardPDF({ data, fontFamily }: PDFTemplateProps) {
-  const { personalInfo, experience, education, skills, projects } = data;
+export function HarvardPDF({ data, fontFamily, labels, dateLocale }: PDFTemplateProps) {
+  const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
+  const l = labels ?? getPdfLabels("en");
+  const dl = dateLocale ?? getDateLocale("en");
 
   const fmtDate = (d: string) => {
     if (!d) return "";
-    return new Date(d + "-01").toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    return new Date(d + "-01").toLocaleDateString(dl, { month: "long", year: "numeric" });
   };
-  const fmtRange = (st: string, en: string, c: boolean) => `${fmtDate(st)} – ${c ? "Present" : fmtDate(en)}`;
+  const fmtRange = (st: string, en: string, c: boolean) => `${fmtDate(st)} – ${c ? l.present : fmtDate(en)}`;
 
   return (
     <Document>
       <Page size="A4" style={{ ...s.page, fontFamily: fontFamily || "Helvetica" }}>
         {/* Header */}
         <View style={s.header}>
-          <Text style={s.name}>{personalInfo.fullName || "YOUR NAME"}</Text>
+          <Text style={s.name}>{personalInfo.fullName || l.yourName}</Text>
           <View style={s.contactRow}>
             {personalInfo.email && <Text style={s.contactItem}>{personalInfo.email}</Text>}
             {personalInfo.phone && <Text style={s.contactItem}>{personalInfo.phone}</Text>}
             {personalInfo.location && <Text style={s.contactItem}>{personalInfo.location}</Text>}
           </View>
           <View style={s.contactRow}>
-            {personalInfo.website && <Link src={ensureHref(personalInfo.website)} style={{ ...s.contactItem, color: "#999999", textDecoration: "none" }}>Portfolio</Link>}
+            {personalInfo.website && <Link src={ensureHref(personalInfo.website)} style={{ ...s.contactItem, color: "#999999", textDecoration: "none" }}>{l.portfolio}</Link>}
             {personalInfo.linkedin && <Link src={ensureHref(personalInfo.linkedin)} style={{ ...s.contactItem, color: "#999999", textDecoration: "none" }}>LinkedIn</Link>}
             {personalInfo.github && <Link src={ensureHref(personalInfo.github)} style={{ ...s.contactItem, color: "#999999", textDecoration: "none" }}>GitHub</Link>}
           </View>
@@ -80,7 +82,7 @@ export function HarvardPDF({ data, fontFamily }: PDFTemplateProps) {
         {/* Experience */}
         {experience.length > 0 && (
           <View style={s.section}>
-            <Text style={s.sectionTitle}>Experience</Text>
+            <Text style={s.sectionTitle}>{l.experience}</Text>
             {experience.map((exp) => (
               <View key={exp.id} style={s.row}>
                 <View style={s.dateCol}>
@@ -106,7 +108,7 @@ export function HarvardPDF({ data, fontFamily }: PDFTemplateProps) {
         {/* Education */}
         {education.length > 0 && (
           <View style={s.section}>
-            <Text style={s.sectionTitle}>Education</Text>
+            <Text style={s.sectionTitle}>{l.education}</Text>
             {education.map((edu) => (
               <View key={edu.id} style={s.row}>
                 <View style={s.dateCol}>
@@ -115,7 +117,7 @@ export function HarvardPDF({ data, fontFamily }: PDFTemplateProps) {
                 <View style={s.contentCol}>
                   <Text style={s.eduDegree}>{edu.degree} in {edu.field}</Text>
                   <Text style={s.eduDetail}>{edu.institution}</Text>
-                  {edu.gpa ? <Text style={s.eduDetail}>GPA: {edu.gpa}</Text> : null}
+                  {edu.gpa ? <Text style={s.eduDetail}>{l.gpa}: {edu.gpa}</Text> : null}
                 </View>
               </View>
             ))}
@@ -125,7 +127,7 @@ export function HarvardPDF({ data, fontFamily }: PDFTemplateProps) {
         {/* Skills */}
         {skills.length > 0 && (
           <View style={s.section}>
-            <Text style={s.sectionTitle}>Skills</Text>
+            <Text style={s.sectionTitle}>{l.skills}</Text>
             {skills.map((cat) => (
               <View key={cat.id} style={{ flexDirection: "row", marginBottom: 6 }}>
                 <Text style={s.skillLabel}>{cat.category}</Text>
@@ -138,7 +140,7 @@ export function HarvardPDF({ data, fontFamily }: PDFTemplateProps) {
         {/* Projects */}
         {projects.length > 0 && (
           <View style={s.section}>
-            <Text style={s.sectionTitle}>Projects</Text>
+            <Text style={s.sectionTitle}>{l.projects}</Text>
             {projects.map((p) => (
               <View key={p.id} style={s.row}>
                 <View style={s.dateCol}>
@@ -148,11 +150,11 @@ export function HarvardPDF({ data, fontFamily }: PDFTemplateProps) {
                   <Text style={s.projName}>{p.name}</Text>
                   {(p.url || p.githubUrl || p.websiteUrl) && (
                     <View style={{ flexDirection: "row", gap: 4, marginBottom: 2 }}>
-                      {p.url && <Link src={p.url} style={{ fontSize: 7, color: "#999999" }}>Project</Link>}
+                      {p.url && <Link src={p.url} style={{ fontSize: 7, color: "#999999" }}>{l.project}</Link>}
                       {p.url && (p.githubUrl || p.websiteUrl) && <Text style={{ fontSize: 7, color: "#cccccc" }}>|</Text>}
                       {p.githubUrl && <Link src={p.githubUrl} style={{ fontSize: 7, color: "#999999" }}>GitHub</Link>}
                       {p.githubUrl && p.websiteUrl && <Text style={{ fontSize: 7, color: "#cccccc" }}>|</Text>}
-                      {p.websiteUrl && <Link src={p.websiteUrl} style={{ fontSize: 7, color: "#999999" }}>Website</Link>}
+                      {p.websiteUrl && <Link src={p.websiteUrl} style={{ fontSize: 7, color: "#999999" }}>{l.website}</Link>}
                     </View>
                   )}
                   {p.description ? <Text style={s.desc}>{p.description}</Text> : null}
@@ -163,6 +165,38 @@ export function HarvardPDF({ data, fontFamily }: PDFTemplateProps) {
                     </View>
                   ))}
                 </View>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Certifications */}
+        {certifications.length > 0 && (
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>{l.certifications}</Text>
+            {certifications.map((cert) => (
+              <View key={cert.id} style={s.row}>
+                <View style={s.dateCol}>
+                  {cert.date ? <Text style={s.dateText}>{fmtDate(cert.date)}</Text> : null}
+                </View>
+                <View style={s.contentCol}>
+                  <Text style={s.position}>{cert.name}</Text>
+                  {cert.issuer ? <Text style={s.company}>{cert.issuer}</Text> : null}
+                  {cert.url ? <Link src={ensureHref(cert.url)} style={{ fontSize: 7, color: "#999999", textDecoration: "none" }}>{l.viewCertificate}</Link> : null}
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Languages */}
+        {languages.length > 0 && (
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>{l.languages}</Text>
+            {languages.map((lang) => (
+              <View key={lang.id} style={{ flexDirection: "row", marginBottom: 6 }}>
+                <Text style={s.skillLabel}>{lang.language}</Text>
+                <Text style={s.skillValue}>{lang.proficiency.charAt(0).toUpperCase() + lang.proficiency.slice(1)}</Text>
               </View>
             ))}
           </View>

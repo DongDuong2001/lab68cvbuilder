@@ -34,6 +34,14 @@ export function EducationForm() {
     });
   };
 
+  const moveEducation = (index: number, direction: "up" | "down") => {
+    const target = direction === "up" ? index - 1 : index + 1;
+    if (target < 0 || target >= education.length) return;
+    const next = [...education];
+    [next[index], next[target]] = [next[target], next[index]];
+    setData({ ...data, education: next });
+  };
+
   const updateEducation = (
     id: string,
     updates: Partial<ResumeData["education"][0]>
@@ -61,12 +69,30 @@ export function EducationForm() {
               <span className="label-mono">
                 ENTRY_{String(index + 1).padStart(2, "0")}
               </span>
-              <button
-                onClick={() => removeEducation(edu.id)}
-                className="border border-red-600 text-red-600 px-3 py-1 text-xs font-bold uppercase tracking-wider hover:bg-red-600 hover:text-white transition-colors duration-150"
-              >
-                Remove
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => moveEducation(index, "up")}
+                  disabled={index === 0}
+                  className="border border-gray-400 px-2 py-1 text-xs font-bold hover:bg-black hover:text-white transition-colors duration-150 disabled:opacity-30"
+                  aria-label="Move up"
+                >
+                  ↑
+                </button>
+                <button
+                  onClick={() => moveEducation(index, "down")}
+                  disabled={index === education.length - 1}
+                  className="border border-gray-400 px-2 py-1 text-xs font-bold hover:bg-black hover:text-white transition-colors duration-150 disabled:opacity-30"
+                  aria-label="Move down"
+                >
+                  ↓
+                </button>
+                <button
+                  onClick={() => removeEducation(edu.id)}
+                  className="border border-red-600 text-red-600 px-3 py-1 text-xs font-bold uppercase tracking-wider hover:bg-red-600 hover:text-white transition-colors duration-150"
+                >
+                  Remove
+                </button>
+              </div>
             </div>
 
             <div className="space-y-4">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useResumeStore } from "@/store/resume-store";
 import { updateResume } from "@/actions/resume";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -25,7 +25,7 @@ export function BuilderClient({ resume }: BuilderClientProps) {
   }, [resume, setResume]);
 
   // Auto-save function
-  const saveResume = async () => {
+  const saveResume = useCallback(async () => {
     if (!isDirty) return;
 
     setIsSaving(true);
@@ -41,7 +41,19 @@ export function BuilderClient({ resume }: BuilderClientProps) {
       console.error("Failed to save resume:", error);
       setIsSaving(false);
     }
-  };
+  }, [isDirty, resume.id, title, templateId, fontFamily, data, setIsSaving, markSaved]);
+
+  // Keyboard shortcut: Ctrl+S to save immediately
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        saveResume();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [saveResume]);
 
   // Debounced save (2 seconds after last change)
   const debouncedSave = useDebounce(saveResume, 2000);

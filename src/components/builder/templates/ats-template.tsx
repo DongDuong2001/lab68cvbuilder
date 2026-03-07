@@ -1,21 +1,26 @@
 import type { ResumeData } from "@/db/schema";
 import { ensureHref } from "@/lib/url-helpers";
+import { type PdfLabels, getPdfLabels, getDateLocale } from "@/lib/pdf-labels";
 
 interface TemplateProps {
   data: ResumeData;
+  labels?: PdfLabels;
+  dateLocale?: string;
 }
 
-export function AtsTemplate({ data }: TemplateProps) {
-  const { personalInfo, experience, education, skills, projects } = data;
+export function AtsTemplate({ data, labels, dateLocale }: TemplateProps) {
+  const l = labels ?? getPdfLabels("en");
+  const dl = dateLocale ?? getDateLocale("en");
+  const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "";
     const date = new Date(dateStr + "-01");
-    return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+    return date.toLocaleDateString(dl, { month: "short", year: "numeric" });
   };
 
   const formatDateRange = (start: string, end: string, current: boolean) => {
-    return `${formatDate(start)} - ${current ? "Present" : formatDate(end)}`;
+    return `${formatDate(start)} - ${current ? l.present : formatDate(end)}`;
   };
 
   return (
@@ -23,7 +28,7 @@ export function AtsTemplate({ data }: TemplateProps) {
       {/* Header - compact single line */}
       <header className="mb-4">
         <h1 className="text-2xl font-bold mb-1">
-          {personalInfo.fullName || "YOUR NAME"}
+          {personalInfo.fullName || l.yourName}
         </h1>
         <div className="flex flex-wrap gap-x-2 text-[11px] text-gray-600">
           {personalInfo.email && <span>{personalInfo.email}</span>}
@@ -32,7 +37,7 @@ export function AtsTemplate({ data }: TemplateProps) {
           {personalInfo.phone && personalInfo.location && <span>·</span>}
           {personalInfo.location && <span>{personalInfo.location}</span>}
           {personalInfo.location && personalInfo.website && <span>·</span>}
-          {personalInfo.website && <a href={ensureHref(personalInfo.website)} target="_blank" rel="noopener noreferrer" className="hover:underline">Portfolio</a>}
+          {personalInfo.website && <a href={ensureHref(personalInfo.website)} target="_blank" rel="noopener noreferrer" className="hover:underline">{l.portfolio}</a>}
           {(personalInfo.website || personalInfo.location) && personalInfo.linkedin && <span>·</span>}
           {personalInfo.linkedin && <a href={ensureHref(personalInfo.linkedin)} target="_blank" rel="noopener noreferrer" className="hover:underline">LinkedIn</a>}
           {personalInfo.linkedin && personalInfo.github && <span>·</span>}
@@ -45,7 +50,7 @@ export function AtsTemplate({ data }: TemplateProps) {
       {/* Summary */}
       {personalInfo.summary && (
         <section className="mb-4">
-          <h2 className="text-xs font-bold uppercase mb-1">Summary</h2>
+          <h2 className="text-xs font-bold uppercase mb-1">{l.summary}</h2>
           <p className="text-[11px] leading-snug text-gray-700">{personalInfo.summary}</p>
         </section>
       )}
@@ -53,7 +58,7 @@ export function AtsTemplate({ data }: TemplateProps) {
       {/* Skills - inline to save space */}
       {skills.length > 0 && (
         <section className="mb-4">
-          <h2 className="text-xs font-bold uppercase mb-1">Technical Skills</h2>
+          <h2 className="text-xs font-bold uppercase mb-1">{l.technicalSkills}</h2>
           <div className="space-y-0.5">
             {skills.map((cat) => (
               <div key={cat.id} className="text-[11px]">
@@ -68,7 +73,7 @@ export function AtsTemplate({ data }: TemplateProps) {
       {/* Experience - dense */}
       {experience.length > 0 && (
         <section className="mb-4">
-          <h2 className="text-xs font-bold uppercase mb-2">Professional Experience</h2>
+          <h2 className="text-xs font-bold uppercase mb-2">{l.professionalExperience}</h2>
           <div className="space-y-3">
             {experience.map((exp) => (
               <div key={exp.id}>
@@ -104,14 +109,14 @@ export function AtsTemplate({ data }: TemplateProps) {
       {/* Education - inline */}
       {education.length > 0 && (
         <section className="mb-4">
-          <h2 className="text-xs font-bold uppercase mb-2">Education</h2>
+          <h2 className="text-xs font-bold uppercase mb-2">{l.education}</h2>
           <div className="space-y-1.5">
             {education.map((edu) => (
               <div key={edu.id} className="flex justify-between items-baseline">
                 <div>
                   <span className="text-[12px] font-bold">{edu.degree} in {edu.field}</span>
                   <span className="text-[11px] text-gray-600"> — {edu.institution}</span>
-                  {edu.gpa && <span className="text-[11px] text-gray-400"> (GPA: {edu.gpa})</span>}
+                  {edu.gpa && <span className="text-[11px] text-gray-400"> ({l.gpa}: {edu.gpa})</span>}
                 </div>
                 <span className="text-[10px] text-gray-500 shrink-0 ml-2">
                   {formatDateRange(edu.startDate, edu.endDate || "", edu.current)}
@@ -125,7 +130,7 @@ export function AtsTemplate({ data }: TemplateProps) {
       {/* Projects - compact */}
       {projects.length > 0 && (
         <section>
-          <h2 className="text-xs font-bold uppercase mb-2">Projects</h2>
+          <h2 className="text-xs font-bold uppercase mb-2">{l.projects}</h2>
           <div className="space-y-2">
             {projects.map((project) => (
               <div key={project.id}>
@@ -138,7 +143,7 @@ export function AtsTemplate({ data }: TemplateProps) {
                 {(project.url || project.githubUrl || project.websiteUrl) && (
                   <div className="flex items-center gap-1 text-[10px] text-gray-500">
                     {project.url && (
-                      <a href={ensureHref(project.url)} target="_blank" rel="noopener noreferrer" className="hover:underline">Project</a>
+                      <a href={ensureHref(project.url)} target="_blank" rel="noopener noreferrer" className="hover:underline">{l.project}</a>
                     )}
                     {project.url && (project.githubUrl || project.websiteUrl) && <span>|</span>}
                     {project.githubUrl && (
@@ -146,7 +151,7 @@ export function AtsTemplate({ data }: TemplateProps) {
                     )}
                     {project.githubUrl && project.websiteUrl && <span>|</span>}
                     {project.websiteUrl && (
-                      <a href={ensureHref(project.websiteUrl)} target="_blank" rel="noopener noreferrer" className="hover:underline">Website</a>
+                      <a href={ensureHref(project.websiteUrl)} target="_blank" rel="noopener noreferrer" className="hover:underline">{l.website}</a>
                     )}
                   </div>
                 )}
@@ -164,6 +169,50 @@ export function AtsTemplate({ data }: TemplateProps) {
                   </ul>
                 )}
               </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Certifications */}
+      {certifications.length > 0 && (
+        <section className="mb-4">
+          <h2 className="text-xs font-bold uppercase mb-2">{l.certifications}</h2>
+          <div className="space-y-1.5">
+            {certifications.map((cert) => (
+              <div key={cert.id} className="flex justify-between items-baseline">
+                <div>
+                  <span className="text-[12px] font-bold">{cert.name}</span>
+                  {cert.issuer && <span className="text-[11px] text-gray-600"> — {cert.issuer}</span>}
+                  {cert.url && (
+                    <>
+                      {" "}
+                      <a href={ensureHref(cert.url)} target="_blank" rel="noopener noreferrer" className="text-[10px] text-gray-500 hover:underline">{l.viewCertificate}</a>
+                    </>
+                  )}
+                </div>
+                {cert.date && (
+                  <span className="text-[10px] text-gray-500 shrink-0 ml-2">
+                    {formatDate(cert.date)}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Languages */}
+      {languages.length > 0 && (
+        <section>
+          <h2 className="text-xs font-bold uppercase mb-1">{l.languages}</h2>
+          <div className="text-[11px]">
+            {languages.map((lang, i) => (
+              <span key={lang.id}>
+                <span className="font-bold">{lang.language}</span>
+                <span className="text-gray-600"> ({lang.proficiency})</span>
+                {i < languages.length - 1 && <span className="text-gray-400"> · </span>}
+              </span>
             ))}
           </div>
         </section>

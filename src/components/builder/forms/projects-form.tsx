@@ -9,6 +9,8 @@ export function ProjectsForm() {
   const { projects } = data;
   const [techInputValues, setTechInputValues] = useState<Record<string, string>>({});
 
+  const MAX_DESCRIPTION_LENGTH = 500;
+
   const addProject = () => {
     const newProject: ResumeData["projects"][0] = {
       id: crypto.randomUUID(),
@@ -36,6 +38,14 @@ export function ProjectsForm() {
       delete newState[id];
       return newState;
     });
+  };
+
+  const moveProject = (index: number, direction: "up" | "down") => {
+    const target = direction === "up" ? index - 1 : index + 1;
+    if (target < 0 || target >= projects.length) return;
+    const next = [...projects];
+    [next[index], next[target]] = [next[target], next[index]];
+    setData({ ...data, projects: next });
   };
 
   const updateProject = (
@@ -129,12 +139,30 @@ export function ProjectsForm() {
               <span className="label-mono">
                 PROJECT_{String(index + 1).padStart(2, "0")}
               </span>
-              <button
-                onClick={() => removeProject(project.id)}
-                className="border border-red-600 text-red-600 px-3 py-1 text-xs font-bold uppercase tracking-wider hover:bg-red-600 hover:text-white transition-colors duration-150"
-              >
-                Remove
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => moveProject(index, "up")}
+                  disabled={index === 0}
+                  className="border border-gray-400 px-2 py-1 text-xs font-bold hover:bg-black hover:text-white transition-colors duration-150 disabled:opacity-30"
+                  aria-label="Move up"
+                >
+                  ↑
+                </button>
+                <button
+                  onClick={() => moveProject(index, "down")}
+                  disabled={index === projects.length - 1}
+                  className="border border-gray-400 px-2 py-1 text-xs font-bold hover:bg-black hover:text-white transition-colors duration-150 disabled:opacity-30"
+                  aria-label="Move down"
+                >
+                  ↓
+                </button>
+                <button
+                  onClick={() => removeProject(project.id)}
+                  className="border border-red-600 text-red-600 px-3 py-1 text-xs font-bold uppercase tracking-wider hover:bg-red-600 hover:text-white transition-colors duration-150"
+                >
+                  Remove
+                </button>
+              </div>
             </div>
 
             <div className="space-y-4">
@@ -194,13 +222,19 @@ export function ProjectsForm() {
                 <label className="label-mono block mb-2">DESCRIPTION *</label>
                 <textarea
                   value={project.description}
-                  onChange={(e) =>
-                    updateProject(project.id, { description: e.target.value })
-                  }
+                  onChange={(e) => {
+                    if (e.target.value.length <= MAX_DESCRIPTION_LENGTH) {
+                      updateProject(project.id, { description: e.target.value });
+                    }
+                  }}
                   placeholder="A full-stack e-commerce platform built with modern technologies..."
                   rows={3}
+                  maxLength={MAX_DESCRIPTION_LENGTH}
                   className="w-full border border-gray-400 bg-transparent px-3 py-2 focus:border-black focus:bg-black focus:text-white transition-all duration-150 resize-none"
                 />
+                <span className="label-mono text-gray-400 text-[10px] block mt-1 text-right">
+                  {project.description.length}/{MAX_DESCRIPTION_LENGTH}
+                </span>
               </div>
 
               <div>
@@ -233,7 +267,7 @@ export function ProjectsForm() {
                       }
                       onKeyDown={(e) => handleTechInputKeyDown(e, project.id)}
                       placeholder="Type and press Enter or comma"
-                      className="flex-1 min-w-[200px] bg-transparent px-1 py-1 outline-none"
+                      className="flex-1 min-w-50 bg-transparent px-1 py-1 outline-none"
                     />
                   </div>
                 </div>

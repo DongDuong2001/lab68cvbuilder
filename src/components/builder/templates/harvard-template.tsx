@@ -1,21 +1,26 @@
 import type { ResumeData } from "@/db/schema";
 import { ensureHref } from "@/lib/url-helpers";
+import { type PdfLabels, getPdfLabels, getDateLocale } from "@/lib/pdf-labels";
 
 interface TemplateProps {
   data: ResumeData;
+  labels?: PdfLabels;
+  dateLocale?: string;
 }
 
-export function HarvardTemplate({ data }: TemplateProps) {
-  const { personalInfo, experience, education, skills, projects } = data;
+export function HarvardTemplate({ data, labels, dateLocale }: TemplateProps) {
+  const l = labels ?? getPdfLabels("en");
+  const dl = dateLocale ?? getDateLocale("en");
+  const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "";
     const date = new Date(dateStr + "-01");
-    return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    return date.toLocaleDateString(dl, { month: "long", year: "numeric" });
   };
 
   const formatDateRange = (start: string, end: string, current: boolean) => {
-    return `${formatDate(start)} – ${current ? "Present" : formatDate(end)}`;
+    return `${formatDate(start)} – ${current ? l.present : formatDate(end)}`;
   };
 
   return (
@@ -23,7 +28,7 @@ export function HarvardTemplate({ data }: TemplateProps) {
       {/* Header - centered, airy */}
       <header className="text-center mb-12">
         <h1 className="text-4xl font-bold tracking-tight text-black mb-3">
-          {personalInfo.fullName || "YOUR NAME"}
+          {personalInfo.fullName || l.yourName}
         </h1>
         <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-sm text-gray-500">
           {personalInfo.email && <span>{personalInfo.email}</span>}
@@ -33,7 +38,7 @@ export function HarvardTemplate({ data }: TemplateProps) {
           {personalInfo.location && <span>{personalInfo.location}</span>}
         </div>
         <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs text-gray-400 mt-1">
-          {personalInfo.website && <a href={ensureHref(personalInfo.website)} target="_blank" rel="noopener noreferrer" className="hover:underline">Portfolio</a>}
+          {personalInfo.website && <a href={ensureHref(personalInfo.website)} target="_blank" rel="noopener noreferrer" className="hover:underline">{l.portfolio}</a>}
           {personalInfo.linkedin && <a href={ensureHref(personalInfo.linkedin)} target="_blank" rel="noopener noreferrer" className="hover:underline">LinkedIn</a>}
           {personalInfo.github && <a href={ensureHref(personalInfo.github)} target="_blank" rel="noopener noreferrer" className="hover:underline">GitHub</a>}
         </div>
@@ -53,7 +58,7 @@ export function HarvardTemplate({ data }: TemplateProps) {
       {experience.length > 0 && (
         <section className="mb-10">
           <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-400 mb-6">
-            Experience
+            {l.experience}
           </h2>
           <div className="space-y-8">
             {experience.map((exp) => (
@@ -92,7 +97,7 @@ export function HarvardTemplate({ data }: TemplateProps) {
       {education.length > 0 && (
         <section className="mb-10">
           <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-400 mb-6">
-            Education
+            {l.education}
           </h2>
           <div className="space-y-6">
             {education.map((edu) => (
@@ -105,7 +110,7 @@ export function HarvardTemplate({ data }: TemplateProps) {
                 <div>
                   <h3 className="text-sm font-bold text-black">{edu.degree} in {edu.field}</h3>
                   <div className="text-sm text-gray-500">{edu.institution}</div>
-                  {edu.gpa && <div className="text-xs text-gray-400 mt-1">GPA: {edu.gpa}</div>}
+                  {edu.gpa && <div className="text-xs text-gray-400 mt-1">{l.gpa}: {edu.gpa}</div>}
                 </div>
               </div>
             ))}
@@ -117,7 +122,7 @@ export function HarvardTemplate({ data }: TemplateProps) {
       {skills.length > 0 && (
         <section className="mb-10">
           <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-400 mb-6">
-            Skills
+            {l.skills}
           </h2>
           <div className="space-y-3">
             {skills.map((cat) => (
@@ -134,7 +139,7 @@ export function HarvardTemplate({ data }: TemplateProps) {
       {projects.length > 0 && (
         <section>
           <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-400 mb-6">
-            Projects
+            {l.projects}
           </h2>
           <div className="space-y-6">
             {projects.map((project) => (
@@ -149,7 +154,7 @@ export function HarvardTemplate({ data }: TemplateProps) {
                   {(project.url || project.githubUrl || project.websiteUrl) && (
                     <div className="flex items-center gap-1 text-[10px] text-gray-400 mb-1">
                       {project.url && (
-                        <a href={ensureHref(project.url)} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-black">Project</a>
+                        <a href={ensureHref(project.url)} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-black">{l.project}</a>
                       )}
                       {project.url && (project.githubUrl || project.websiteUrl) && <span>|</span>}
                       {project.githubUrl && (
@@ -157,7 +162,7 @@ export function HarvardTemplate({ data }: TemplateProps) {
                       )}
                       {project.githubUrl && project.websiteUrl && <span>|</span>}
                       {project.websiteUrl && (
-                        <a href={ensureHref(project.websiteUrl)} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-black">Website</a>
+                        <a href={ensureHref(project.websiteUrl)} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-black">{l.website}</a>
                       )}
                     </div>
                   )}
@@ -174,6 +179,52 @@ export function HarvardTemplate({ data }: TemplateProps) {
                     </ul>
                   )}
                 </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Certifications */}
+      {certifications.length > 0 && (
+        <section className="mb-10">
+          <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-400 mb-6">
+            {l.certifications}
+          </h2>
+          <div className="space-y-4">
+            {certifications.map((cert) => (
+              <div key={cert.id} className="grid grid-cols-[160px_1fr] gap-6">
+                <div className="text-right">
+                  {cert.date && (
+                    <div className="text-xs text-gray-400">{formatDate(cert.date)}</div>
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-black">{cert.name}</h3>
+                  {cert.issuer && <div className="text-sm text-gray-500">{cert.issuer}</div>}
+                  {cert.url && (
+                    <a href={ensureHref(cert.url)} target="_blank" rel="noopener noreferrer" className="text-[10px] text-gray-400 hover:underline hover:text-black">
+                      {l.viewCertificate}
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Languages */}
+      {languages.length > 0 && (
+        <section>
+          <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-400 mb-6">
+            {l.languages}
+          </h2>
+          <div className="space-y-3">
+            {languages.map((lang) => (
+              <div key={lang.id} className="grid grid-cols-[160px_1fr] gap-6">
+                <div className="text-right text-xs text-gray-400 font-medium">{lang.language}</div>
+                <div className="text-xs text-gray-600 capitalize">{lang.proficiency}</div>
               </div>
             ))}
           </div>

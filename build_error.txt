@@ -1,0 +1,28 @@
+
+> lab68cv_builder@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 4.3s
+  Running TypeScript ...
+Failed to compile.
+
+./src/lib/pdf-font-loader.ts:79:39
+Type error: Type '{ src: string; fontWeight: number; fontStyle?: string | undefined; }[]' is not assignable to type 'FontSource$1[]'.
+  Type '{ src: string; fontWeight: number; fontStyle?: string | undefined; }' is not assignable to type 'FontSource$1'.
+    Type '{ src: string; fontWeight: number; fontStyle?: string | undefined; }' is not assignable to type '{ src: string; fontStyle?: FontStyle | undefined; fontWeight?: FontWeight | undefined; }'.
+      Types of property 'fontStyle' are incompatible.
+        Type 'string | undefined' is not assignable to type 'FontStyle | undefined'.
+          Type 'string' is not assignable to type 'FontStyle | undefined'.
+
+[0m [90m 77 |[39m     }
+ [90m 78 |[39m
+[31m[1m>[22m[39m[90m 79 |[39m     [33mFont[39m[33m.[39mregister({ family[33m:[39m fontName[33m,[39m fonts })[33m;[39m
+ [90m    |[39m                                       [31m[1m^[22m[39m
+ [90m 80 |[39m     registeredFonts[33m.[39madd(fontName)[33m;[39m
+ [90m 81 |[39m     [36mreturn[39m [36mtrue[39m[33m;[39m
+ [90m 82 |[39m   } [36mcatch[39m (error) {[0m
+Next.js build worker exited with code: 1 and signal: null

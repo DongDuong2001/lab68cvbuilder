@@ -35,6 +35,14 @@ export function SkillsForm() {
     });
   };
 
+  const moveSkillCategory = (index: number, direction: "up" | "down") => {
+    const target = direction === "up" ? index - 1 : index + 1;
+    if (target < 0 || target >= skills.length) return;
+    const next = [...skills];
+    [next[index], next[target]] = [next[target], next[index]];
+    setData({ ...data, skills: next });
+  };
+
   const updateCategory = (
     id: string,
     updates: Partial<ResumeData["skills"][0]>
@@ -102,12 +110,30 @@ export function SkillsForm() {
               <span className="label-mono">
                 CATEGORY_{String(index + 1).padStart(2, "0")}
               </span>
-              <button
-                onClick={() => removeSkillCategory(category.id)}
-                className="border border-red-600 text-red-600 px-3 py-1 text-xs font-bold uppercase tracking-wider hover:bg-red-600 hover:text-white transition-colors duration-150"
-              >
-                Remove
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => moveSkillCategory(index, "up")}
+                  disabled={index === 0}
+                  className="border border-gray-400 px-2 py-1 text-xs font-bold hover:bg-black hover:text-white transition-colors duration-150 disabled:opacity-30"
+                  aria-label="Move up"
+                >
+                  ↑
+                </button>
+                <button
+                  onClick={() => moveSkillCategory(index, "down")}
+                  disabled={index === skills.length - 1}
+                  className="border border-gray-400 px-2 py-1 text-xs font-bold hover:bg-black hover:text-white transition-colors duration-150 disabled:opacity-30"
+                  aria-label="Move down"
+                >
+                  ↓
+                </button>
+                <button
+                  onClick={() => removeSkillCategory(category.id)}
+                  className="border border-red-600 text-red-600 px-3 py-1 text-xs font-bold uppercase tracking-wider hover:bg-red-600 hover:text-white transition-colors duration-150"
+                >
+                  Remove
+                </button>
+              </div>
             </div>
 
             <div className="space-y-4">
@@ -154,7 +180,7 @@ export function SkillsForm() {
                       }
                       onKeyDown={(e) => handleInputKeyDown(e, category.id)}
                       placeholder="Type and press Enter or comma"
-                      className="flex-1 min-w-[200px] bg-transparent px-1 py-1 outline-none"
+                      className="flex-1 min-w-50 bg-transparent px-1 py-1 outline-none"
                     />
                   </div>
                 </div>

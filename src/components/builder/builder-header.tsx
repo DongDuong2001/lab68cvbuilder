@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { Link } from "@/i18n/routing";
 import { useResumeStore } from "@/store/resume-store";
-import { TEMPLATES } from "@/lib/constants";
 import { CV_FONTS } from "@/lib/fonts";
+import { PDF_LOCALES } from "@/lib/pdf-labels";
 import { PdfPreviewModal } from "./pdf-preview-modal";
+import { TemplatePicker } from "./template-picker";
 
 interface BuilderHeaderProps {
   resumeId: string;
@@ -18,7 +19,7 @@ export function BuilderHeader({
   isMobilePreview,
   onToggleMobilePreview,
 }: BuilderHeaderProps) {
-  const { title, setTitle, templateId, setTemplateId, fontFamily, setFontFamily, isSaving, lastSavedAt } =
+  const { title, setTitle, templateId, setTemplateId, fontFamily, setFontFamily, pdfLocale, setPdfLocale, isSaving, isDirty, lastSavedAt } =
     useResumeStore();
 
   const [isExporting, setIsExporting] = useState(false);
@@ -30,7 +31,7 @@ export function BuilderHeader({
     setIsExporting(true);
 
     try {
-      const response = await fetch(`/api/export/${resumeId}`);
+      const response = await fetch(`/api/export/${resumeId}?locale=${pdfLocale}`);
       if (!response.ok) {
         throw new Error("Export failed");
       }
@@ -85,11 +86,22 @@ export function BuilderHeader({
               {/* Save status */}
               <div className="hidden md:flex items-center gap-2">
                 {isSaving ? (
-                  <span className="label-mono text-gray-500">SAVING...</span>
+                  <>
+                    <span className="inline-block w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
+                    <span className="label-mono text-yellow-600">SAVING...</span>
+                  </>
+                ) : isDirty ? (
+                  <>
+                    <span className="inline-block w-2 h-2 rounded-full bg-orange-400" />
+                    <span className="label-mono text-orange-500">UNSAVED</span>
+                  </>
                 ) : lastSavedAt ? (
-                  <span className="label-mono text-green-600">
-                    SAVED {lastSavedAt.toLocaleTimeString()}
-                  </span>
+                  <>
+                    <span className="inline-block w-2 h-2 rounded-full bg-green-500" />
+                    <span className="label-mono text-green-600">
+                      SAVED {lastSavedAt.toLocaleTimeString()}
+                    </span>
+                  </>
                 ) : null}
               </div>
 
@@ -129,25 +141,13 @@ export function BuilderHeader({
             </div>
 
             {/* Template selector */}
-            <div className="flex items-center gap-2">
-              <span className="label-mono">TEMPLATE:</span>
-              <select
-                value={templateId}
-                onChange={(e) => setTemplateId(e.target.value)}
-                className="border border-black bg-transparent px-3 py-2 text-xs font-bold uppercase tracking-wider focus:bg-black focus:text-white transition-all duration-150"
-              >
-                {TEMPLATES.map((template) => (
-                  <option key={template.id} value={template.id}>
-                    {template.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <TemplatePicker value={templateId} onChange={setTemplateId} />
 
             {/* Font selector */}
             <div className="flex items-center gap-2">
               <span className="label-mono">FONT:</span>
               <select
+                title="Font family"
                 value={fontFamily}
                 onChange={(e) => setFontFamily(e.target.value)}
                 className="border border-black bg-transparent px-3 py-2 text-xs font-bold tracking-wider focus:bg-black focus:text-white transition-all duration-150"
@@ -155,6 +155,23 @@ export function BuilderHeader({
                 {CV_FONTS.map((font) => (
                   <option key={font.id} value={font.id}>
                     {font.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* PDF Language selector */}
+            <div className="flex items-center gap-2">
+              <span className="label-mono">LANG:</span>
+              <select
+                title="PDF language"
+                value={pdfLocale}
+                onChange={(e) => setPdfLocale(e.target.value)}
+                className="border border-black bg-transparent px-3 py-2 text-xs font-bold tracking-wider focus:bg-black focus:text-white transition-all duration-150"
+              >
+                {PDF_LOCALES.map((loc) => (
+                  <option key={loc.code} value={loc.code}>
+                    {loc.label}
                   </option>
                 ))}
               </select>

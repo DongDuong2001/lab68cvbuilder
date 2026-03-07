@@ -8,6 +8,7 @@ interface ResumeState {
   title: string;
   templateId: string;
   fontFamily: string;
+  pdfLocale: string;
   data: ResumeData;
   isDirty: boolean;
   isSaving: boolean;
@@ -18,6 +19,7 @@ interface ResumeState {
   setTitle: (title: string) => void;
   setTemplateId: (templateId: string) => void;
   setFontFamily: (fontFamily: string) => void;
+  setPdfLocale: (locale: string) => void;
   setData: (data: ResumeData) => void;
   updatePersonalInfo: (info: Partial<ResumeData["personalInfo"]>) => void;
   setIsSaving: (saving: boolean) => void;
@@ -29,8 +31,9 @@ export const useResumeStore = create<ResumeState>((set) => ({
   // ── Initial State ─────────────────────────────────────
   resumeId: null,
   title: "Untitled Resume",
-  templateId: "lab-protocol",
+  templateId: "harvard",
   fontFamily: "inter",
+  pdfLocale: "en",
   data: EMPTY_RESUME_DATA,
   isDirty: false,
   isSaving: false,
@@ -55,6 +58,9 @@ export const useResumeStore = create<ResumeState>((set) => ({
 
   setFontFamily: (fontFamily) =>
     set({ fontFamily, isDirty: true }),
+
+  setPdfLocale: (pdfLocale) =>
+    set({ pdfLocale }),
 
   setData: (data) =>
     set({ data, isDirty: true }),
@@ -82,8 +88,9 @@ export const useResumeStore = create<ResumeState>((set) => ({
     set({
       resumeId: null,
       title: "Untitled Resume",
-      templateId: "lab-protocol",
+      templateId: "harvard",
       fontFamily: "inter",
+      pdfLocale: "en",
       data: EMPTY_RESUME_DATA,
       isDirty: false,
       isSaving: false,

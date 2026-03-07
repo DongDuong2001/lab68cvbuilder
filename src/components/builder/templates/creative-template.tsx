@@ -1,26 +1,31 @@
 import type { ResumeData } from "@/db/schema";
 import { ensureHref } from "@/lib/url-helpers";
+import { type PdfLabels, getPdfLabels, getDateLocale } from "@/lib/pdf-labels";
 
 interface TemplateProps {
   data: ResumeData;
+  labels?: PdfLabels;
+  dateLocale?: string;
 }
 
-export function CreativeTemplate({ data }: TemplateProps) {
-  const { personalInfo, experience, education, skills, projects } = data;
+export function CreativeTemplate({ data, labels, dateLocale }: TemplateProps) {
+  const l = labels ?? getPdfLabels("en");
+  const dl = dateLocale ?? getDateLocale("en");
+  const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
 
   const formatDate = (dateStr: string, current: boolean) => {
     if (!dateStr) return "";
     const date = new Date(dateStr + "-01");
-    const formatted = date.toLocaleDateString("en-US", {
+    const formatted = date.toLocaleDateString(dl, {
       month: "short",
       year: "numeric",
     });
-    return current ? `${formatted} - Present` : formatted;
+    return current ? `${formatted} - ${l.present}` : formatted;
   };
 
   const formatDateRange = (start: string, end: string, current: boolean) => {
     const startFormatted = formatDate(start, false);
-    const endFormatted = current ? "Present" : formatDate(end, false);
+    const endFormatted = current ? l.present : formatDate(end, false);
     return `${startFormatted} - ${endFormatted}`;
   };
 
@@ -31,6 +36,7 @@ export function CreativeTemplate({ data }: TemplateProps) {
         {/* Avatar */}
         {personalInfo.avatarUrl && (
           <div className="mb-6 flex justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={personalInfo.avatarUrl}
               alt={personalInfo.fullName}
@@ -41,7 +47,7 @@ export function CreativeTemplate({ data }: TemplateProps) {
 
         <div className="mb-8">
           <h1 className="text-2xl font-black tracking-tighter leading-tight break-words mb-1">
-            {personalInfo.fullName || "YOUR NAME"}
+            {personalInfo.fullName || l.yourName}
           </h1>
           <div className="w-12 border-t border-white mt-2" />
         </div>
@@ -49,7 +55,7 @@ export function CreativeTemplate({ data }: TemplateProps) {
         {/* Contact */}
         <div className="mb-8">
           <h2 className="font-mono text-[10px] uppercase tracking-widest mb-3 opacity-60">
-            CONTACT
+            {l.contact.toUpperCase()}
           </h2>
           <div className="space-y-2 text-xs">
             {personalInfo.email && (
@@ -64,12 +70,12 @@ export function CreativeTemplate({ data }: TemplateProps) {
         {(personalInfo.website || personalInfo.linkedin || personalInfo.github) && (
           <div className="mb-8">
             <h2 className="font-mono text-[10px] uppercase tracking-widest mb-3 opacity-60">
-              LINKS
+              {l.links.toUpperCase()}
             </h2>
             <div className="space-y-2 text-xs break-all">
               {personalInfo.website && (
                 <a href={ensureHref(personalInfo.website)} target="_blank" rel="noopener noreferrer" className="block break-all hover:underline">
-                  <span className="opacity-60">WEB//</span> Portfolio
+                  <span className="opacity-60">WEB//</span> {l.portfolio}
                 </a>
               )}
               {personalInfo.linkedin && (
@@ -90,7 +96,7 @@ export function CreativeTemplate({ data }: TemplateProps) {
         {skills.length > 0 && (
           <div className="mb-8">
             <h2 className="font-mono text-[10px] uppercase tracking-widest mb-3 opacity-60">
-              TECHNICAL
+              {l.technical.toUpperCase()}
             </h2>
             <div className="space-y-3">
               {skills.map((category) => (
@@ -109,7 +115,7 @@ export function CreativeTemplate({ data }: TemplateProps) {
         {education.length > 0 && (
           <div>
             <h2 className="font-mono text-[10px] uppercase tracking-widest mb-3 opacity-60">
-              EDUCATION
+              {l.education.toUpperCase()}
             </h2>
             <div className="space-y-4">
               {education.map((edu) => (
@@ -125,6 +131,23 @@ export function CreativeTemplate({ data }: TemplateProps) {
             </div>
           </div>
         )}
+
+        {/* Languages */}
+        {languages.length > 0 && (
+          <div className="mt-8">
+            <h2 className="font-mono text-[10px] uppercase tracking-widest mb-3 opacity-60">
+              {l.languages.toUpperCase()}
+            </h2>
+            <div className="space-y-2">
+              {languages.map((lang) => (
+                <div key={lang.id} className="text-xs">
+                  <div className="font-bold text-[11px]">{lang.language}</div>
+                  <div className="text-[10px] opacity-70 capitalize">{lang.proficiency}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Main Content */}
@@ -133,7 +156,7 @@ export function CreativeTemplate({ data }: TemplateProps) {
         {personalInfo.summary && (
           <div className="mb-8">
             <h2 className="font-mono text-[10px] uppercase tracking-widest border-b border-black pb-1 mb-3">
-              PROFILE
+              {l.profile.toUpperCase()}
             </h2>
             <p className="text-sm leading-relaxed">{personalInfo.summary}</p>
           </div>
@@ -143,7 +166,7 @@ export function CreativeTemplate({ data }: TemplateProps) {
         {experience.length > 0 && (
           <div className="mb-8">
             <h2 className="font-mono text-[10px] uppercase tracking-widest border-b border-black pb-1 mb-4">
-              EXPERIENCE
+              {l.experience.toUpperCase()}
             </h2>
             <div className="space-y-6">
               {experience.map((exp) => (
@@ -183,7 +206,7 @@ export function CreativeTemplate({ data }: TemplateProps) {
         {projects.length > 0 && (
           <div>
             <h2 className="font-mono text-[10px] uppercase tracking-widest border-b border-black pb-1 mb-4">
-              PROJECTS
+              {l.projects.toUpperCase()}
             </h2>
             <div className="space-y-6">
               {projects.map((project) => (
@@ -194,15 +217,15 @@ export function CreativeTemplate({ data }: TemplateProps) {
                   {(project.url || project.githubUrl || project.websiteUrl) && (
                     <div className="flex items-center gap-1 text-[10px] opacity-60 mb-1">
                       {project.url && (
-                        <a href={ensureHref(project.url)} target="_blank" rel="noopener noreferrer" className="hover:underline">Project</a>
-                      )}
-                      {project.url && (project.githubUrl || project.websiteUrl) && <span>|</span>}
-                      {project.githubUrl && (
-                        <a href={ensureHref(project.githubUrl)} target="_blank" rel="noopener noreferrer" className="hover:underline">GitHub</a>
-                      )}
-                      {project.githubUrl && project.websiteUrl && <span>|</span>}
-                      {project.websiteUrl && (
-                        <a href={ensureHref(project.websiteUrl)} target="_blank" rel="noopener noreferrer" className="hover:underline">Website</a>
+                      <a href={ensureHref(project.url)} target="_blank" rel="noopener noreferrer" className="hover:underline">{l.project}</a>
+                    )}
+                    {project.url && (project.githubUrl || project.websiteUrl) && <span>|</span>}
+                    {project.githubUrl && (
+                      <a href={ensureHref(project.githubUrl)} target="_blank" rel="noopener noreferrer" className="hover:underline">GitHub</a>
+                    )}
+                    {project.githubUrl && project.websiteUrl && <span>|</span>}
+                    {project.websiteUrl && (
+                      <a href={ensureHref(project.websiteUrl)} target="_blank" rel="noopener noreferrer" className="hover:underline">{l.website}</a>
                       )}
                     </div>
                   )}
@@ -224,6 +247,35 @@ export function CreativeTemplate({ data }: TemplateProps) {
                       ))}
                     </ul>
                   )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Certifications */}
+        {certifications.length > 0 && (
+          <div>
+            <h2 className="font-mono text-[10px] uppercase tracking-widest border-b border-black pb-1 mb-4">
+              {l.certifications.toUpperCase()}
+            </h2>
+            <div className="space-y-4">
+              {certifications.map((cert) => (
+                <div key={cert.id}>
+                  <h3 className="font-bold text-base leading-tight">{cert.name}</h3>
+                  {cert.issuer && <div className="text-sm">{cert.issuer}</div>}
+                  <div className="flex items-center gap-2">
+                    {cert.date && (
+                      <span className="font-mono text-[10px] opacity-60">
+                        {formatDate(cert.date, false)}
+                      </span>
+                    )}
+                    {cert.url && (
+                      <a href={ensureHref(cert.url)} target="_blank" rel="noopener noreferrer" className="text-[10px] opacity-60 hover:underline">
+                        {l.viewCertificate}
+                      </a>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

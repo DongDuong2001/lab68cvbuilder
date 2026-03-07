@@ -4,12 +4,12 @@ import {
   Text,
   View,
   StyleSheet,
-  Font,
   Link,
   Image,
 } from "@react-pdf/renderer";
 import type { ResumeData } from "@/db/schema";
 import { ensureHref } from "@/lib/url-helpers";
+import { type PdfLabels, getPdfLabels, getDateLocale } from "@/lib/pdf-labels";
 
 
 
@@ -141,23 +141,27 @@ const styles = StyleSheet.create({
 interface PDFTemplateProps {
   data: ResumeData;
   fontFamily?: string;
+  labels?: PdfLabels;
+  dateLocale?: string;
 }
 
-export function CreativePDF({ data, fontFamily }: PDFTemplateProps) {
-  const { personalInfo, experience, education, skills, projects } = data;
+export function CreativePDF({ data, fontFamily, labels, dateLocale }: PDFTemplateProps) {
+  const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
+  const l = labels ?? getPdfLabels("en");
+  const dl = dateLocale ?? getDateLocale("en");
 
   const formatDate = (dateStr: string, current: boolean) => {
     if (!dateStr) return "";
     const date = new Date(dateStr + "-01");
-    const formatted = date.toLocaleDateString("en-US", {
+    const formatted = date.toLocaleDateString(dl, {
       month: "short",
       year: "numeric",
     });
-    return current ? `${formatted} - Present` : formatted;
+    return current ? `${formatted} - ${l.present}` : formatted;
   };
 
   const formatDateRange = (start: string, end: string, current: boolean) => {
-    return `${formatDate(start, false)} - ${current ? "Present" : formatDate(end, false)}`;
+    return `${formatDate(start, false)} - ${current ? l.present : formatDate(end, false)}`;
   };
 
   return (
@@ -168,6 +172,7 @@ export function CreativePDF({ data, fontFamily }: PDFTemplateProps) {
           {/* Avatar */}
           {personalInfo.avatarUrl && (
             <View style={{ alignItems: "center", marginBottom: 15 }}>
+              {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image has no alt prop */}
               <Image
                 src={personalInfo.avatarUrl}
                 style={{ width: 80, height: 80, borderRadius: 40, objectFit: "cover" }}
@@ -176,13 +181,13 @@ export function CreativePDF({ data, fontFamily }: PDFTemplateProps) {
           )}
 
           <View>
-            <Text style={styles.name}>{personalInfo.fullName || "YOUR NAME"}</Text>
+            <Text style={styles.name}>{personalInfo.fullName || l.yourName}</Text>
             <View style={styles.divider} />
           </View>
 
           {/* Contact */}
           <View style={{ marginBottom: 20 }}>
-            <Text style={styles.sectionTitle}>CONTACT</Text>
+            <Text style={styles.sectionTitle}>{l.contact.toUpperCase()}</Text>
             {personalInfo.email && <Text style={styles.contactText}>{personalInfo.email}</Text>}
             {personalInfo.phone && <Text style={styles.contactText}>{personalInfo.phone}</Text>}
             {personalInfo.location && <Text style={styles.contactText}>{personalInfo.location}</Text>}
@@ -191,10 +196,10 @@ export function CreativePDF({ data, fontFamily }: PDFTemplateProps) {
           {/* Links */}
           {(personalInfo.website || personalInfo.linkedin || personalInfo.github) && (
             <View style={{ marginBottom: 20 }}>
-              <Text style={styles.sectionTitle}>LINKS</Text>
+              <Text style={styles.sectionTitle}>{l.links.toUpperCase()}</Text>
               {personalInfo.website && (
                 <Link src={ensureHref(personalInfo.website)} style={{ ...styles.contactText, color: "#FFFFFF", textDecoration: "none" }}>
-                  WEB// Portfolio
+                  WEB// {l.portfolio}
                 </Link>
               )}
               {personalInfo.linkedin && (
@@ -213,7 +218,7 @@ export function CreativePDF({ data, fontFamily }: PDFTemplateProps) {
           {/* Skills */}
           {skills.length > 0 && (
             <View style={{ marginBottom: 20 }}>
-              <Text style={styles.sectionTitle}>TECHNICAL</Text>
+              <Text style={styles.sectionTitle}>{l.technical.toUpperCase()}</Text>
               {skills.map((category) => (
                 <View key={category.id} style={styles.skillCategory}>
                   <Text style={styles.skillCategoryName}>{category.category}</Text>
@@ -226,7 +231,7 @@ export function CreativePDF({ data, fontFamily }: PDFTemplateProps) {
           {/* Education */}
           {education.length > 0 && (
             <View>
-              <Text style={styles.sectionTitle}>EDUCATION</Text>
+              <Text style={styles.sectionTitle}>{l.education.toUpperCase()}</Text>
               {education.map((edu) => (
                 <View key={edu.id} style={styles.educationItem}>
                   <Text style={styles.educationDegree}>{edu.degree}</Text>
@@ -239,6 +244,19 @@ export function CreativePDF({ data, fontFamily }: PDFTemplateProps) {
               ))}
             </View>
           )}
+
+          {/* Languages */}
+          {languages.length > 0 && (
+            <View style={{ marginTop: 20 }}>
+              <Text style={styles.sectionTitle}>{l.languages.toUpperCase()}</Text>
+              {languages.map((lang) => (
+                <View key={lang.id} style={{ marginBottom: 6 }}>
+                  <Text style={styles.skillCategoryName}>{lang.language}</Text>
+                  <Text style={{ fontSize: 8, opacity: 0.7 }}>{lang.proficiency.charAt(0).toUpperCase() + lang.proficiency.slice(1)}</Text>
+                </View>
+              ))}
+            </View>
+          )}
         </View>
 
         {/* Main Content */}
@@ -246,7 +264,7 @@ export function CreativePDF({ data, fontFamily }: PDFTemplateProps) {
           {/* Summary */}
           {personalInfo.summary && (
             <View style={{ marginBottom: 20 }}>
-              <Text style={styles.mainSectionTitle}>PROFILE</Text>
+              <Text style={styles.mainSectionTitle}>{l.profile.toUpperCase()}</Text>
               <Text style={styles.expDescription}>{personalInfo.summary}</Text>
             </View>
           )}
@@ -254,7 +272,7 @@ export function CreativePDF({ data, fontFamily }: PDFTemplateProps) {
           {/* Experience */}
           {experience.length > 0 && (
             <View style={{ marginBottom: 20 }}>
-              <Text style={styles.mainSectionTitle}>EXPERIENCE</Text>
+              <Text style={styles.mainSectionTitle}>{l.experience.toUpperCase()}</Text>
               {experience.map((exp) => (
                 <View key={exp.id} style={styles.experienceItem}>
                   <View style={styles.expHeader}>
@@ -288,17 +306,17 @@ export function CreativePDF({ data, fontFamily }: PDFTemplateProps) {
           {/* Projects */}
           {projects.length > 0 && (
             <View>
-              <Text style={styles.mainSectionTitle}>PROJECTS</Text>
+              <Text style={styles.mainSectionTitle}>{l.projects.toUpperCase()}</Text>
               {projects.map((project) => (
                 <View key={project.id} style={styles.experienceItem}>
                   <Text style={styles.expPosition}>{project.name}</Text>
                   {(project.url || project.githubUrl || project.websiteUrl) && (
                     <View style={{ flexDirection: "row", gap: 4, marginBottom: 3 }}>
-                      {project.url && <Link src={project.url} style={{ fontSize: 8, color: "#666666" }}>Project</Link>}
+                      {project.url && <Link src={project.url} style={{ fontSize: 8, color: "#666666" }}>{l.project}</Link>}
                       {project.url && (project.githubUrl || project.websiteUrl) && <Text style={{ fontSize: 8, color: "#999999" }}>|</Text>}
                       {project.githubUrl && <Link src={project.githubUrl} style={{ fontSize: 8, color: "#666666" }}>GitHub</Link>}
                       {project.githubUrl && project.websiteUrl && <Text style={{ fontSize: 8, color: "#999999" }}>|</Text>}
-                      {project.websiteUrl && <Link src={project.websiteUrl} style={{ fontSize: 8, color: "#666666" }}>Website</Link>}
+                      {project.websiteUrl && <Link src={project.websiteUrl} style={{ fontSize: 8, color: "#666666" }}>{l.website}</Link>}
                     </View>
                   )}
                   {project.description && (
@@ -319,6 +337,23 @@ export function CreativePDF({ data, fontFamily }: PDFTemplateProps) {
                       ))}
                     </View>
                   )}
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Certifications */}
+          {certifications.length > 0 && (
+            <View style={{ marginTop: 20 }}>
+              <Text style={styles.mainSectionTitle}>{l.certifications.toUpperCase()}</Text>
+              {certifications.map((cert) => (
+                <View key={cert.id} style={{ marginBottom: 12 }}>
+                  <View style={styles.expHeader}>
+                    <Text style={{ fontSize: 10, fontWeight: 700 }}>{cert.name}</Text>
+                    {cert.date ? <Text style={styles.expDate}>{formatDate(cert.date, false)}</Text> : null}
+                  </View>
+                  {cert.issuer ? <Text style={styles.expCompany}>{cert.issuer}</Text> : null}
+                  {cert.url ? <Link src={ensureHref(cert.url)} style={{ fontSize: 8, color: "#666666", textDecoration: "none" }}>{l.viewCertificate}</Link> : null}
                 </View>
               ))}
             </View>

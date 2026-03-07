@@ -7,6 +7,8 @@ export function ExperienceForm() {
   const { data, setData } = useResumeStore();
   const { experience } = data;
 
+  const MAX_DESCRIPTION_LENGTH = 500;
+
   const addExperience = () => {
     const newExperience: ResumeData["experience"][0] = {
       id: crypto.randomUUID(),
@@ -31,6 +33,14 @@ export function ExperienceForm() {
       ...data,
       experience: experience.filter((exp) => exp.id !== id),
     });
+  };
+
+  const moveExperience = (index: number, direction: "up" | "down") => {
+    const target = direction === "up" ? index - 1 : index + 1;
+    if (target < 0 || target >= experience.length) return;
+    const next = [...experience];
+    [next[index], next[target]] = [next[target], next[index]];
+    setData({ ...data, experience: next });
   };
 
   const updateExperience = (
@@ -90,12 +100,30 @@ export function ExperienceForm() {
               <span className="label-mono">
                 ENTRY_{String(index + 1).padStart(2, "0")}
               </span>
-              <button
-                onClick={() => removeExperience(exp.id)}
-                className="border border-red-600 text-red-600 px-3 py-1 text-xs font-bold uppercase tracking-wider hover:bg-red-600 hover:text-white transition-colors duration-150"
-              >
-                Remove
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => moveExperience(index, "up")}
+                  disabled={index === 0}
+                  className="border border-gray-400 px-2 py-1 text-xs font-bold hover:bg-black hover:text-white transition-colors duration-150 disabled:opacity-30"
+                  aria-label="Move up"
+                >
+                  ↑
+                </button>
+                <button
+                  onClick={() => moveExperience(index, "down")}
+                  disabled={index === experience.length - 1}
+                  className="border border-gray-400 px-2 py-1 text-xs font-bold hover:bg-black hover:text-white transition-colors duration-150 disabled:opacity-30"
+                  aria-label="Move down"
+                >
+                  ↓
+                </button>
+                <button
+                  onClick={() => removeExperience(exp.id)}
+                  className="border border-red-600 text-red-600 px-3 py-1 text-xs font-bold uppercase tracking-wider hover:bg-red-600 hover:text-white transition-colors duration-150"
+                >
+                  Remove
+                </button>
+              </div>
             </div>
 
             <div className="space-y-4">
@@ -195,13 +223,19 @@ export function ExperienceForm() {
                 <label className="label-mono block mb-2">DESCRIPTION</label>
                 <textarea
                   value={exp.description}
-                  onChange={(e) =>
-                    updateExperience(exp.id, { description: e.target.value })
-                  }
+                  onChange={(e) => {
+                    if (e.target.value.length <= MAX_DESCRIPTION_LENGTH) {
+                      updateExperience(exp.id, { description: e.target.value });
+                    }
+                  }}
                   placeholder="Brief description of your role and responsibilities..."
                   rows={3}
+                  maxLength={MAX_DESCRIPTION_LENGTH}
                   className="w-full border border-gray-400 bg-transparent px-3 py-2 focus:border-black focus:bg-black focus:text-white transition-all duration-150 resize-none"
                 />
+                <span className="label-mono text-gray-400 text-[10px] block mt-1 text-right">
+                  {exp.description.length}/{MAX_DESCRIPTION_LENGTH}
+                </span>
               </div>
 
               {/* Highlights */}

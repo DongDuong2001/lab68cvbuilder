@@ -13,8 +13,9 @@ import { getFontById } from "@/lib/fonts";
 import { registerPDFFont } from "@/lib/pdf-font-loader";
 import React from "react";
 import type { ResumeData } from "@/db/schema";
+import { type PdfLabels, getPdfLabels, getDateLocale } from "@/lib/pdf-labels";
 
-type PDFComponentType = React.ComponentType<{ data: ResumeData; fontFamily?: string }>;
+type PDFComponentType = React.ComponentType<{ data: ResumeData; fontFamily?: string; labels?: PdfLabels; dateLocale?: string }>;
 
 const PDF_TEMPLATES: Record<TemplateId, PDFComponentType> = {
   "creative": CreativePDF,
@@ -29,6 +30,9 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+
+    // Read PDF locale from query string
+    const locale = request.nextUrl.searchParams.get("locale") || "en";
 
     // Check authentication
     const session = await auth();
@@ -57,6 +61,8 @@ export async function GET(
     const PDFElement = React.createElement(Component, {
       data: resume.data,
       fontFamily: pdfFontFamily,
+      labels: getPdfLabels(locale),
+      dateLocale: getDateLocale(locale),
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

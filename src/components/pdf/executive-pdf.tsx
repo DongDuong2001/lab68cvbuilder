@@ -4,11 +4,11 @@ import {
   Text,
   View,
   StyleSheet,
-  Font,
   Link,
 } from "@react-pdf/renderer";
 import type { ResumeData } from "@/db/schema";
 import { ensureHref } from "@/lib/url-helpers";
+import { type PdfLabels, getPdfLabels, getDateLocale } from "@/lib/pdf-labels";
 
 
 
@@ -160,23 +160,27 @@ const styles = StyleSheet.create({
 interface PDFTemplateProps {
   data: ResumeData;
   fontFamily?: string;
+  labels?: PdfLabels;
+  dateLocale?: string;
 }
 
-export function ExecutivePDF({ data, fontFamily }: PDFTemplateProps) {
-  const { personalInfo, experience, education, skills, projects } = data;
+export function ExecutivePDF({ data, fontFamily, labels, dateLocale }: PDFTemplateProps) {
+  const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
+  const l = labels ?? getPdfLabels("en");
+  const dl = dateLocale ?? getDateLocale("en");
 
   const formatDate = (dateStr: string, current: boolean) => {
     if (!dateStr) return "";
     const date = new Date(dateStr + "-01");
-    const formatted = date.toLocaleDateString("en-US", {
+    const formatted = date.toLocaleDateString(dl, {
       month: "short",
       year: "numeric",
     });
-    return current ? `${formatted} - Present` : formatted;
+    return current ? `${formatted} - ${l.present}` : formatted;
   };
 
   const formatDateRange = (start: string, end: string, current: boolean) => {
-    return `${formatDate(start, false)} - ${current ? "Present" : formatDate(end, false)}`;
+    return `${formatDate(start, false)} - ${current ? l.present : formatDate(end, false)}`;
   };
 
   return (
@@ -184,7 +188,7 @@ export function ExecutivePDF({ data, fontFamily }: PDFTemplateProps) {
       <Page size="A4" style={{ ...styles.page, fontFamily: fontFamily || "Helvetica" }}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.name}>{personalInfo.fullName || "YOUR NAME"}</Text>
+          <Text style={styles.name}>{personalInfo.fullName || l.yourName}</Text>
           <View style={styles.contactRow}>
             {personalInfo.email && (
               <Text style={styles.contactItem}>{personalInfo.email}</Text>
@@ -197,7 +201,7 @@ export function ExecutivePDF({ data, fontFamily }: PDFTemplateProps) {
             )}
             {personalInfo.website && (
               <Link src={ensureHref(personalInfo.website)} style={{ ...styles.contactItem, color: "#000000", textDecoration: "none" }}>
-                Portfolio
+                {l.portfolio}
               </Link>
             )}
             {personalInfo.linkedin && (
@@ -216,7 +220,7 @@ export function ExecutivePDF({ data, fontFamily }: PDFTemplateProps) {
         {/* Summary */}
         {personalInfo.summary && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Professional Summary</Text>
+            <Text style={styles.sectionTitle}>{l.professionalSummary}</Text>
             <Text style={styles.summary}>{personalInfo.summary}</Text>
           </View>
         )}
@@ -224,7 +228,7 @@ export function ExecutivePDF({ data, fontFamily }: PDFTemplateProps) {
         {/* Experience */}
         {experience.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Professional Experience</Text>
+            <Text style={styles.sectionTitle}>{l.professionalExperience}</Text>
             {experience.map((exp) => (
               <View key={exp.id} style={styles.experienceItem}>
                 <View style={styles.expHeader}>
@@ -258,7 +262,7 @@ export function ExecutivePDF({ data, fontFamily }: PDFTemplateProps) {
         {/* Education */}
         {education.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Education</Text>
+            <Text style={styles.sectionTitle}>{l.education}</Text>
             {education.map((edu) => (
               <View key={edu.id} style={styles.educationItem}>
                 <View style={styles.educationHeader}>
@@ -274,7 +278,7 @@ export function ExecutivePDF({ data, fontFamily }: PDFTemplateProps) {
                   <Text style={styles.educationDetails}>{edu.location}</Text>
                 )}
                 {edu.gpa && (
-                  <Text style={styles.educationDetails}>GPA: {edu.gpa}</Text>
+                  <Text style={styles.educationDetails}>{l.gpa}: {edu.gpa}</Text>
                 )}
               </View>
             ))}
@@ -284,7 +288,7 @@ export function ExecutivePDF({ data, fontFamily }: PDFTemplateProps) {
         {/* Skills */}
         {skills.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Technical Skills</Text>
+            <Text style={styles.sectionTitle}>{l.technicalSkills}</Text>
             <View style={styles.skillGrid}>
               {skills.map((category) => (
                 <View key={category.id} style={styles.skillCategory}>
@@ -299,17 +303,17 @@ export function ExecutivePDF({ data, fontFamily }: PDFTemplateProps) {
         {/* Projects */}
         {projects.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Projects</Text>
+            <Text style={styles.sectionTitle}>{l.projects}</Text>
             {projects.map((project) => (
               <View key={project.id} style={styles.projectItem}>
                 <Text style={styles.projectName}>{project.name}</Text>
                 {(project.url || project.githubUrl || project.websiteUrl) && (
                   <View style={{ flexDirection: "row", gap: 4, marginBottom: 3 }}>
-                    {project.url && <Link src={project.url} style={{ fontSize: 8, color: "#666666" }}>Project</Link>}
+                    {project.url && <Link src={project.url} style={{ fontSize: 8, color: "#666666" }}>{l.project}</Link>}
                     {project.url && (project.githubUrl || project.websiteUrl) && <Text style={{ fontSize: 8, color: "#999999" }}>|</Text>}
                     {project.githubUrl && <Link src={project.githubUrl} style={{ fontSize: 8, color: "#666666" }}>GitHub</Link>}
                     {project.githubUrl && project.websiteUrl && <Text style={{ fontSize: 8, color: "#999999" }}>|</Text>}
-                    {project.websiteUrl && <Link src={project.websiteUrl} style={{ fontSize: 8, color: "#666666" }}>Website</Link>}
+                    {project.websiteUrl && <Link src={project.websiteUrl} style={{ fontSize: 8, color: "#666666" }}>{l.website}</Link>}
                   </View>
                 )}
                 {project.technologies.length > 0 && (
@@ -332,6 +336,40 @@ export function ExecutivePDF({ data, fontFamily }: PDFTemplateProps) {
                 )}
               </View>
             ))}
+          </View>
+        )}
+
+        {/* Certifications */}
+        {certifications.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>{l.certifications}</Text>
+            {certifications.map((cert) => (
+              <View key={cert.id} style={styles.educationItem}>
+                <View style={styles.educationHeader}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.educationDegree}>{cert.name}</Text>
+                    {cert.issuer ? <Text style={styles.educationDetails}>{cert.issuer}</Text> : null}
+                    {cert.url ? <Link src={ensureHref(cert.url)} style={{ fontSize: 8, color: "#666666", textDecoration: "none" }}>{l.viewCertificate}</Link> : null}
+                  </View>
+                  {cert.date ? <Text style={styles.expDate}>{formatDate(cert.date, false)}</Text> : null}
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Languages */}
+        {languages.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>{l.languages}</Text>
+            <View style={styles.skillGrid}>
+              {languages.map((lang) => (
+                <View key={lang.id} style={styles.skillCategory}>
+                  <Text style={styles.skillCategoryName}>{lang.language}</Text>
+                  <Text style={styles.skillItems}>{lang.proficiency.charAt(0).toUpperCase() + lang.proficiency.slice(1)}</Text>
+                </View>
+              ))}
+            </View>
           </View>
         )}
       </Page>

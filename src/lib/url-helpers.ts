@@ -15,16 +15,16 @@ export function ensureHref(url: string): string {
 }
 
 /** Clean display label for a website URL → "Portfolio" */
-export function websiteLabel(_url: string): string {
+export function websiteLabel(): string {
   return "Portfolio";
 }
 
 /** Clean display label for LinkedIn → "LinkedIn" */
-export function linkedinLabel(_url: string): string {
+export function linkedinLabel(): string {
   return "LinkedIn";
 }
 
 /** Clean display label for GitHub → "GitHub" */
-export function githubLabel(_url: string): string {
+export function githubLabel(): string {
   return "GitHub";
 }
