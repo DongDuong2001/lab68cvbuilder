@@ -5,6 +5,7 @@ import { Link } from "@/i18n/routing";
 import { useResumeStore } from "@/store/resume-store";
 import { CV_FONTS } from "@/lib/fonts";
 import { PDF_LOCALES } from "@/lib/pdf-labels";
+import { TEMPLATES } from "@/lib/constants";
 import { PdfPreviewModal } from "./pdf-preview-modal";
 import { TemplatePicker } from "./template-picker";
 
@@ -19,15 +20,32 @@ export function BuilderHeader({
   isMobilePreview,
   onToggleMobilePreview,
 }: BuilderHeaderProps) {
-  const { title, setTitle, templateId, setTemplateId, fontFamily, setFontFamily, pdfLocale, setPdfLocale, isSaving, isDirty, lastSavedAt } =
+  const { title, setTitle, templateId, setTemplateId, fontFamily, setFontFamily, pdfLocale, setPdfLocale, isSaving, isDirty, lastSavedAt, data } =
     useResumeStore();
 
   const [isExporting, setIsExporting] = useState(false);
   const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
   const [previewFilename, setPreviewFilename] = useState("resume.pdf");
+  const [exportError, setExportError] = useState<string | null>(null);
 
   const handlePreviewPdf = async () => {
     if (isExporting) return;
+
+    const validTemplateIds: readonly string[] = TEMPLATES.map((t) => t.id);
+    if (!validTemplateIds.includes(templateId)) {
+      setExportError("Please select a template before exporting.");
+      return;
+    }
+    if (!data.personalInfo.fullName.trim()) {
+      setExportError("Full Name is required before exporting.");
+      return;
+    }
+    if (!data.personalInfo.email.trim()) {
+      setExportError("Email is required before exporting.");
+      return;
+    }
+    setExportError(null);
+
     setIsExporting(true);
 
     try {
@@ -114,16 +132,23 @@ export function BuilderHeader({
               </button>
 
               {/* Export button */}
-              <button
-                onClick={handlePreviewPdf}
-                disabled={isExporting}
-                className={`border border-black px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors duration-150 ${isExporting
-                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                  : "bg-black text-white hover:bg-white hover:text-black"
-                  }`}
-              >
-                {isExporting ? "GENERATING..." : "EXPORT PDF"}
-              </button>
+              <div className="flex flex-col items-end gap-1">
+                <button
+                  onClick={handlePreviewPdf}
+                  disabled={isExporting}
+                  className={`border border-black px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors duration-150 ${isExporting
+                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    : "bg-black text-white hover:bg-white hover:text-black"
+                    }`}
+                >
+                  {isExporting ? "GENERATING..." : "EXPORT PDF"}
+                </button>
+                {exportError && (
+                  <p className="text-[10px] font-bold text-red-600 uppercase tracking-wider max-w-48 text-right">
+                    {exportError}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
