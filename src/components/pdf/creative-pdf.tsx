@@ -147,6 +147,9 @@ interface PDFTemplateProps {
 
 export function CreativePDF({ data, fontFamily, labels, dateLocale }: PDFTemplateProps) {
   const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
+  const completeEducation = education.filter(
+    (edu) => edu.institution.trim() && edu.degree.trim() && edu.field.trim() && edu.startDate.trim()
+  );
   const l = labels ?? getPdfLabels("en");
   const dl = dateLocale ?? getDateLocale("en");
 
@@ -229,10 +232,10 @@ export function CreativePDF({ data, fontFamily, labels, dateLocale }: PDFTemplat
           )}
 
           {/* Education */}
-          {education.length > 0 && (
+          {completeEducation.length > 0 && (
             <View>
               <Text style={styles.sectionTitle}>{l.education.toUpperCase()}</Text>
-              {education.map((edu) => (
+              {completeEducation.map((edu) => (
                 <View key={edu.id} style={styles.educationItem}>
                   <Text style={styles.educationDegree}>{edu.degree}</Text>
                   <Text style={styles.educationDetails}>{edu.field}</Text>
