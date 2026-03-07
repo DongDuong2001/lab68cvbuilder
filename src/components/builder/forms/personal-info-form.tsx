@@ -17,7 +17,7 @@ function sanitize(value: string): string {
 }
 
 export function PersonalInfoForm() {
-  const { data, setData } = useResumeStore();
+  const { data, updatePersonalInfo } = useResumeStore();
   const { personalInfo } = data;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -34,13 +34,8 @@ export function PersonalInfoForm() {
       return next;
     });
 
-    setData({
-      ...data,
-      personalInfo: {
-        ...personalInfo,
-        [field]: clean,
-      },
-    });
+    // Use functional update to avoid stale closure over `data`
+    updatePersonalInfo({ [field]: clean });
   };
 
   // ── Field-level validation on blur ──────────────────────────
