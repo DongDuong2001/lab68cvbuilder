@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@/i18n/routing";
 import { useResumeStore } from "@/store/resume-store";
 import { CV_FONTS } from "@/lib/fonts";
@@ -13,12 +13,14 @@ interface BuilderHeaderProps {
   resumeId: string;
   isMobilePreview: boolean;
   onToggleMobilePreview: () => void;
+  saveValidationError?: string | null;
 }
 
 export function BuilderHeader({
   resumeId,
   isMobilePreview,
   onToggleMobilePreview,
+  saveValidationError,
 }: BuilderHeaderProps) {
   const { title, setTitle, templateId, setTemplateId, fontFamily, setFontFamily, pdfLocale, setPdfLocale, isSaving, isDirty, lastSavedAt, data } =
     useResumeStore();
@@ -28,8 +30,22 @@ export function BuilderHeader({
   const [previewFilename, setPreviewFilename] = useState("resume.pdf");
   const [exportError, setExportError] = useState<string | null>(null);
 
+  // Auto-clear export error once the user fixes the underlying issue
+  useEffect(() => {
+    if (!exportError) return;
+    const validTemplateIds: readonly string[] = TEMPLATES.map((t) => t.id);
+    if (
+      validTemplateIds.includes(templateId) &&
+      data.personalInfo.fullName.trim() &&
+      data.personalInfo.email.trim()
+    ) {
+      setExportError(null);
+    }
+  }, [exportError, templateId, data.personalInfo.fullName, data.personalInfo.email]);
+
   const handlePreviewPdf = async () => {
-    if (isExporting) return;
+    // Prevent concurrent exports and re-generation while modal is open
+    if (isExporting || previewPdfUrl) return;
 
     const validTemplateIds: readonly string[] = TEMPLATES.map((t) => t.id);
     if (!validTemplateIds.includes(templateId)) {
@@ -103,7 +119,12 @@ export function BuilderHeader({
             <div className="flex items-center gap-4">
               {/* Save status */}
               <div className="hidden md:flex items-center gap-2">
-                {isSaving ? (
+                {saveValidationError ? (
+                  <>
+                    <span className="inline-block w-2 h-2 rounded-full bg-red-500" />
+                    <span className="label-mono text-red-500 text-[10px]">{saveValidationError}</span>
+                  </>
+                ) : isSaving ? (
                   <>
                     <span className="inline-block w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
                     <span className="label-mono text-yellow-600">SAVING...</span>
