@@ -13,11 +13,14 @@ interface BuilderClientProps {
   resume: Resume;
 }
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export function BuilderClient({ resume }: BuilderClientProps) {
   const { setResume, data, title, templateId, fontFamily, isDirty, setIsSaving, markSaved } =
     useResumeStore();
 
   const [isMobilePreview, setIsMobilePreview] = useState(false);
+  const [saveValidationError, setSaveValidationError] = useState<string | null>(null);
 
   // Initialize store with resume data
   useEffect(() => {
@@ -27,6 +30,13 @@ export function BuilderClient({ resume }: BuilderClientProps) {
   // Auto-save function
   const saveResume = useCallback(async () => {
     if (!isDirty) return;
+
+    // Block save if email is present but malformed — bad data integrity
+    if (data.personalInfo.email && !EMAIL_REGEX.test(data.personalInfo.email)) {
+      setSaveValidationError("Invalid email — fix before saving.");
+      return;
+    }
+    setSaveValidationError(null);
 
     setIsSaving(true);
     try {
@@ -72,6 +82,7 @@ export function BuilderClient({ resume }: BuilderClientProps) {
         resumeId={resume.id}
         isMobilePreview={isMobilePreview}
         onToggleMobilePreview={() => setIsMobilePreview(!isMobilePreview)}
+        saveValidationError={saveValidationError}
       />
 
       {/* Split View */}
