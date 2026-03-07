@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import { eq, and } from "drizzle-orm";
 import type { ResumeData } from "@/db/schema";
 import { sanitizeResumeData } from "@/lib/sanitize-resume";
+import { revalidatePath } from "next/cache";
 
 /**
  * Helper: Get the authenticated user ID or throw.
@@ -53,6 +54,7 @@ export async function createResume(title: string, templateId: string = "harvard"
     })
     .returning();
 
+  revalidatePath("/", "layout");
   return resume;
 }
 
@@ -134,6 +136,7 @@ export async function deleteResume(resumeId: string) {
     throw new Error("Resume not found or unauthorized");
   }
 
+  revalidatePath("/", "layout");
   return deleted;
 }
 
@@ -162,5 +165,6 @@ export async function duplicateResume(resumeId: string) {
     })
     .returning();
 
+  revalidatePath("/", "layout");
   return copy;
 }
