@@ -12,6 +12,9 @@ export function CreativeTemplate({ data, labels, dateLocale }: TemplateProps) {
   const l = labels ?? getPdfLabels("en");
   const dl = dateLocale ?? getDateLocale("en");
   const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
+  const completeEducation = education.filter(
+    (edu) => edu.institution.trim() && edu.degree.trim() && edu.field.trim() && edu.startDate.trim()
+  );
 
   const formatDate = (dateStr: string, current: boolean) => {
     if (!dateStr) return "";
@@ -112,13 +115,13 @@ export function CreativeTemplate({ data, labels, dateLocale }: TemplateProps) {
         )}
 
         {/* Education */}
-        {education.length > 0 && (
+        {completeEducation.length > 0 && (
           <div>
             <h2 className="font-mono text-[10px] uppercase tracking-widest mb-3 opacity-60">
               {l.education.toUpperCase()}
             </h2>
             <div className="space-y-4">
-              {education.map((edu) => (
+              {completeEducation.map((edu) => (
                 <div key={edu.id} className="text-xs">
                   <div className="font-bold leading-tight">{edu.degree}</div>
                   <div className="leading-tight">{edu.field}</div>
