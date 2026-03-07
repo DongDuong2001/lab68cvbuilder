@@ -36,7 +36,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const email = credentials?.email as string | undefined;
         if (!email) return null;
 
+        // RFC 5321: maximum total email address length is 254 characters
+        if (email.length > 254) return null;
+
         const normalizedEmail = email.toLowerCase().trim();
+
+        // Re-check after normalization (trim could theoretically still exceed limit)
+        if (normalizedEmail.length > 254) return null;
 
         // Look up existing user
         const existing = await db
