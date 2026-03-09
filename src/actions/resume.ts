@@ -168,3 +168,30 @@ export async function duplicateResume(resumeId: string) {
   revalidatePath("/", "layout");
   return copy;
 }
+
+// ── CREATE FROM GUEST DATA ──────────────────────────────────
+
+export async function createResumeFromGuestData(guestData: {
+  title: string;
+  templateId: string;
+  fontFamily: string;
+  data: ResumeData;
+}) {
+  const userId = await getAuthUserId();
+
+  const sanitized = sanitizeResumeData(guestData.data);
+
+  const [resume] = await db
+    .insert(resumes)
+    .values({
+      userId,
+      title: guestData.title || "My Resume",
+      templateId: guestData.templateId || "harvard",
+      fontFamily: guestData.fontFamily || "inter",
+      data: sanitized,
+    })
+    .returning();
+
+  revalidatePath("/", "layout");
+  return resume;
+}
