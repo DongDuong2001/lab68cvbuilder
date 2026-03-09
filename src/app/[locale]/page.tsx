@@ -35,12 +35,18 @@ export default function HomePage() {
                 b: (chunks) => <span className="font-bold">{chunks}</span>,
               })}
             </p>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-4">
               <Link
                 href="/login"
                 className="border border-black px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-colors duration-150"
               >
                 {t("enterLab")}
+              </Link>
+              <Link
+                href="/try"
+                className="border border-black px-8 py-3 text-xs font-bold uppercase tracking-widest bg-black text-white hover:bg-white hover:text-black transition-colors duration-150"
+              >
+                {t("tryFree")}
               </Link>
               <a
                 href="#templates"
