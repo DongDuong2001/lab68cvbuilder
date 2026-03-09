@@ -3,11 +3,50 @@
 import { useState } from "react";
 import { useResumeStore } from "@/store/resume-store";
 import type { ResumeData } from "@/db/schema";
+import { improveBullet, improveDescription } from "@/actions/ai";
 
 export function ProjectsForm() {
   const { data, setData } = useResumeStore();
   const { projects } = data;
   const [techInputValues, setTechInputValues] = useState<Record<string, string>>({});
+  const [improvingBullet, setImprovingBullet] = useState<string | null>(null);
+  const [improvingDescription, setImprovingDescription] = useState<string | null>(null);
+
+  const handleImproveBullet = async (
+    projId: string,
+    idx: number,
+    text: string,
+    projectName: string
+  ) => {
+    if (!text.trim() || improvingBullet) return;
+    const key = `${projId}-${idx}`;
+    setImprovingBullet(key);
+    try {
+      const { result } = await improveBullet(text, { position: projectName });
+      updateHighlight(projId, idx, result);
+    } catch (err: unknown) {
+      alert((err as Error).message || "AI improvement failed.");
+    } finally {
+      setImprovingBullet(null);
+    }
+  };
+
+  const handleImproveDescription = async (
+    projId: string,
+    text: string,
+    projectName: string
+  ) => {
+    if (!text.trim() || improvingDescription) return;
+    setImprovingDescription(projId);
+    try {
+      const { result } = await improveDescription(text, { title: projectName });
+      updateProject(projId, { description: result.slice(0, MAX_DESCRIPTION_LENGTH) });
+    } catch (err: unknown) {
+      alert((err as Error).message || "AI improvement failed.");
+    } finally {
+      setImprovingDescription(null);
+    }
+  };
 
   const MAX_DESCRIPTION_LENGTH = 500;
 
@@ -219,7 +258,17 @@ export function ProjectsForm() {
               </div>
 
               <div>
-                <label className="label-mono block mb-2">DESCRIPTION *</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="label-mono">DESCRIPTION *</label>
+                  <button
+                    type="button"
+                    onClick={() => handleImproveDescription(project.id, project.description, project.name)}
+                    disabled={!project.description.trim() || !!improvingDescription}
+                    className="label-mono text-[10px] border border-black px-2 py-0.5 hover:bg-black hover:text-white transition-colors duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    {improvingDescription === project.id ? "..." : "✦"}
+                  </button>
+                </div>
                 <textarea
                   value={project.description}
                   onChange={(e) => {
@@ -279,25 +328,39 @@ export function ProjectsForm() {
               <div>
                 <label className="label-mono block mb-2">KEY_FEATURES</label>
                 <div className="space-y-2 mb-3">
-                  {project.highlights.map((highlight, idx) => (
-                    <div key={idx} className="flex gap-2">
-                      <input
-                        type="text"
-                        value={highlight}
-                        onChange={(e) =>
-                          updateHighlight(project.id, idx, e.target.value)
-                        }
-                        placeholder="Built scalable microservices architecture..."
-                        className="flex-1 border border-gray-400 bg-transparent px-3 py-2 focus:border-black focus:bg-black focus:text-white transition-all duration-150"
-                      />
-                      <button
-                        onClick={() => removeHighlight(project.id, idx)}
-                        className="border border-gray-400 px-3 py-2 text-xs font-bold hover:border-red-600 hover:text-red-600 transition-colors duration-150"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
+                  {project.highlights.map((highlight, idx) => {
+                    const key = `${project.id}-${idx}`;
+                    const isImproving = improvingBullet === key;
+                    return (
+                      <div key={idx} className="flex gap-2">
+                        <input
+                          type="text"
+                          value={highlight}
+                          onChange={(e) =>
+                            updateHighlight(project.id, idx, e.target.value)
+                          }
+                          placeholder="Built scalable microservices architecture..."
+                          className="flex-1 border border-gray-400 bg-transparent px-3 py-2 focus:border-black focus:bg-black focus:text-white transition-all duration-150"
+                        />
+                        <button
+                          onClick={() =>
+                            handleImproveBullet(project.id, idx, highlight, project.name)
+                          }
+                          disabled={isImproving || !highlight.trim()}
+                          title="Improve with AI"
+                          className="border border-gray-400 px-3 py-2 text-xs font-bold hover:border-black hover:bg-black hover:text-white transition-all duration-150 disabled:opacity-30"
+                        >
+                          {isImproving ? "..." : "✦"}
+                        </button>
+                        <button
+                          onClick={() => removeHighlight(project.id, idx)}
+                          className="border border-gray-400 px-3 py-2 text-xs font-bold hover:border-red-600 hover:text-red-600 transition-colors duration-150"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
                 <button
                   onClick={() => addHighlight(project.id)}
