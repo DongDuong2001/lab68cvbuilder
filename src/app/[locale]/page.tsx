@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/routing";
+import Image from "next/image";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { useTranslations } from "next-intl";
@@ -53,6 +54,26 @@ export default function HomePage() {
                 className="border border-gray-300 px-8 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 hover:border-black hover:text-black transition-colors duration-150"
               >
                 {t("viewTemplates")}
+              </a>
+            </div>
+
+            <div className="mt-10 flex flex-wrap items-center gap-4">
+              <a href="https://buildinprocess.com" target="_blank" rel="noopener noreferrer" title="Featured on BuildInProcess">
+                <Image
+                  src="https://buildinprocess.com/badges/badge-1-dark.svg"
+                  alt="Featured on BuildInProcess"
+                  width={170}
+                  height={48}
+                />
+              </a>
+              <a href="https://unikorn.vn/p/lab68dev-cv-builder?ref=embed" target="_blank" rel="noopener noreferrer" title="lab68CV Builder trên Unikorn.vn">
+                <Image
+                  src="https://unikorn.vn/api/widgets/badge/lab68dev-cv-builder?theme=light"
+                  alt="lab68CV Builder trên Unikorn.vn"
+                  width={256}
+                  height={64}
+                  unoptimized
+                />
               </a>
             </div>
           </div>
