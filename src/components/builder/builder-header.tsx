@@ -14,6 +14,7 @@ interface BuilderHeaderProps {
   isMobilePreview: boolean;
   onToggleMobilePreview: () => void;
   saveValidationError?: string | null;
+  isGuest?: boolean;
 }
 
 export function BuilderHeader({
@@ -21,6 +22,7 @@ export function BuilderHeader({
   isMobilePreview,
   onToggleMobilePreview,
   saveValidationError,
+  isGuest = false,
 }: BuilderHeaderProps) {
   const { title, setTitle, templateId, setTemplateId, fontFamily, setFontFamily, pdfLocale, setPdfLocale, isSaving, isDirty, lastSavedAt, data } =
     useResumeStore();
@@ -108,18 +110,23 @@ export function BuilderHeader({
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
               <Link
-                href="/dashboard"
+                href={isGuest ? "/" : "/dashboard"}
                 className="border border-black px-3 py-2 text-xs font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-150"
               >
-                ← Back
+                ← {isGuest ? "Home" : "Back"}
               </Link>
-              <span className="label-mono">BUILDER_MODE</span>
+              <span className="label-mono">{isGuest ? "GUEST_MODE" : "BUILDER_MODE"}</span>
             </div>
 
             <div className="flex items-center gap-4">
               {/* Save status */}
               <div className="hidden md:flex items-center gap-2">
-                {saveValidationError ? (
+                {isGuest ? (
+                  <>
+                    <span className="inline-block w-2 h-2 rounded-full bg-gray-400" />
+                    <span className="label-mono text-gray-500">NOT SAVED · GUEST</span>
+                  </>
+                ) : saveValidationError ? (
                   <>
                     <span className="inline-block w-2 h-2 rounded-full bg-red-500" />
                     <span className="label-mono text-red-500 text-[10px]">{saveValidationError}</span>
@@ -154,20 +161,31 @@ export function BuilderHeader({
 
               {/* Export button */}
               <div className="flex flex-col items-end gap-1">
-                <button
-                  onClick={handlePreviewPdf}
-                  disabled={isExporting}
-                  className={`border border-black px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors duration-150 ${isExporting
-                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                    : "bg-black text-white hover:bg-white hover:text-black"
-                    }`}
-                >
-                  {isExporting ? "GENERATING..." : "EXPORT PDF"}
-                </button>
-                {exportError && (
-                  <p className="text-[10px] font-bold text-red-600 uppercase tracking-wider max-w-48 text-right">
-                    {exportError}
-                  </p>
+                {isGuest ? (
+                  <Link
+                    href="/login"
+                    className="border border-black px-4 py-2 text-xs font-bold uppercase tracking-wider bg-black text-white hover:bg-white hover:text-black transition-colors duration-150"
+                  >
+                    SIGN IN TO EXPORT
+                  </Link>
+                ) : (
+                  <>
+                    <button
+                      onClick={handlePreviewPdf}
+                      disabled={isExporting}
+                      className={`border border-black px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors duration-150 ${isExporting
+                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                        : "bg-black text-white hover:bg-white hover:text-black"
+                        }`}
+                    >
+                      {isExporting ? "GENERATING..." : "EXPORT PDF"}
+                    </button>
+                    {exportError && (
+                      <p className="text-[10px] font-bold text-red-600 uppercase tracking-wider max-w-48 text-right">
+                        {exportError}
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
             </div>
