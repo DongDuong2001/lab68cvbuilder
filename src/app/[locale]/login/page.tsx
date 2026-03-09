@@ -4,6 +4,8 @@ import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/routing";
+import { createResumeFromGuestData } from "@/actions/resume";
+import { GUEST_STORAGE_KEY } from "@/components/builder/guest-builder-client";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
@@ -40,6 +42,20 @@ function LoginForm() {
         setError("Authentication failed. Please try again.");
         setIsLoading(false);
       } else {
+        // Migrate guest resume data if the user came from /try
+        try {
+          const stored = localStorage.getItem(GUEST_STORAGE_KEY);
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            const resume = await createResumeFromGuestData(parsed);
+            localStorage.removeItem(GUEST_STORAGE_KEY);
+            window.location.href = `/builder/${resume.id}`;
+            return;
+          }
+        } catch {
+          // If migration fails, fall through to normal redirect
+          localStorage.removeItem(GUEST_STORAGE_KEY);
+        }
         window.location.href = callbackUrl;
       }
     } catch {
