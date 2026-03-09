@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useResumeStore } from "@/store/resume-store";
+import { generateSummary } from "@/actions/ai";
 
 // ── Validation Helpers ────────────────────────────────────────
 const MAX_NAME_LENGTH = 100;
@@ -22,6 +23,7 @@ export function PersonalInfoForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
   const updateField = (field: keyof typeof personalInfo, value: string) => {
     // Sanitize all text input
@@ -110,6 +112,25 @@ export function PersonalInfoForm() {
   const removeAvatar = () => {
     updateField("avatarUrl", "");
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleGenerateSummary = async () => {
+    if (isGeneratingSummary) return;
+    setIsGeneratingSummary(true);
+    try {
+      const skills = data.skills.flatMap((s) => s.items);
+      const jobTitle = data.experience[0]?.position || "";
+      const { result } = await generateSummary({
+        fullName: personalInfo.fullName,
+        jobTitle,
+        skills,
+      });
+      updateField("summary", result.slice(0, MAX_SUMMARY_LENGTH));
+    } catch (err: unknown) {
+      alert((err as Error).message || "AI generation failed.");
+    } finally {
+      setIsGeneratingSummary(false);
+    }
   };
 
   /** Helper: input class with error state */
@@ -305,7 +326,16 @@ export function PersonalInfoForm() {
 
         {/* Summary */}
         <div>
-          <label className="label-mono block mb-2">PROFESSIONAL_SUMMARY</label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="label-mono">PROFESSIONAL_SUMMARY</label>
+            <button
+              onClick={handleGenerateSummary}
+              disabled={isGeneratingSummary}
+              className="border border-gray-400 px-3 py-1 text-xs font-bold uppercase tracking-wider hover:border-black hover:bg-black hover:text-white transition-all duration-150 disabled:opacity-40"
+            >
+              {isGeneratingSummary ? "GENERATING..." : "✦ GENERATE WITH AI"}
+            </button>
+          </div>
           <textarea
             value={personalInfo.summary || ""}
             onChange={(e) => {
