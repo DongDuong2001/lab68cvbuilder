@@ -88,34 +88,6 @@ No smooth gradients. No rounded pills. Pure function.
 
 ---
 
-## Getting Started
-
-```bash
-# Install dependencies
-npm install
-
-# Set up environment variables
-cp .env.example .env.local
-# Edit .env.local with your credentials
-
-# Push database schema
-npx drizzle-kit push
-
-# Run development server
-npm run dev
-```
-
-### Required Environment Variables
-
-| Variable | Description |
-|----------|-------------|
-| `DATABASE_URL` | Neon Postgres connection string |
-| `AUTH_SECRET` | Auth.js session secret |
-| `AUTH_URL` | Auth callback URL |
-| `CLOUDINARY_URL` | Cloudinary connection string for avatar uploads |
-
----
-
 ## Support the Project
 
 If this tool saves you time, a coffee goes a long way.
