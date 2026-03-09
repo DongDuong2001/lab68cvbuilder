@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useResumeStore } from "@/store/resume-store";
 import type { ResumeData } from "@/db/schema";
+import { improveBullet, improveDescription } from "@/actions/ai";
 
 function isEndBeforeStart(start: string, end: string): boolean {
   if (!start || !end) return false;
@@ -13,6 +14,46 @@ export function ExperienceForm() {
   const { data, setData } = useResumeStore();
   const { experience } = data;
   const [dateErrors, setDateErrors] = useState<Record<string, string>>({});
+  const [improvingBullet, setImprovingBullet] = useState<string | null>(null);
+  const [improvingDescription, setImprovingDescription] = useState<string | null>(null);
+
+  const handleImproveBullet = async (
+    expId: string,
+    idx: number,
+    text: string,
+    position: string,
+    company: string
+  ) => {
+    if (!text.trim() || improvingBullet) return;
+    const key = `${expId}-${idx}`;
+    setImprovingBullet(key);
+    try {
+      const { result } = await improveBullet(text, { position, company });
+      updateHighlight(expId, idx, result);
+    } catch (err: unknown) {
+      alert((err as Error).message || "AI improvement failed.");
+    } finally {
+      setImprovingBullet(null);
+    }
+  };
+
+  const handleImproveDescription = async (
+    expId: string,
+    text: string,
+    position: string,
+    company: string
+  ) => {
+    if (!text.trim() || improvingDescription) return;
+    setImprovingDescription(expId);
+    try {
+      const { result } = await improveDescription(text, { title: position, company });
+      updateExperience(expId, { description: result.slice(0, MAX_DESCRIPTION_LENGTH) });
+    } catch (err: unknown) {
+      alert((err as Error).message || "AI improvement failed.");
+    } finally {
+      setImprovingDescription(null);
+    }
+  };
 
   const MAX_DESCRIPTION_LENGTH = 500;
 
@@ -252,7 +293,17 @@ export function ExperienceForm() {
 
               {/* Description */}
               <div>
-                <label className="label-mono block mb-2">DESCRIPTION</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="label-mono">DESCRIPTION</label>
+                  <button
+                    type="button"
+                    onClick={() => handleImproveDescription(exp.id, exp.description, exp.position, exp.company)}
+                    disabled={!exp.description.trim() || !!improvingDescription}
+                    className="label-mono text-[10px] border border-black px-2 py-0.5 hover:bg-black hover:text-white transition-colors duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    {improvingDescription === exp.id ? "..." : "✦"}
+                  </button>
+                </div>
                 <textarea
                   value={exp.description}
                   onChange={(e) => {
@@ -276,25 +327,39 @@ export function ExperienceForm() {
                   KEY_ACHIEVEMENTS
                 </label>
                 <div className="space-y-2 mb-3">
-                  {exp.highlights.map((highlight, idx) => (
-                    <div key={idx} className="flex gap-2">
-                      <input
-                        type="text"
-                        value={highlight}
-                        onChange={(e) =>
-                          updateHighlight(exp.id, idx, e.target.value)
-                        }
-                        placeholder="Increased revenue by 40%..."
-                        className="flex-1 border border-gray-400 bg-transparent px-3 py-2 focus:border-black focus:bg-black focus:text-white transition-all duration-150"
-                      />
-                      <button
-                        onClick={() => removeHighlight(exp.id, idx)}
-                        className="border border-gray-400 px-3 py-2 text-xs font-bold hover:border-red-600 hover:text-red-600 transition-colors duration-150"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
+                  {exp.highlights.map((highlight, idx) => {
+                    const key = `${exp.id}-${idx}`;
+                    const isImproving = improvingBullet === key;
+                    return (
+                      <div key={idx} className="flex gap-2">
+                        <input
+                          type="text"
+                          value={highlight}
+                          onChange={(e) =>
+                            updateHighlight(exp.id, idx, e.target.value)
+                          }
+                          placeholder="Increased revenue by 40%..."
+                          className="flex-1 border border-gray-400 bg-transparent px-3 py-2 focus:border-black focus:bg-black focus:text-white transition-all duration-150"
+                        />
+                        <button
+                          onClick={() =>
+                            handleImproveBullet(exp.id, idx, highlight, exp.position, exp.company)
+                          }
+                          disabled={isImproving || !highlight.trim()}
+                          title="Improve with AI"
+                          className="border border-gray-400 px-3 py-2 text-xs font-bold hover:border-black hover:bg-black hover:text-white transition-all duration-150 disabled:opacity-30"
+                        >
+                          {isImproving ? "..." : "✦"}
+                        </button>
+                        <button
+                          onClick={() => removeHighlight(exp.id, idx)}
+                          className="border border-gray-400 px-3 py-2 text-xs font-bold hover:border-red-600 hover:text-red-600 transition-colors duration-150"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
                 <button
                   onClick={() => addHighlight(exp.id)}
