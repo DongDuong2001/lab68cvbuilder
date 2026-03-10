@@ -16,6 +16,15 @@
   --font-mono: var(--font-ibm-plex-sans);
 }
 
+/* ===== UTILITY CLASSES ===== */
+
+.grid-overlay {
+  background-image:
+    linear-gradient(#000 1px, transparent 1px),
+    linear-gradient(90deg, #000 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
 /* ===== LAB68DEV BRUTALIST RESET ===== */
 
 * {
