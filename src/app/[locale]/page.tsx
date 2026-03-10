@@ -13,14 +13,7 @@ export default function HomePage() {
       <main className="bg-white text-black w-full overflow-hidden">
         {/* Grid overlay effect - global */}
         <div className="fixed inset-0 pointer-events-none opacity-[0.03]">
-          <div
-            className="w-full h-full"
-            style={{
-              backgroundImage:
-                "linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)",
-              backgroundSize: "40px 40px",
-            }}
-          />
+          <div className="grid-overlay w-full h-full" />
         </div>
 
         {/* HERO SECTION */}
@@ -174,7 +167,7 @@ export default function HomePage() {
                 <div className="aspect-[1/1.4] w-full border border-black bg-white mb-4 p-4 shadow-[4px_4px_0_#000] group-hover:shadow-[8px_8px_0_#000] group-hover:-translate-y-1 transition-all flex flex-col items-center">
                   {/* Wireframe representation */}
                   <div className="w-2/3 h-6 bg-black mb-2"></div>
-                  <div className="w-full h-[1px] bg-black mb-4"></div>
+                  <div className="w-full h-px bg-black mb-4"></div>
                   <div className="w-full space-y-3">
                     <div className="w-1/3 h-3 bg-gray-300 mx-auto"></div>
                     <div className="w-full h-8 bg-gray-100 border border-dashed border-gray-300"></div>
