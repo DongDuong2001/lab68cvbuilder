@@ -28,6 +28,22 @@
             "atsTitle": "ATS Chuẩn Xác",
             "atsDesc": "Đạt độ tương thích tối đa để hệ thống tuyển dụng đọc."
         },
+        "Testimonials": {
+            "title": "Người Dùng Nói Gì",
+            "subtitle": "Đánh giá thực tế — 5 sao từ mọi người",
+            "review1Author": "Nguyễn Thị Thơ",
+            "review1Title": "Tạo CV Chuyên Nghiệp",
+            "review1Body": "Việc tạo CV rất dễ dàng với template rõ ràng và chuyên nghiệp.",
+            "review2Author": "fector_dev",
+            "review2Title": "Xuất Sắc Cho Hồ Sơ Học Thuật",
+            "review2Body": "Giao diện tối giản, tập trung vào nội dung. Đúng chuẩn mực Harvard mà mình đang tìm kiếm. Rất hài lòng.",
+            "review3Author": "Phu Parser",
+            "review3Title": "Viết CV Chuyên Nghiệp",
+            "review3Body": "Website rất tốt trong việc viết một CV chuyên nghiệp, đúng vào trọng tâm.",
+            "review4Author": "Kim Huy",
+            "review4Title": "Công Cụ Tạo CV Tối Giản",
+            "review4Body": "Giao diện mang phong cách neo-brutalism cùng hệ thống đăng nhập qua email giúp quá trình thao tác vô cùng tập trung và liền mạch."
+        },
         "CTA": {
             "title": "Sẵn sàng khởi tạo?",
             "subtitle": "Đóng gói toàn bộ kinh nghiệm của bạn thành một tài liệu hoàn hảo."
