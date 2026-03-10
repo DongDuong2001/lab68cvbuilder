@@ -28,6 +28,22 @@
             "atsTitle": "ATS Strict",
             "atsDesc": "Maximized compatibility for automated screening."
         },
+        "Testimonials": {
+            "title": "What Users Say",
+            "subtitle": "Real feedback — 5 stars across the board",
+            "review1Author": "Nguyen Thi Tho",
+            "review1Title": "Professional CV Creation",
+            "review1Body": "Creating a CV is very easy with a clear and professional template.",
+            "review2Author": "fector_dev",
+            "review2Title": "Excellent for Academic Profiles",
+            "review2Body": "Minimalist interface, content-focused. Exactly the Harvard standard I was looking for. Very satisfied.",
+            "review3Author": "Phu Parser",
+            "review3Title": "Write a Professional CV",
+            "review3Body": "The website is excellent for writing a professional CV — precise and to the point.",
+            "review4Author": "Kim Huy",
+            "review4Title": "Minimalist CV Tool",
+            "review4Body": "Neo-brutalism interface paired with email login makes the whole workflow incredibly focused and seamless."
+        },
         "CTA": {
             "title": "Ready to build?",
             "subtitle": "Compile your professional history into a pixel-perfect document."
