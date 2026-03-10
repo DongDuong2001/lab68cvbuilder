@@ -11,17 +11,62 @@ const ibmPlexSans = IBM_Plex_Sans({
   weight: ["100", "200", "300", "400", "500", "600", "700"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://cvbuilder.lab68.dev';
+
 export const metadata: Metadata = {
-  title: "lab68dev CV Builder",
-  description: "Raw. Structured. Build your resume at lab68dev.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "lab68dev CV Builder — Build Your Resume",
+    template: "%s | lab68dev CV Builder",
+  },
+  description:
+    "Raw. Structured. ATS-optimized brutalist resumes engineered for developers and designers. Export pixel-perfect PDFs for free.",
+  keywords: [
+    "CV builder", "resume builder", "ATS resume", "free resume",
+    "PDF resume", "developer resume", "brutalist design", "lab68dev",
+  ],
+  authors: [{ name: "lab68dev" }],
+  creator: "lab68dev",
+  openGraph: {
+    type: "website",
+    siteName: "lab68dev CV Builder",
+    title: "lab68dev CV Builder — Build Your Resume",
+    description:
+      "Raw. Structured. ATS-optimized brutalist resumes engineered for developers and designers.",
+    locale: "en_US",
+    alternateLocale: ["vi_VN"],
+    url: siteUrl,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "lab68dev CV Builder — Build Your Resume",
+    description:
+      "Raw. Structured. ATS-optimized brutalist resumes engineered for developers and designers.",
+    creator: "@lab68dev",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: "/",
+    languages: {
+      en: "/",
+      vi: "/vi",
+    },
+  },
   icons: {
     icon: [
       { url: "/design-mode/favicon.ico", sizes: "any" },
       { url: "/design-mode/lab68dev_logo.png", type: "image/png" },
     ],
-    apple: [
-      { url: "/design-mode/lab68dev_logo.png", type: "image/png" },
-    ],
+    apple: [{ url: "/design-mode/lab68dev_logo.png", type: "image/png" }],
     shortcut: "/design-mode/favicon.ico",
   },
 };
