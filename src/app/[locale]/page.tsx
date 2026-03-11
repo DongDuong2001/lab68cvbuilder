@@ -4,6 +4,9 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { useTranslations } from "next-intl";
 
+// Cache this fully-static page for 24 hours (ISR)
+export const revalidate = 86400;
+
 export default function HomePage() {
   const t = useTranslations("Index");
 
