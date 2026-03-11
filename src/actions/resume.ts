@@ -6,7 +6,7 @@ import { auth } from "@/auth";
 import { eq, and } from "drizzle-orm";
 import type { ResumeData } from "@/db/schema";
 import { sanitizeResumeData } from "@/lib/sanitize-resume";
-import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
+import { revalidatePath } from "next/cache";
 
 /**
  * Helper: Get the authenticated user ID or throw.
@@ -54,7 +54,6 @@ export async function createResume(title: string, templateId: string = "harvard"
     })
     .returning();
 
-  revalidateTag(`user-resumes-${userId}`);
   revalidatePath("/dashboard");
   return resume;
 }
@@ -63,32 +62,19 @@ export async function createResume(title: string, templateId: string = "harvard"
 
 export async function getUserResumes() {
   const userId = await getAuthUserId();
-  const fetchCached = unstable_cache(
-    async (uid: string) =>
-      db.select().from(resumes).where(eq(resumes.userId, uid)).orderBy(resumes.updatedAt),
-    ["user-resumes"],
-    { tags: [`user-resumes-${userId}`], revalidate: 60 }
-  );
-  return fetchCached(userId);
+  return db.select().from(resumes).where(eq(resumes.userId, userId)).orderBy(resumes.updatedAt);
 }
 
 // ── READ (SINGLE) ───────────────────────────────────────────
 
 export async function getResume(resumeId: string) {
   const userId = await getAuthUserId();
-  const fetchCached = unstable_cache(
-    async (rid: string, uid: string) => {
-      const [resume] = await db
-        .select()
-        .from(resumes)
-        .where(and(eq(resumes.id, rid), eq(resumes.userId, uid)));
-      if (!resume) throw new Error("Resume not found");
-      return resume;
-    },
-    ["resume-single"],
-    { tags: [`resume-${resumeId}`], revalidate: 30 }
-  );
-  return fetchCached(resumeId, userId);
+  const [resume] = await db
+    .select()
+    .from(resumes)
+    .where(and(eq(resumes.id, resumeId), eq(resumes.userId, userId)));
+  if (!resume) throw new Error("Resume not found");
+  return resume;
 }
 
 // ── UPDATE ──────────────────────────────────────────────────
@@ -123,8 +109,6 @@ export async function updateResume(
     throw new Error("Resume not found or unauthorized");
   }
 
-  revalidateTag(`resume-${resumeId}`);
-  revalidateTag(`user-resumes-${userId}`);
   return updated;
 }
 
@@ -142,8 +126,6 @@ export async function deleteResume(resumeId: string) {
     throw new Error("Resume not found or unauthorized");
   }
 
-  revalidateTag(`resume-${resumeId}`);
-  revalidateTag(`user-resumes-${userId}`);
   revalidatePath("/dashboard");
   return deleted;
 }
@@ -173,7 +155,6 @@ export async function duplicateResume(resumeId: string) {
     })
     .returning();
 
-  revalidateTag(`user-resumes-${userId}`);
   revalidatePath("/dashboard");
   return copy;
 }
@@ -201,7 +182,6 @@ export async function createResumeFromGuestData(guestData: {
     })
     .returning();
 
-  revalidateTag(`user-resumes-${userId}`);
   revalidatePath("/dashboard");
   return resume;
 }
