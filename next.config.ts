@@ -8,7 +8,6 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   serverExternalPackages: ["@react-pdf/renderer"],
-  optimizePackageImports: ["next-intl", "zustand", "drizzle-orm"],
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
