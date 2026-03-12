@@ -136,6 +136,54 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* AI WRITING ASSISTANT */}
+        <section className="relative z-10 border-t border-black bg-black text-white">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row">
+            {/* Left label panel */}
+            <div className="md:w-1/3 border-b md:border-b-0 md:border-r border-white/20 p-8 md:p-16 flex flex-col justify-between gap-8">
+              <div>
+                <span className="label-mono block text-white/40 mb-4 text-xs tracking-widest">{t("AI.label")}</span>
+                <h2 className="text-3xl font-black tracking-tight uppercase leading-tight">
+                  {t("AI.title")}
+                </h2>
+                <p className="text-sm text-white/60 font-light leading-relaxed mt-4">
+                  {t("AI.subtitle")}
+                </p>
+              </div>
+              <Link
+                href="/try"
+                className="self-start border border-white px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-colors duration-150"
+              >
+                {t("AI.cta")}
+              </Link>
+            </div>
+            {/* Right features */}
+            <div className="md:w-2/3 grid grid-cols-1 sm:grid-cols-3">
+              <div className="p-8 md:p-12 border-b sm:border-b-0 sm:border-r border-white/20">
+                <div className="w-8 h-8 border border-white/40 flex items-center justify-center mb-6">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" /></svg>
+                </div>
+                <h3 className="text-sm font-bold tracking-widest uppercase mb-4">01. {t("AI.feature1Title")}</h3>
+                <p className="text-sm text-white/50 leading-relaxed font-light">{t("AI.feature1Desc")}</p>
+              </div>
+              <div className="p-8 md:p-12 border-b sm:border-b-0 sm:border-r border-white/20">
+                <div className="w-8 h-8 border border-white/40 flex items-center justify-center mb-6">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" /></svg>
+                </div>
+                <h3 className="text-sm font-bold tracking-widest uppercase mb-4">02. {t("AI.feature2Title")}</h3>
+                <p className="text-sm text-white/50 leading-relaxed font-light">{t("AI.feature2Desc")}</p>
+              </div>
+              <div className="p-8 md:p-12">
+                <div className="w-8 h-8 border border-white/40 flex items-center justify-center mb-6">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>
+                </div>
+                <h3 className="text-sm font-bold tracking-widest uppercase mb-4">03. {t("AI.feature3Title")}</h3>
+                <p className="text-sm text-white/50 leading-relaxed font-light">{t("AI.feature3Desc")}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* TEMPLATES SHOWCASE */}
         <section id="templates" className="relative z-10 border-t border-black bg-gray-50">
           <div className="max-w-7xl mx-auto p-8 md:p-16">
@@ -237,7 +285,7 @@ export default function HomePage() {
               <h2 className="text-3xl font-black tracking-tight uppercase">{t("Testimonials.title")}</h2>
               <p className="text-xs text-gray-500 font-light tracking-widest uppercase">{t("Testimonials.subtitle")}</p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 border-l border-t border-black">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-0 border-l border-t border-black">
               {/* Testimonial 1 */}
               <div className="border-r border-b border-black p-8 flex flex-col gap-4">
                 <div className="flex gap-0.5">
@@ -289,6 +337,19 @@ export default function HomePage() {
                   <p className="text-sm text-gray-600 font-light leading-relaxed">{t("Testimonials.review4Body")}</p>
                 </div>
                 <p className="text-xs font-bold tracking-widest uppercase mt-auto pt-4 border-t border-gray-200">{t("Testimonials.review4Author")}</p>
+              </div>
+              {/* Testimonial 5 */}
+              <div className="border-r border-b border-black p-8 flex flex-col gap-4">
+                <div className="flex gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <svg key={i} className="w-3.5 h-3.5 fill-black" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                  ))}
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest mb-1">{t("Testimonials.review5Title")}</p>
+                  <p className="text-sm text-gray-600 font-light leading-relaxed">{t("Testimonials.review5Body")}</p>
+                </div>
+                <p className="text-xs font-bold tracking-widest uppercase mt-auto pt-4 border-t border-gray-200">{t("Testimonials.review5Author")}</p>
               </div>
             </div>
           </div>
