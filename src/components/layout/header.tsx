@@ -10,7 +10,19 @@ export function Header() {
   const t = useTranslations("Common");
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-black bg-white">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white">
+      {/* Announcement Strip */}
+      <div className="h-8 bg-black text-white flex items-center justify-center gap-3 px-6">
+        <span className="text-[0.6rem] font-bold tracking-[0.18em] uppercase">✦ {t("announcementText")}</span>
+        <Link
+          href="/try"
+          className="text-[0.6rem] font-bold tracking-[0.18em] uppercase border-b border-white/40 hover:border-white transition-colors duration-150 pb-px"
+        >
+          {t("announcementCta")}
+        </Link>
+      </div>
+      {/* Main Nav */}
+      <div className="border-b border-black">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 h-14">
         {/* Left: Logo + Brand */}
         <div className="flex items-center gap-8">
@@ -42,6 +54,7 @@ export function Header() {
             {t("login")}
           </Link>
         </div>
+      </div>
       </div>
     </header>
   );
