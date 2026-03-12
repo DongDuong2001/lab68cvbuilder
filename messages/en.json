@@ -66,6 +66,8 @@
     },
     "Common": {
         "login": "LOG IN",
-        "cvBuilder": "RESUME.BUILD()"
+        "cvBuilder": "RESUME.BUILD()",
+        "announcementText": "AI Writing Assistant is now live",
+        "announcementCta": "Try it free →"
     }
 }

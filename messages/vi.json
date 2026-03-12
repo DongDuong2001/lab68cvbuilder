@@ -66,6 +66,8 @@
     },
     "Common": {
         "login": "ĐĂNG NHẬP",
-        "cvBuilder": "RESUME.BUILD()"
+        "cvBuilder": "RESUME.BUILD()",
+        "announcementText": "Trợ lý viết AI đã ra mắt",
+        "announcementCta": "Dùng thử miễn phí →"
     }
 }
