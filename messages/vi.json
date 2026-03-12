@@ -42,7 +42,22 @@
             "review3Body": "Website rất tốt trong việc viết một CV chuyên nghiệp, đúng vào trọng tâm.",
             "review4Author": "Kim Huy",
             "review4Title": "Công Cụ Tạo CV Tối Giản",
-            "review4Body": "Giao diện mang phong cách neo-brutalism cùng hệ thống đăng nhập qua email giúp quá trình thao tác vô cùng tập trung và liền mạch."
+            "review4Body": "Giao diện mang phong cách neo-brutalism cùng hệ thống đăng nhập qua email giúp quá trình thao tác vô cùng tập trung và liền mạch.",
+            "review5Author": "Nguyễn Cảnh Việt",
+            "review5Title": "Tốt, Nên Dùng",
+            "review5Body": "Tạo CV rất dễ dàng, nhanh, có AI hỗ trợ. Sản phẩm được build tâm huyết."
+        },
+        "AI": {
+            "label": "MỚI // TRỢ LÝ VIẾT AI",
+            "title": "Viết Thông Minh Hơn",
+            "subtitle": "Gợi ý từ AI giúp bạn tạo nội dung CV chuyên nghiệp — ngay lập tức.",
+            "feature1Title": "Gợi Ý Thông Minh",
+            "feature1Desc": "Nhận gợi ý nội dung phù hợp ngữ cảnh cho từng mục trong CV của bạn.",
+            "feature2Title": "Phong Cách Chuyên Nghiệp",
+            "feature2Desc": "AI viết lại các gạch đầu dòng của bạn theo ngôn ngữ chủ động, mạnh mẽ mà nhà tuyển dụng yêu thích.",
+            "feature3Title": "Tạo Nội Dung Tức Thì",
+            "feature3Desc": "Tạo toàn bộ mục CV từ một mô tả ngắn chỉ trong vài giây.",
+            "cta": "Dùng Thử AI →"
         },
         "CTA": {
             "title": "Sẵn sàng khởi tạo?",
