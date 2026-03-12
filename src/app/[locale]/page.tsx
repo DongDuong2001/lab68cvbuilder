@@ -20,7 +20,7 @@ export default function HomePage() {
         </div>
 
         {/* HERO SECTION */}
-        <section className="relative z-10 min-h-screen flex flex-col items-center justify-center p-8 pt-24">
+        <section className="relative z-10 min-h-screen flex flex-col items-center justify-center p-8 pt-22">
           <div className="max-w-2xl w-full">
             <span className="label-mono block mb-4">{t("label")}</span>
             <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.85] mb-8">
@@ -52,56 +52,30 @@ export default function HomePage() {
                 {t("viewTemplates")}
               </a>
             </div>
+          </div>
+        </section>
 
-            <div className="mt-10 flex flex-wrap items-center gap-x-4 gap-y-3">
-              <a href="https://buildinprocess.com" target="_blank" rel="noopener noreferrer" title="Featured on BuildInProcess">
-                <Image
-                  src="https://buildinprocess.com/badges/badge-1-dark.svg"
-                  alt="Featured on BuildInProcess"
-                  width={250}
-                  height={54}
-                  style={{ width: 250, height: 54, objectFit: "contain" }}
-                />
+        {/* FEATURED IN */}
+        <section className="relative z-10 border-t border-black bg-gray-50">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center">
+            <div className="shrink-0 border-b md:border-b-0 md:border-r border-black px-8 md:px-12 py-5 md:py-6">
+              <span className="text-[0.6rem] font-bold tracking-[0.2em] uppercase text-gray-400">Featured In</span>
+            </div>
+            <div className="flex items-center gap-6 overflow-x-auto px-8 py-5 md:py-6 scrollbar-none flex-nowrap w-full">
+              <a href="https://buildinprocess.com" target="_blank" rel="noopener noreferrer" title="Featured on BuildInProcess" className="shrink-0 opacity-60 hover:opacity-100 transition-opacity duration-200">
+                <Image src="https://buildinprocess.com/badges/badge-1-dark.svg" alt="Featured on BuildInProcess" width={160} height={36} style={{ width: 160, height: 36, objectFit: "contain" }} />
               </a>
-              <a href="https://unikorn.vn/p/lab68dev-cv-builder?ref=embed" target="_blank" rel="noopener noreferrer" title="lab68CV Builder trên Unikorn.vn">
-                <Image
-                  src="https://unikorn.vn/api/widgets/badge/lab68dev-cv-builder?theme=light"
-                  alt="lab68CV Builder trên Unikorn.vn"
-                  width={250}
-                  height={54}
-                  style={{ width: 250, height: 54, objectFit: "contain" }}
-                  unoptimized
-                />
+              <a href="https://unikorn.vn/p/lab68dev-cv-builder?ref=embed" target="_blank" rel="noopener noreferrer" title="lab68CV Builder trên Unikorn.vn" className="shrink-0 opacity-60 hover:opacity-100 transition-opacity duration-200">
+                <Image src="https://unikorn.vn/api/widgets/badge/lab68dev-cv-builder?theme=light" alt="lab68CV Builder trên Unikorn.vn" width={160} height={36} style={{ width: 160, height: 36, objectFit: "contain" }} unoptimized />
               </a>
-              <a href="https://www.producthunt.com/products/lab68dev-cv-builder/reviews/new?utm_source=badge-product_review&utm_medium=badge&utm_source=badge-lab68dev-cv-builder" target="_blank" rel="noopener noreferrer" title="Review lab68dev CV Builder on Product Hunt">
-                <Image
-                  src="https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=1177121&theme=dark"
-                  alt="lab68dev CV Builder - Unlock Your Potential. Build Your Future. | Product Hunt"
-                  width={250}
-                  height={54}
-                  style={{ width: 250, height: 54, objectFit: "contain" }}
-                  unoptimized
-                />
+              <a href="https://www.producthunt.com/products/lab68dev-cv-builder/reviews/new?utm_source=badge-product_review&utm_medium=badge&utm_source=badge-lab68dev-cv-builder" target="_blank" rel="noopener noreferrer" title="Review on Product Hunt" className="shrink-0 opacity-60 hover:opacity-100 transition-opacity duration-200">
+                <Image src="https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=1177121&theme=dark" alt="Product Hunt Review" width={160} height={36} style={{ width: 160, height: 36, objectFit: "contain" }} unoptimized />
               </a>
-              <a href="https://www.producthunt.com/products/lab68dev-cv-builder?utm_source=badge-follow&utm_medium=badge&utm_source=badge-lab68dev-cv-builder" target="_blank" rel="noopener noreferrer" title="Follow lab68dev CV Builder on Product Hunt">
-                <Image
-                  src="https://api.producthunt.com/widgets/embed-image/v1/follow.svg?product_id=1177121&theme=dark"
-                  alt="lab68dev CV Builder - Unlock Your Potential. Build Your Future. | Product Hunt"
-                  width={250}
-                  height={54}
-                  style={{ width: 250, height: 54, objectFit: "contain" }}
-                  unoptimized
-                />
+              <a href="https://www.producthunt.com/products/lab68dev-cv-builder?utm_source=badge-follow&utm_medium=badge&utm_source=badge-lab68dev-cv-builder" target="_blank" rel="noopener noreferrer" title="Follow on Product Hunt" className="shrink-0 opacity-60 hover:opacity-100 transition-opacity duration-200">
+                <Image src="https://api.producthunt.com/widgets/embed-image/v1/follow.svg?product_id=1177121&theme=dark" alt="Follow on Product Hunt" width={160} height={36} style={{ width: 160, height: 36, objectFit: "contain" }} unoptimized />
               </a>
-              <a href="https://www.producthunt.com/products/lab68dev-cv-builder?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-lab68dev-cv-builder" target="_blank" rel="noopener noreferrer" title="lab68dev CV Builder featured on Product Hunt">
-                <Image
-                  src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1093292&theme=dark&t=1773130393873"
-                  alt="lab68dev CV Builder - Unlock Your Potential. Build Your Future. | Product Hunt"
-                  width={250}
-                  height={54}
-                  style={{ width: 250, height: 54, objectFit: "contain" }}
-                  unoptimized
-                />
+              <a href="https://www.producthunt.com/products/lab68dev-cv-builder?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-lab68dev-cv-builder" target="_blank" rel="noopener noreferrer" title="Featured on Product Hunt" className="shrink-0 opacity-60 hover:opacity-100 transition-opacity duration-200">
+                <Image src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1093292&theme=dark&t=1773130393873" alt="Featured on Product Hunt" width={160} height={36} style={{ width: 160, height: 36, objectFit: "contain" }} unoptimized />
               </a>
             </div>
           </div>
