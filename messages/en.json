@@ -42,7 +42,22 @@
             "review3Body": "The website is excellent for writing a professional CV — precise and to the point.",
             "review4Author": "Kim Huy",
             "review4Title": "Minimalist CV Tool",
-            "review4Body": "Neo-brutalism interface paired with email login makes the whole workflow incredibly focused and seamless."
+            "review4Body": "Neo-brutalism interface paired with email login makes the whole workflow incredibly focused and seamless.",
+            "review5Author": "Nguyễn Cảnh Việt",
+            "review5Title": "Great Product, Highly Recommended",
+            "review5Body": "Creating a CV is very easy, fast, with AI support. A product built with real passion."
+        },
+        "AI": {
+            "label": "NEW // AI WRITING ASSISTANT",
+            "title": "Write Smarter, Not Harder",
+            "subtitle": "AI-powered suggestions help you craft compelling resume content — instantly.",
+            "feature1Title": "Smart Suggestions",
+            "feature1Desc": "Get context-aware content suggestions tailored to each section of your resume.",
+            "feature2Title": "Professional Tone",
+            "feature2Desc": "AI rewrites your bullet points in strong, action-oriented language that recruiters notice.",
+            "feature3Title": "Instant Generation",
+            "feature3Desc": "Generate full resume sections from a brief description in seconds.",
+            "cta": "Try AI Assistant →"
         },
         "CTA": {
             "title": "Ready to build?",
