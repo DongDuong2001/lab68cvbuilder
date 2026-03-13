@@ -98,6 +98,24 @@ input:focus::placeholder, textarea:focus::placeholder {
   color: #A3A3A3;
 }
 
+/* Keep date/month picker icon visible on macOS WebKit browsers */
+input[type="date"],
+input[type="month"] {
+  color-scheme: light;
+  padding-right: 2rem;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="month"]::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  cursor: pointer;
+}
+
+input[type="date"]:focus::-webkit-calendar-picker-indicator,
+input[type="month"]:focus::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
 /* Brutalist button base */
 button {
   cursor: pointer;
