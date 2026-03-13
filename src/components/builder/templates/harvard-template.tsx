@@ -19,7 +19,7 @@ export function HarvardTemplate({ data, labels, dateLocale }: TemplateProps) {
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "";
     const date = new Date(dateStr + "-01");
-    return date.toLocaleDateString(dl, { month: "long", year: "numeric" });
+    return date.toLocaleDateString(dl, { month: "long", year: "numeric", timeZone: "UTC" });
   };
 
   const formatDateRange = (start: string, end: string, current: boolean) => {
