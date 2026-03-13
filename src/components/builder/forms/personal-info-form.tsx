@@ -2,7 +2,19 @@
 
 import { useRef, useState } from "react";
 import { useResumeStore } from "@/store/resume-store";
+import { useTranslations } from "next-intl";
 import { generateSummary } from "@/actions/ai";
+import {
+  importFromBehance,
+  importFromGitHub,
+  type SocialImportResult,
+} from "@/actions/import";
+import { parseLinkedInZip } from "@/lib/linkedin-zip-parser";
+import type { ResumeData } from "@/db/schema";
+import {
+  ImportPreviewModal,
+  type ImportSelection,
+} from "@/components/builder/import-preview-modal";
 
 // ── Validation Helpers ────────────────────────────────────────
 const MAX_NAME_LENGTH = 100;
@@ -12,18 +24,240 @@ const MAX_PHONE_LENGTH = 20;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^[+\d\s\-().]*$/;
 
+type PersonalFieldKey = keyof ImportSelection["personal"];
+
+const createEmptySelection = (): ImportSelection => ({
+  personal: {
+    fullName: false,
+    email: false,
+    location: false,
+    website: false,
+    linkedin: false,
+    github: false,
+    summary: false,
+  },
+  skills: false,
+  projects: false,
+  experience: false,
+  certifications: false,
+  skillsMode: "merge",
+  projectsMode: "merge",
+  experienceMode: "merge",
+  certificationsMode: "merge",
+});
+
 /** Strip HTML tags to prevent XSS in rendered output */
 function sanitize(value: string): string {
   return value.replace(/<[^>]*>/g, "");
 }
 
 export function PersonalInfoForm() {
-  const { data, updatePersonalInfo } = useResumeStore();
+  const t = useTranslations("BuilderImport");
+  const { data, updatePersonalInfo, setData } = useResumeStore();
   const { personalInfo } = data;
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const linkedinZipRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isParsingLinkedinZip, setIsParsingLinkedinZip] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  const [isImportingGithub, setIsImportingGithub] = useState(false);
+  const [isImportingBehance, setIsImportingBehance] = useState(false);
+  const [isApplyingPreview, setIsApplyingPreview] = useState(false);
+  const [githubInput, setGithubInput] = useState("");
+  const [behanceInput, setBehanceInput] = useState("");
+  const [importStatus, setImportStatus] = useState<string>("");
+  const [previewDraft, setPreviewDraft] = useState<SocialImportResult | null>(null);
+  const [previewSelection, setPreviewSelection] = useState<ImportSelection>(createEmptySelection());
+
+  const mergeImportedSkills = (
+    currentSkills: ResumeData["skills"],
+    importedSkills: Array<{ category: string; items: string[] }>
+  ): ResumeData["skills"] => {
+    const next = [...currentSkills];
+
+    for (const imported of importedSkills) {
+      if (!imported.items.length) continue;
+
+      const matchIndex = next.findIndex(
+        (skill) => skill.category.trim().toLowerCase() === imported.category.trim().toLowerCase()
+      );
+
+      if (matchIndex >= 0) {
+        const mergedItems = [...next[matchIndex].items];
+        for (const item of imported.items) {
+          if (!mergedItems.some((existing) => existing.toLowerCase() === item.toLowerCase())) {
+            mergedItems.push(item);
+          }
+        }
+
+        next[matchIndex] = {
+          ...next[matchIndex],
+          items: mergedItems,
+        };
+      } else {
+        next.push({
+          id: crypto.randomUUID(),
+          category: imported.category,
+          items: [...imported.items],
+        });
+      }
+    }
+
+    return next;
+  };
+
+  const mapImportedSkills = (
+    importedSkills: Array<{ category: string; items: string[] }>
+  ): ResumeData["skills"] =>
+    importedSkills
+      .filter((skill) => skill.items.length > 0)
+      .map((skill) => ({
+        id: crypto.randomUUID(),
+        category: skill.category,
+        items: [...skill.items],
+      }));
+
+  const mergeImportedProjects = (
+    currentProjects: ResumeData["projects"],
+    importedProjects: Array<{
+      name: string;
+      description: string;
+      url: string;
+      githubUrl: string;
+      websiteUrl: string;
+      technologies: string[];
+      highlights: string[];
+    }>
+  ): ResumeData["projects"] => {
+    const existingProjectKeys = new Set(
+      currentProjects
+        .map((project) => (project.githubUrl || project.url || project.name).trim().toLowerCase())
+        .filter(Boolean)
+    );
+
+    const newProjects = importedProjects
+      .filter((project) => {
+        const key = (project.githubUrl || project.url || project.name).trim().toLowerCase();
+        return key ? !existingProjectKeys.has(key) : true;
+      })
+      .map((project) => ({
+        id: crypto.randomUUID(),
+        name: project.name,
+        description: project.description,
+        url: project.url,
+        githubUrl: project.githubUrl,
+        websiteUrl: project.websiteUrl,
+        technologies: project.technologies,
+        highlights: project.highlights,
+      }));
+
+    return [...currentProjects, ...newProjects];
+  };
+
+  const mapImportedProjects = (
+    importedProjects: Array<{
+      name: string;
+      description: string;
+      url: string;
+      githubUrl: string;
+      websiteUrl: string;
+      technologies: string[];
+      highlights: string[];
+    }>
+  ): ResumeData["projects"] =>
+    importedProjects.map((project) => ({
+      id: crypto.randomUUID(),
+      name: project.name,
+      description: project.description,
+      url: project.url,
+      githubUrl: project.githubUrl,
+      websiteUrl: project.websiteUrl,
+      technologies: project.technologies,
+      highlights: project.highlights,
+    }));
+
+  const mergeImportedExperience = (
+    currentExperience: ResumeData["experience"],
+    importedExperience: SocialImportResult["experience"]
+  ): ResumeData["experience"] => {
+    const existingKeys = new Set(
+      currentExperience
+        .map((exp) => `${exp.company}|${exp.position}|${exp.startDate}`.toLowerCase())
+        .filter(Boolean)
+    );
+
+    const next = [...currentExperience];
+    for (const exp of importedExperience) {
+      const key = `${exp.company}|${exp.position}|${exp.startDate}`.toLowerCase();
+      if (existingKeys.has(key)) continue;
+      next.push({
+        id: crypto.randomUUID(),
+        company: exp.company,
+        position: exp.position,
+        location: exp.location || "",
+        startDate: exp.startDate,
+        endDate: exp.endDate || "",
+        current: exp.current,
+        description: exp.description,
+        highlights: exp.highlights,
+      });
+    }
+
+    return next;
+  };
+
+  const mapImportedExperience = (
+    importedExperience: SocialImportResult["experience"]
+  ): ResumeData["experience"] =>
+    importedExperience.map((exp) => ({
+      id: crypto.randomUUID(),
+      company: exp.company,
+      position: exp.position,
+      location: exp.location || "",
+      startDate: exp.startDate,
+      endDate: exp.endDate || "",
+      current: exp.current,
+      description: exp.description,
+      highlights: exp.highlights,
+    }));
+
+  const mergeImportedCertifications = (
+    currentCertifications: ResumeData["certifications"],
+    importedCertifications: SocialImportResult["certifications"]
+  ): ResumeData["certifications"] => {
+    const existingKeys = new Set(
+      currentCertifications
+        .map((cert) => `${cert.name}|${cert.issuer}|${cert.date}`.toLowerCase())
+        .filter(Boolean)
+    );
+
+    const next = [...currentCertifications];
+    for (const cert of importedCertifications) {
+      const key = `${cert.name}|${cert.issuer}|${cert.date}`.toLowerCase();
+      if (existingKeys.has(key)) continue;
+      next.push({
+        id: crypto.randomUUID(),
+        name: cert.name,
+        issuer: cert.issuer,
+        date: cert.date,
+        url: cert.url || "",
+      });
+    }
+
+    return next;
+  };
+
+  const mapImportedCertifications = (
+    importedCertifications: SocialImportResult["certifications"]
+  ): ResumeData["certifications"] =>
+    importedCertifications.map((cert) => ({
+      id: crypto.randomUUID(),
+      name: cert.name,
+      issuer: cert.issuer,
+      date: cert.date,
+      url: cert.url || "",
+    }));
 
   const updateField = (field: keyof typeof personalInfo, value: string) => {
     // Sanitize all text input
@@ -133,6 +367,154 @@ export function PersonalInfoForm() {
     }
   };
 
+  const buildInitialSelection = (draft: SocialImportResult): ImportSelection => {
+    const next = createEmptySelection();
+
+    const personalKeys = Object.keys(next.personal) as PersonalFieldKey[];
+    for (const key of personalKeys) {
+      const value = (draft.personalInfo[key] ?? "").toString().trim();
+      next.personal[key] = Boolean(value);
+    }
+
+    next.skills = draft.skills.length > 0;
+    next.projects = draft.projects.length > 0;
+    next.experience = draft.experience.length > 0;
+    next.certifications = draft.certifications.length > 0;
+    return next;
+  };
+
+  const openPreview = (draft: SocialImportResult) => {
+    setPreviewDraft(draft);
+    setPreviewSelection(buildInitialSelection(draft));
+  };
+
+  const handleImportGithub = async () => {
+    if (isImportingGithub) return;
+
+    if (!githubInput.trim()) {
+      setImportStatus(t("githubMissingInput"));
+      return;
+    }
+
+    setIsImportingGithub(true);
+    setImportStatus("");
+
+    try {
+      const imported = await importFromGitHub(githubInput.trim());
+      openPreview(imported);
+      setImportStatus(t("previewReady", { source: "GitHub", username: imported.username }));
+    } catch (err: unknown) {
+      setImportStatus((err as Error).message || t("githubFailed"));
+    } finally {
+      setIsImportingGithub(false);
+    }
+  };
+
+  const handleLinkedInZipImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.toLowerCase().endsWith(".zip")) {
+      setImportStatus(t("linkedinZipInvalidFile"));
+      return;
+    }
+
+    setIsParsingLinkedinZip(true);
+    setImportStatus("");
+
+    try {
+      const imported = await parseLinkedInZip(file);
+      openPreview(imported);
+      setImportStatus(t("previewReady", { source: "LinkedIn", username: imported.username }));
+    } catch (err: unknown) {
+      setImportStatus((err as Error).message || t("linkedinZipFailed"));
+    } finally {
+      setIsParsingLinkedinZip(false);
+      if (linkedinZipRef.current) linkedinZipRef.current.value = "";
+    }
+  };
+
+  const handleImportBehance = async () => {
+    if (isImportingBehance) return;
+
+    const input = behanceInput.trim();
+    if (!input) {
+      setImportStatus(t("behanceMissingInput"));
+      return;
+    }
+
+    setIsImportingBehance(true);
+    setImportStatus("");
+
+    try {
+      const imported = await importFromBehance(input);
+      openPreview(imported);
+      setImportStatus(t("previewReady", { source: "Behance", username: imported.username }));
+    } catch (err: unknown) {
+      setImportStatus((err as Error).message || t("behanceFailed"));
+    } finally {
+      setIsImportingBehance(false);
+    }
+  };
+
+  const handleApplyPreview = () => {
+    if (!previewDraft) return;
+
+    setIsApplyingPreview(true);
+
+    const nextPersonalInfo: ResumeData["personalInfo"] = {
+      ...data.personalInfo,
+    };
+
+    const selectedKeys = Object.keys(previewSelection.personal) as PersonalFieldKey[];
+    for (const key of selectedKeys) {
+      if (!previewSelection.personal[key]) continue;
+      const incoming = (previewDraft.personalInfo[key] ?? "").toString().trim();
+      if (!incoming) continue;
+      nextPersonalInfo[key] = incoming;
+    }
+
+    const nextSkills = previewSelection.skills
+      ? previewSelection.skillsMode === "replace"
+        ? mapImportedSkills(previewDraft.skills)
+        : mergeImportedSkills(data.skills, previewDraft.skills)
+      : data.skills;
+
+    const nextProjects = previewSelection.projects
+      ? previewSelection.projectsMode === "replace"
+        ? mapImportedProjects(previewDraft.projects)
+        : mergeImportedProjects(data.projects, previewDraft.projects)
+      : data.projects;
+
+    const nextExperience = previewSelection.experience
+      ? previewSelection.experienceMode === "replace"
+        ? mapImportedExperience(previewDraft.experience)
+        : mergeImportedExperience(data.experience, previewDraft.experience)
+      : data.experience;
+
+    const nextCertifications = previewSelection.certifications
+      ? previewSelection.certificationsMode === "replace"
+        ? mapImportedCertifications(previewDraft.certifications)
+        : mergeImportedCertifications(data.certifications, previewDraft.certifications)
+      : data.certifications;
+
+    setData({
+      ...data,
+      personalInfo: nextPersonalInfo,
+      skills: nextSkills,
+      projects: nextProjects,
+      experience: nextExperience,
+      certifications: nextCertifications,
+    });
+
+    setImportStatus(t("mergedSelected", {
+      source: previewDraft.source.toUpperCase(),
+      username: previewDraft.username,
+    }));
+    setPreviewDraft(null);
+    setIsApplyingPreview(false);
+  };
+
   /** Helper: input class with error state */
   const inputClass = (field: string) =>
     `w-full border bg-transparent px-4 py-3 transition-all duration-150 ${errors[field]
@@ -153,6 +535,78 @@ export function PersonalInfoForm() {
       </div>
 
       <div className="border-t border-black pt-6 space-y-6">
+
+        {/* ── Import Profile ─────────────────────────────── */}
+        <div className="border border-dashed border-gray-300 p-4 space-y-4">
+          <div>
+            <span className="label-mono block mb-1">{t("importSectionTitle")}</span>
+            <p className="text-xs text-gray-500">{t("importSectionHint")}</p>
+          </div>
+
+          {/* LinkedIn ZIP */}
+          <div className="flex items-center gap-3">
+            <span className="label-mono w-20 shrink-0 text-[11px]">LINKEDIN</span>
+            <button
+              onClick={() => linkedinZipRef.current?.click()}
+              disabled={isParsingLinkedinZip}
+              className="border border-gray-400 px-3 py-1.5 text-xs font-bold uppercase tracking-wider hover:border-black hover:bg-black hover:text-white transition-all duration-150 disabled:opacity-40"
+            >
+              {isParsingLinkedinZip ? t("linkedinZipParsing") : t("linkedinZipButton")}
+            </button>
+            <span className="text-[10px] text-gray-400 hidden sm:block">{t("linkedinZipHint")}</span>
+          </div>
+          <input
+            ref={linkedinZipRef}
+            type="file"
+            aria-label="Upload LinkedIn data export ZIP"
+            accept=".zip"
+            onChange={handleLinkedInZipImport}
+            className="hidden"
+          />
+
+          {/* GitHub */}
+          <div className="flex items-center gap-3">
+            <span className="label-mono w-20 shrink-0 text-[11px]">GITHUB</span>
+            <input
+              type="text"
+              value={githubInput}
+              onChange={(e) => setGithubInput(e.target.value)}
+              placeholder={t("githubPlaceholder")}
+              className="flex-1 min-w-0 border border-black bg-transparent px-3 py-1.5 text-sm focus:bg-black focus:text-white transition-all duration-150"
+            />
+            <button
+              onClick={handleImportGithub}
+              disabled={isImportingGithub}
+              className="shrink-0 border border-gray-400 px-3 py-1.5 text-xs font-bold uppercase tracking-wider hover:border-black hover:bg-black hover:text-white transition-all duration-150 disabled:opacity-40"
+            >
+              {isImportingGithub ? t("importing") : t("previewImport")}
+            </button>
+          </div>
+
+          {/* Behance */}
+          <div className="flex items-center gap-3">
+            <span className="label-mono w-20 shrink-0 text-[11px]">BEHANCE</span>
+            <input
+              type="text"
+              value={behanceInput}
+              onChange={(e) => setBehanceInput(e.target.value)}
+              placeholder={t("behancePlaceholder")}
+              className="flex-1 min-w-0 border border-black bg-transparent px-3 py-1.5 text-sm focus:bg-black focus:text-white transition-all duration-150"
+            />
+            <button
+              onClick={handleImportBehance}
+              disabled={isImportingBehance}
+              className="shrink-0 border border-gray-400 px-3 py-1.5 text-xs font-bold uppercase tracking-wider hover:border-black hover:bg-black hover:text-white transition-all duration-150 disabled:opacity-40"
+            >
+              {isImportingBehance ? t("importing") : t("previewImport")}
+            </button>
+          </div>
+
+          {importStatus && (
+            <p className="text-xs text-gray-700 mt-1">{importStatus}</p>
+          )}
+        </div>
+
         {/* Avatar Upload */}
         <div>
           <label className="label-mono block mb-3">AVATAR_PHOTO</label>
@@ -198,6 +652,7 @@ export function PersonalInfoForm() {
               <input
                 ref={fileInputRef}
                 type="file"
+                aria-label="Upload avatar image"
                 accept="image/jpeg,image/png,image/webp"
                 onChange={handleAvatarUpload}
                 className="hidden"
@@ -301,25 +756,29 @@ export function PersonalInfoForm() {
         </div>
 
         {/* LinkedIn */}
+        {/* LinkedIn URL — shown in CV header */}
         <div>
-          <label className="label-mono block mb-2">LINKEDIN</label>
+          <label className="label-mono block mb-1">{t("linkedinUrlLabel")}</label>
+          <p className="text-[10px] text-gray-400 mb-2">{t("linkedinUrlHint")}</p>
           <input
-            type="url"
+            type="text"
             value={personalInfo.linkedin || ""}
             onChange={(e) => updateField("linkedin", e.target.value)}
-            placeholder="https://linkedin.com/in/johndoe"
+            placeholder={t("linkedinPlaceholder")}
             className="w-full border border-black bg-transparent px-4 py-3 focus:bg-black focus:text-white transition-all duration-150"
           />
         </div>
 
         {/* GitHub */}
+        {/* GitHub URL — shown in CV header */}
         <div>
-          <label className="label-mono block mb-2">GITHUB</label>
+          <label className="label-mono block mb-1">GITHUB URL</label>
+          <p className="text-[10px] text-gray-400 mb-2">{t("githubHint")}</p>
           <input
-            type="url"
+            type="text"
             value={personalInfo.github || ""}
             onChange={(e) => updateField("github", e.target.value)}
-            placeholder="https://github.com/johndoe"
+            placeholder={t("githubPlaceholder")}
             className="w-full border border-black bg-transparent px-4 py-3 focus:bg-black focus:text-white transition-all duration-150"
           />
         </div>
@@ -353,6 +812,17 @@ export function PersonalInfoForm() {
           </span>
         </div>
       </div>
+
+      {previewDraft && (
+        <ImportPreviewModal
+          draft={previewDraft}
+          selection={previewSelection}
+          onChangeSelection={setPreviewSelection}
+          onClose={() => setPreviewDraft(null)}
+          onApply={handleApplyPreview}
+          isApplying={isApplyingPreview}
+        />
+      )}
     </div>
   );
 }
