@@ -12,7 +12,7 @@ const ibmPlexSans = IBM_Plex_Sans({
   weight: ["100", "200", "300", "400", "500", "600", "700"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://cvbuilder.lab68.dev';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://lab68cvbuilder.vercel.app/';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -44,6 +44,9 @@ export const metadata: Metadata = {
     description:
       "Raw. Structured. ATS-optimized brutalist resumes engineered for developers and designers.",
     creator: "@lab68dev",
+  },
+  verification: {
+    google: "dJTA2GKl41t-nBR_9oCK4Hz2OMgne24DzBidG6z7Ytg",
   },
   robots: {
     index: true,
