@@ -12,6 +12,26 @@ export function PdfPreviewModal({ pdfUrl, filename, onClose }: PdfPreviewModalPr
     const overlayRef = useRef<HTMLDivElement>(null);
     const [zoom, setZoom] = useState(100);
 
+    const zoomScaleClass: Record<number, string> = {
+        50: "scale-50",
+        75: "scale-75",
+        100: "scale-100",
+        125: "scale-125",
+        150: "scale-150",
+        175: "scale-[1.75]",
+        200: "scale-200",
+    };
+
+    const zoomViewportClass: Record<number, string> = {
+        50: "w-[200%] h-[200%]",
+        75: "w-[133.3333%] h-[133.3333%]",
+        100: "w-full h-full",
+        125: "w-[80%] h-[80%]",
+        150: "w-[66.6667%] h-[66.6667%]",
+        175: "w-[57.1429%] h-[57.1429%]",
+        200: "w-[50%] h-[50%]",
+    };
+
     const zoomIn = () => setZoom((z) => Math.min(z + 25, 200));
     const zoomOut = () => setZoom((z) => Math.max(z - 25, 50));
     const zoomReset = () => setZoom(100);
@@ -50,13 +70,11 @@ export function PdfPreviewModal({ pdfUrl, filename, onClose }: PdfPreviewModalPr
         <div
             ref={overlayRef}
             onClick={handleOverlayClick}
-            className="fixed inset-0 z-50 flex items-center justify-center"
-            style={{ backgroundColor: "rgba(0, 0, 0, 0.85)" }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/85"
         >
             {/* Modal container */}
             <div
-                className="relative flex flex-col bg-white border border-black"
-                style={{ width: "min(900px, 95vw)", height: "min(90vh, 95vh)" }}
+                className="relative flex flex-col bg-white border border-black w-[min(900px,95vw)] h-[min(90vh,95vh)]"
             >
                 {/* Header bar */}
                 <div className="flex items-center justify-between border-b border-black px-4 py-3 bg-white shrink-0">
@@ -108,12 +126,7 @@ export function PdfPreviewModal({ pdfUrl, filename, onClose }: PdfPreviewModalPr
                 {/* PDF iframe */}
                 <div className="flex-1 bg-gray-100 overflow-auto">
                     <div
-                        style={{
-                            transform: `scale(${zoom / 100})`,
-                            transformOrigin: "top center",
-                            width: `${10000 / zoom}%`,
-                            height: `${10000 / zoom}%`,
-                        }}
+                        className={`origin-top mx-auto ${zoomScaleClass[zoom]} ${zoomViewportClass[zoom]}`}
                     >
                         <iframe
                             src={pdfUrl}
