@@ -29,11 +29,17 @@
 
 * {
   border-radius: 0 !important;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html {
   background-color: #FFFFFF;
   color: #000000;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  font-feature-settings: "kern" 1, "liga" 1;
+  text-rendering: optimizeLegibility;
 }
 
 body {
@@ -135,6 +141,51 @@ select:focus {
   background-image:
     linear-gradient(45deg, transparent 50%, #FFFFFF 50%),
     linear-gradient(135deg, #FFFFFF 50%, transparent 50%);
+}
+
+/* macOS/Safari: custom checkbox styling (Safari ignores border-radius without appearance reset) */
+input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid #000000;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  padding: 0;
+  vertical-align: middle;
+}
+
+input[type="checkbox"]:checked {
+  background-color: #000000;
+}
+
+input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 0px;
+  width: 5px;
+  height: 9px;
+  border: 2px solid #FFFFFF;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+input[type="checkbox"]:focus-visible {
+  outline: 2px solid #000000;
+  outline-offset: 2px;
+}
+
+/* scrollbar-none utility — hides scrollbars while preserving scroll on macOS overlay-scrollbar mode */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
 
 /* Brutalist button base */
