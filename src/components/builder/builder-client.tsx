@@ -86,7 +86,7 @@ export function BuilderClient({ resume }: BuilderClientProps) {
       />
 
       {/* Split View */}
-      <div className="flex-1 flex overflow-clip">
+      <div className="flex-1 flex min-h-0">
         {/* Left Panel - Form */}
         <div
           className={`w-full lg:w-1/2 overflow-y-auto overscroll-y-contain border-r border-black ${isMobilePreview ? "hidden lg:block" : "block"
