@@ -76,7 +76,7 @@ export function BuilderClient({ resume }: BuilderClientProps) {
   }, [isDirty, debouncedSave]);
 
   return (
-    <div className="h-screen flex flex-col bg-white">
+    <div className="h-dvh flex flex-col bg-white">
       {/* Header */}
       <BuilderHeader
         resumeId={resume.id}
@@ -86,10 +86,10 @@ export function BuilderClient({ resume }: BuilderClientProps) {
       />
 
       {/* Split View */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-clip">
         {/* Left Panel - Form */}
         <div
-          className={`w-full lg:w-1/2 overflow-y-auto border-r border-black ${isMobilePreview ? "hidden lg:block" : "block"
+          className={`w-full lg:w-1/2 overflow-y-auto overscroll-y-contain border-r border-black ${isMobilePreview ? "hidden lg:block" : "block"
             }`}
         >
           <BuilderForm />
@@ -97,7 +97,7 @@ export function BuilderClient({ resume }: BuilderClientProps) {
 
         {/* Right Panel - Preview */}
         <div
-          className={`w-full lg:w-1/2 overflow-y-auto bg-gray-50 ${isMobilePreview ? "block" : "hidden lg:block"
+          className={`w-full lg:w-1/2 overflow-y-auto overscroll-y-contain bg-gray-50 ${isMobilePreview ? "block" : "hidden lg:block"
             }`}
         >
           <BuilderPreview />
