@@ -62,11 +62,18 @@ export default function HomePage() {
               <span className="text-[0.6rem] font-bold tracking-[0.2em] uppercase text-gray-400">Featured In</span>
             </div>
             <div className="flex items-center gap-6 overflow-x-auto px-8 py-5 md:py-6 scrollbar-none flex-nowrap w-full">
-              <a href="https://buildinprocess.com" target="_blank" rel="noopener noreferrer" title="Featured on BuildInProcess" className="shrink-0 opacity-60 hover:opacity-100 transition-opacity duration-200">
-                <Image src="https://buildinprocess.com/badges/badge-1-dark.svg" alt="Featured on BuildInProcess" width={160} height={36} style={{ width: 160, height: 36, objectFit: "contain" }} />
+              <a href="https://forg.to/products/lab68-cv-builder" target="_blank" rel="noopener" title="Upvote lab68-cv-builder on Forg" aria-label="Upvote lab68-cv-builder on Forg" className="shrink-0 opacity-60 hover:opacity-100 transition-opacity duration-200">
+                <Image
+                  src="https://forg.to/api/badges/upvote/lab68-cv-builder?theme=dark&shape=square"
+                  alt="lab68-cv-builder - Upvote on Forg"
+                  width={160}
+                  height={48}
+                  style={{ width: 160, height: 48, objectFit: "contain" }}
+                  unoptimized
+                />
               </a>
               <a href="https://unikorn.vn/p/lab68dev-cv-builder?ref=embed" target="_blank" rel="noopener noreferrer" title="lab68CV Builder trên Unikorn.vn" className="shrink-0 opacity-60 hover:opacity-100 transition-opacity duration-200">
-                <Image src="https://unikorn.vn/api/widgets/badge/lab68dev-cv-builder?theme=light" alt="lab68CV Builder trên Unikorn.vn" width={160} height={36} style={{ width: 160, height: 36, objectFit: "contain" }} unoptimized />
+                <Image src="https://unikorn.vn/api/widgets/badge/lab68dev-cv-builder?theme=dark" alt="lab68CV Builder trên Unikorn.vn" width={160} height={36} style={{ width: 160, height: 36, objectFit: "contain" }} unoptimized />
               </a>
               <a href="https://www.producthunt.com/products/lab68dev-cv-builder/reviews/new?utm_source=badge-product_review&utm_medium=badge&utm_source=badge-lab68dev-cv-builder" target="_blank" rel="noopener noreferrer" title="Review on Product Hunt" className="shrink-0 opacity-60 hover:opacity-100 transition-opacity duration-200">
                 <Image src="https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=1177121&theme=dark" alt="Product Hunt Review" width={160} height={36} style={{ width: 160, height: 36, objectFit: "contain" }} unoptimized />
@@ -105,6 +112,61 @@ export default function HomePage() {
               <div className="p-8 md:p-12">
                 <h3 className="text-sm font-bold tracking-widest uppercase mb-4">04. {t("Features.freeTitle")}</h3>
                 <p className="text-sm text-gray-600 leading-relaxed font-light">{t("Features.freeDesc")}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* PROFILE IMPORT */}
+        <section className="relative z-10 border-t border-black bg-gray-50">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row">
+            <div className="md:w-1/3 border-b md:border-b-0 md:border-r border-black p-8 md:p-16 flex items-start">
+              <div>
+                <span className="label-mono block mb-4">{t("Import.label")}</span>
+                <h2 className="text-3xl font-black tracking-tight uppercase">
+                  {t("Import.title")}
+                </h2>
+                <p className="text-sm text-gray-600 leading-relaxed font-light mt-4 max-w-xs">
+                  {t("Import.subtitle")}
+                </p>
+              </div>
+            </div>
+
+            <div className="md:w-2/3 grid grid-cols-1 sm:grid-cols-3">
+              <div className="p-8 md:p-10 border-b sm:border-b-0 sm:border-r border-black bg-white">
+                <div className="label-mono text-[10px] text-gray-500 mb-3">01 // GITHUB</div>
+                <h3 className="text-sm font-bold tracking-widest uppercase mb-3">{t("Import.githubTitle")}</h3>
+                <p className="text-sm text-gray-600 leading-relaxed font-light mb-6">{t("Import.githubDesc")}</p>
+                <Link
+                  href="/try"
+                  className="inline-block border border-black px-4 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-colors duration-150"
+                >
+                  {t("Import.cta")}
+                </Link>
+              </div>
+
+              <div className="p-8 md:p-10 border-b sm:border-b-0 sm:border-r border-black bg-white">
+                <div className="label-mono text-[10px] text-gray-500 mb-3">02 // LINKEDIN</div>
+                <h3 className="text-sm font-bold tracking-widest uppercase mb-3">{t("Import.linkedinTitle")}</h3>
+                <p className="text-sm text-gray-600 leading-relaxed font-light mb-6">{t("Import.linkedinDesc")}</p>
+                <Link
+                  href="/try"
+                  className="inline-block border border-black px-4 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-colors duration-150"
+                >
+                  {t("Import.cta")}
+                </Link>
+              </div>
+
+              <div className="p-8 md:p-10 bg-white">
+                <div className="label-mono text-[10px] text-gray-500 mb-3">03 // BEHANCE</div>
+                <h3 className="text-sm font-bold tracking-widest uppercase mb-3">{t("Import.behanceTitle")}</h3>
+                <p className="text-sm text-gray-600 leading-relaxed font-light mb-6">{t("Import.behanceDesc")}</p>
+                <Link
+                  href="/try"
+                  className="inline-block border border-black px-4 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-colors duration-150"
+                >
+                  {t("Import.cta")}
+                </Link>
               </div>
             </div>
           </div>
