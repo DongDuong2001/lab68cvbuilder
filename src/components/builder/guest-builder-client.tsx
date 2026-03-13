@@ -45,7 +45,7 @@ export function GuestBuilderClient() {
   }, [isDirty, title, templateId, fontFamily, data]);
 
   return (
-    <div className="h-screen flex flex-col bg-white">
+    <div className="h-dvh flex flex-col bg-white">
       <BuilderHeader
         resumeId="guest"
         isMobilePreview={isMobilePreview}
@@ -53,9 +53,9 @@ export function GuestBuilderClient() {
         isGuest
       />
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-clip">
         <div
-          className={`w-full lg:w-1/2 overflow-y-auto border-r border-black ${
+          className={`w-full lg:w-1/2 overflow-y-auto overscroll-y-contain border-r border-black ${
             isMobilePreview ? "hidden lg:block" : "block"
           }`}
         >
@@ -63,7 +63,7 @@ export function GuestBuilderClient() {
         </div>
 
         <div
-          className={`w-full lg:w-1/2 overflow-y-auto bg-gray-50 ${
+          className={`w-full lg:w-1/2 overflow-y-auto overscroll-y-contain bg-gray-50 ${
             isMobilePreview ? "block" : "hidden lg:block"
           }`}
         >
