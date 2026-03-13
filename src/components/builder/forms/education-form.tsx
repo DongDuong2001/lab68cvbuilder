@@ -2,6 +2,7 @@
 
 import { useResumeStore } from "@/store/resume-store";
 import type { ResumeData } from "@/db/schema";
+import { MonthInput } from "./month-input";
 
 export function EducationForm() {
   const { data, setData } = useResumeStore();
@@ -166,22 +167,21 @@ export function EducationForm() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="label-mono block mb-2">START_DATE *</label>
-                  <input
-                    type="month"
+                  <MonthInput
                     value={edu.startDate}
-                    onChange={(e) =>
-                      updateEducation(edu.id, { startDate: e.target.value })
+                    onChange={(value) =>
+                      updateEducation(edu.id, { startDate: value })
                     }
+                    required
                     className="w-full border border-gray-400 bg-transparent px-3 py-2 focus:border-black focus:bg-black focus:text-white transition-all duration-150"
                   />
                 </div>
                 <div>
                   <label className="label-mono block mb-2">END_DATE</label>
-                  <input
-                    type="month"
+                  <MonthInput
                     value={edu.endDate || ""}
-                    onChange={(e) =>
-                      updateEducation(edu.id, { endDate: e.target.value })
+                    onChange={(value) =>
+                      updateEducation(edu.id, { endDate: value })
                     }
                     disabled={edu.current}
                     className="w-full border border-gray-400 bg-transparent px-3 py-2 focus:border-black focus:bg-black focus:text-white transition-all duration-150 disabled:opacity-50"
