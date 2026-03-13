@@ -21,6 +21,7 @@ export function ResumeCard({ resume }: ResumeCardProps) {
     month: "short",
     day: "numeric",
     year: "numeric",
+    timeZone: "UTC",
   });
 
   const handleDelete = async () => {
