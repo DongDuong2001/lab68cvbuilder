@@ -22,6 +22,7 @@ export function CreativeTemplate({ data, labels, dateLocale }: TemplateProps) {
     const formatted = date.toLocaleDateString(dl, {
       month: "short",
       year: "numeric",
+      timeZone: "UTC",
     });
     return current ? `${formatted} - ${l.present}` : formatted;
   };
