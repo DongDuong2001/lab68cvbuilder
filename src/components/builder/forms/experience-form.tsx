@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useResumeStore } from "@/store/resume-store";
 import type { ResumeData } from "@/db/schema";
 import { improveBullet, improveDescription } from "@/actions/ai";
+import { MonthInput } from "./month-input";
 
 function isEndBeforeStart(start: string, end: string): boolean {
   if (!start || !end) return false;
@@ -221,11 +222,9 @@ export function ExperienceForm() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="label-mono block mb-2">START_DATE *</label>
-                  <input
-                    type="month"
+                  <MonthInput
                     value={exp.startDate}
-                    onChange={(e) => {
-                      const newStart = e.target.value;
+                    onChange={(newStart) => {
                       if (isEndBeforeStart(newStart, exp.endDate || "")) {
                         setDateErrors((prev) => ({
                           ...prev,
@@ -236,16 +235,15 @@ export function ExperienceForm() {
                       }
                       updateExperience(exp.id, { startDate: newStart });
                     }}
+                    required
                     className="w-full border border-gray-400 bg-transparent px-3 py-2 focus:border-black focus:bg-black focus:text-white transition-all duration-150"
                   />
                 </div>
                 <div>
                   <label className="label-mono block mb-2">END_DATE</label>
-                  <input
-                    type="month"
+                  <MonthInput
                     value={exp.endDate || ""}
-                    onChange={(e) => {
-                      const newEnd = e.target.value;
+                    onChange={(newEnd) => {
                       if (isEndBeforeStart(exp.startDate, newEnd)) {
                         setDateErrors((prev) => ({
                           ...prev,
