@@ -92,6 +92,7 @@ export function CertificationsForm() {
                 <div>
                   <label className="label-mono block mb-2">DATE</label>
                   <MonthInput
+                    key={`cert-date-${cert.id}-${cert.date || "empty"}`}
                     value={cert.date}
                     onChange={(value) =>
                       updateCertification(cert.id, { date: value })
