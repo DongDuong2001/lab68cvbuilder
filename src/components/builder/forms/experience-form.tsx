@@ -223,6 +223,7 @@ export function ExperienceForm() {
                 <div>
                   <label className="label-mono block mb-2">START_DATE *</label>
                   <MonthInput
+                    key={`exp-start-${exp.id}-${exp.startDate || "empty"}`}
                     value={exp.startDate}
                     onChange={(newStart) => {
                       if (isEndBeforeStart(newStart, exp.endDate || "")) {
@@ -242,6 +243,7 @@ export function ExperienceForm() {
                 <div>
                   <label className="label-mono block mb-2">END_DATE</label>
                   <MonthInput
+                    key={`exp-end-${exp.id}-${exp.endDate || "empty"}-${exp.current ? "current" : "open"}`}
                     value={exp.endDate || ""}
                     onChange={(newEnd) => {
                       if (isEndBeforeStart(exp.startDate, newEnd)) {
