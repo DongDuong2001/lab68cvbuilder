@@ -100,8 +100,53 @@ input::placeholder, textarea::placeholder {
   letter-spacing: 0.05em;
 }
 
+/* Keep selection clearly visible inside form fields, especially on black focus state */
+input[type="text"]::selection,
+input[type="email"]::selection,
+input[type="url"]::selection,
+input[type="tel"]::selection,
+input[type="search"]::selection,
+input[type="password"]::selection,
+textarea::selection {
+  background-color: #facc15 !important;
+  color: #000000 !important;
+}
+
+input[type="text"]::-moz-selection,
+input[type="email"]::-moz-selection,
+input[type="url"]::-moz-selection,
+input[type="tel"]::-moz-selection,
+input[type="search"]::-moz-selection,
+input[type="password"]::-moz-selection,
+textarea::-moz-selection {
+  background-color: #facc15 !important;
+  color: #000000 !important;
+}
+
 input:focus::placeholder, textarea:focus::placeholder {
   color: #A3A3A3;
+}
+
+input[type="text"]:focus::selection,
+input[type="email"]:focus::selection,
+input[type="url"]:focus::selection,
+input[type="tel"]:focus::selection,
+input[type="search"]:focus::selection,
+input[type="password"]:focus::selection,
+textarea:focus::selection {
+  background-color: #22d3ee !important;
+  color: #000000 !important;
+}
+
+input[type="text"]:focus::-moz-selection,
+input[type="email"]:focus::-moz-selection,
+input[type="url"]:focus::-moz-selection,
+input[type="tel"]:focus::-moz-selection,
+input[type="search"]:focus::-moz-selection,
+input[type="password"]:focus::-moz-selection,
+textarea:focus::-moz-selection {
+  background-color: #22d3ee !important;
+  color: #000000 !important;
 }
 
 /* Keep date/month picker icon visible on macOS WebKit browsers */
