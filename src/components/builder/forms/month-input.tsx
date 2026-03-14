@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 type MonthInputProps = {
   value: string;
@@ -33,7 +33,7 @@ function parseYearMonth(value: string): { year: string; month: string } {
 }
 
 function buildYearOptions(): string[] {
-  const currentYear = new Date().getFullYear();
+  const currentYear = new Date().getUTCFullYear();
   const fromYear = 1970;
   const toYear = currentYear + 10;
   const years: string[] = [];
@@ -54,15 +54,29 @@ export function MonthInput({
   title,
 }: MonthInputProps) {
   const years = useMemo(() => buildYearOptions(), []);
-  const { year, month } = parseYearMonth(value);
+  const parsed = parseYearMonth(value);
+  const [draft, setDraft] = useState(() => ({
+    year: parsed.year,
+    month: parsed.month,
+  }));
 
   return (
     <div className="grid grid-cols-2 gap-2">
       <select
-        value={month}
+        value={draft.month}
         onChange={(e) => {
           const nextMonth = e.target.value;
-          onChange(year && nextMonth ? `${year}-${nextMonth}` : "");
+          setDraft((prev) => {
+            const nextDraft = { ...prev, month: nextMonth };
+            if (!nextDraft.year || !nextDraft.month) {
+              onChange("");
+              return nextDraft;
+            }
+
+            const nextValue = `${nextDraft.year}-${nextDraft.month}`;
+            onChange(nextValue);
+            return nextDraft;
+          });
         }}
         className={className}
         disabled={disabled}
@@ -79,10 +93,20 @@ export function MonthInput({
       </select>
 
       <select
-        value={year}
+        value={draft.year}
         onChange={(e) => {
           const nextYear = e.target.value;
-          onChange(nextYear && month ? `${nextYear}-${month}` : "");
+          setDraft((prev) => {
+            const nextDraft = { ...prev, year: nextYear };
+            if (!nextDraft.year || !nextDraft.month) {
+              onChange("");
+              return nextDraft;
+            }
+
+            const nextValue = `${nextDraft.year}-${nextDraft.month}`;
+            onChange(nextValue);
+            return nextDraft;
+          });
         }}
         className={className}
         disabled={disabled}
