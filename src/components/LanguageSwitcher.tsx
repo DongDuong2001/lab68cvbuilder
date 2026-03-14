@@ -15,8 +15,10 @@ export function LanguageSwitcher() {
 
     return (
         <select
-            defaultValue={locale}
+            value={locale}
             onChange={onSelectChange}
+            title="Language"
+            aria-label="Language"
             className="border border-black bg-white px-2 py-1 text-xs font-mono uppercase focus:outline-none cursor-pointer hover:bg-black hover:text-white transition-colors"
         >
             <option value="en">EN</option>
