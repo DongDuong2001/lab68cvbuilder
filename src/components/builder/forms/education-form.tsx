@@ -168,6 +168,7 @@ export function EducationForm() {
                 <div>
                   <label className="label-mono block mb-2">START_DATE *</label>
                   <MonthInput
+                    key={`edu-start-${edu.id}-${edu.startDate || "empty"}`}
                     value={edu.startDate}
                     onChange={(value) =>
                       updateEducation(edu.id, { startDate: value })
@@ -179,6 +180,7 @@ export function EducationForm() {
                 <div>
                   <label className="label-mono block mb-2">END_DATE</label>
                   <MonthInput
+                    key={`edu-end-${edu.id}-${edu.endDate || "empty"}-${edu.current ? "current" : "open"}`}
                     value={edu.endDate || ""}
                     onChange={(value) =>
                       updateEducation(edu.id, { endDate: value })
