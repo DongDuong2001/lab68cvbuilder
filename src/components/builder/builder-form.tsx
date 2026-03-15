@@ -25,28 +25,74 @@ const SECTIONS = [
 
 export function BuilderForm() {
   const [activeSection, setActiveSection] = useState<string>("personal");
+  const [sectionOrder, setSectionOrder] = useState<string[]>(() =>
+    SECTIONS.map((s) => s.id)
+  );
+
+  const orderedSections = sectionOrder
+    .map((id) => SECTIONS.find((s) => s.id === id))
+    .filter((section): section is (typeof SECTIONS)[number] => Boolean(section));
+
+  const activeIndex = orderedSections.findIndex((s) => s.id === activeSection);
+
+  const moveActiveSection = (direction: "left" | "right") => {
+    if (activeIndex < 0) return;
+    const target = direction === "left" ? activeIndex - 1 : activeIndex + 1;
+    if (target < 0 || target >= orderedSections.length) return;
+
+    setSectionOrder((prev) => {
+      const next = [...prev];
+      [next[activeIndex], next[target]] = [next[target], next[activeIndex]];
+      return next;
+    });
+  };
 
   const ActiveComponent =
-    SECTIONS.find((s) => s.id === activeSection)?.component || PersonalInfoForm;
+    orderedSections.find((s) => s.id === activeSection)?.component || PersonalInfoForm;
 
   return (
     <div className="h-full flex flex-col">
       {/* Section tabs */}
       <div className="border-b border-gray-300 bg-white sticky top-0 z-10">
-        <div className="flex overflow-x-auto">
-          {SECTIONS.map((section) => (
+        <div className="flex items-center gap-2 px-2">
+          <div className="flex-1 overflow-x-auto">
+            <div className="flex min-w-max">
+              {orderedSections.map((section) => (
+                <button
+                  key={section.id}
+                  onClick={() => setActiveSection(section.id)}
+                  className={`px-6 py-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-colors duration-150 ${
+                    activeSection === section.id
+                      ? "bg-black text-white border-b-2 border-black"
+                      : "bg-white text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  {section.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="shrink-0 hidden md:flex items-center gap-1">
             <button
-              key={section.id}
-              onClick={() => setActiveSection(section.id)}
-              className={`px-6 py-4 text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-colors duration-150 ${
-                activeSection === section.id
-                  ? "bg-black text-white border-b-2 border-black"
-                  : "bg-white text-gray-600 hover:bg-gray-50"
-              }`}
+              type="button"
+              onClick={() => moveActiveSection("left")}
+              disabled={activeIndex <= 0}
+              className="border border-gray-400 px-2 py-1 text-[10px] font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-150 disabled:opacity-30"
+              title="Move section left"
             >
-              {section.label}
+              ←
             </button>
-          ))}
+            <button
+              type="button"
+              onClick={() => moveActiveSection("right")}
+              disabled={activeIndex < 0 || activeIndex >= orderedSections.length - 1}
+              className="border border-gray-400 px-2 py-1 text-[10px] font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-150 disabled:opacity-30"
+              title="Move section right"
+            >
+              →
+            </button>
+          </div>
         </div>
       </div>
 
