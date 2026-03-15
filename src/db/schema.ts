@@ -111,6 +111,7 @@ export type ResumeData = {
     endDate?: string;
     current: boolean;
     gpa?: string;
+    coursework?: string[];
     highlights: string[];
   }>;
   skills: Array<{
