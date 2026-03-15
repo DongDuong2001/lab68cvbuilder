@@ -283,6 +283,9 @@ export function ExecutivePDF({ data, fontFamily, labels, dateLocale }: PDFTempla
                 {edu.gpa && (
                   <Text style={styles.educationDetails}>{l.gpa}: {edu.gpa}</Text>
                 )}
+                {(edu.coursework ?? []).length > 0 && (
+                  <Text style={styles.educationDetails}>Relevant Coursework: {(edu.coursework ?? []).join(", ")}</Text>
+                )}
               </View>
             ))}
           </View>
