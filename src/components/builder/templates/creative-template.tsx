@@ -13,7 +13,12 @@ export function CreativeTemplate({ data, labels, dateLocale }: TemplateProps) {
   const dl = dateLocale ?? getDateLocale("en");
   const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
   const completeEducation = education.filter(
-    (edu) => edu.institution.trim() && edu.degree.trim() && edu.field.trim() && edu.startDate.trim()
+    (edu) =>
+      edu.institution.trim() ||
+      edu.degree.trim() ||
+      edu.field.trim() ||
+      edu.startDate.trim() ||
+      (edu.coursework ?? []).some((c) => c.trim())
   );
 
   const formatDate = (dateStr: string, current: boolean) => {
@@ -130,6 +135,11 @@ export function CreativeTemplate({ data, labels, dateLocale }: TemplateProps) {
                   <div className="opacity-60 text-[10px]">
                     {formatDateRange(edu.startDate, edu.endDate || "", edu.current)}
                   </div>
+                  {(edu.coursework ?? []).length > 0 && (
+                    <div className="opacity-70 text-[10px] mt-1 leading-relaxed">
+                      Relevant Coursework: {(edu.coursework ?? []).join(", ")}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
