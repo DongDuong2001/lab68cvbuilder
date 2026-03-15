@@ -6,6 +6,7 @@ import { useResumeStore } from "@/store/resume-store";
 import { CV_FONTS } from "@/lib/fonts";
 import { PDF_LOCALES } from "@/lib/pdf-labels";
 import { TEMPLATES } from "@/lib/constants";
+import { checkResumeGrammarAndSpelling } from "@/actions/ai";
 import { PdfPreviewModal } from "./pdf-preview-modal";
 import { TemplatePicker } from "./template-picker";
 
@@ -24,10 +25,11 @@ export function BuilderHeader({
   saveValidationError,
   isGuest = false,
 }: BuilderHeaderProps) {
-  const { title, setTitle, templateId, setTemplateId, fontFamily, setFontFamily, pdfLocale, setPdfLocale, isSaving, isDirty, lastSavedAt, data } =
+  const { title, setTitle, templateId, setTemplateId, fontFamily, setFontFamily, pdfLocale, setPdfLocale, isSaving, isDirty, lastSavedAt, data, setData } =
     useResumeStore();
 
   const [isExporting, setIsExporting] = useState(false);
+  const [isCheckingWriting, setIsCheckingWriting] = useState(false);
   const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
   const [previewFilename, setPreviewFilename] = useState("resume.pdf");
   const [exportError, setExportError] = useState<string | null>(null);
@@ -102,6 +104,21 @@ export function BuilderHeader({
     setPreviewPdfUrl(null);
   };
 
+  const handleCheckWriting = async () => {
+    if (isCheckingWriting) return;
+    setIsCheckingWriting(true);
+    try {
+      const { result } = await checkResumeGrammarAndSpelling(data);
+      setData(result);
+      alert("Grammar & spelling check completed.");
+    } catch (error) {
+      console.error("Failed to check grammar/spelling:", error);
+      alert((error as Error).message || "Failed to check writing. Please try again.");
+    } finally {
+      setIsCheckingWriting(false);
+    }
+  };
+
   return (
     <>
       <header className="border-b border-black bg-white">
@@ -170,6 +187,16 @@ export function BuilderHeader({
                   </Link>
                 ) : (
                   <>
+                    <button
+                      onClick={handleCheckWriting}
+                      disabled={isCheckingWriting}
+                      className={`border border-gray-400 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors duration-150 mb-1 ${isCheckingWriting
+                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                        : "hover:border-black hover:bg-black hover:text-white"
+                        }`}
+                    >
+                      {isCheckingWriting ? "CHECKING..." : "CHECK GRAMMAR"}
+                    </button>
                     <button
                       onClick={handlePreviewPdf}
                       disabled={isExporting}
