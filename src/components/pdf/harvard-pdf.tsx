@@ -121,6 +121,9 @@ export function HarvardPDF({ data, fontFamily, labels, dateLocale }: PDFTemplate
                   <Text style={s.eduDegree}>{edu.degree} in {edu.field}</Text>
                   <Text style={s.eduDetail}>{edu.institution}</Text>
                   {edu.gpa ? <Text style={s.eduDetail}>{l.gpa}: {edu.gpa}</Text> : null}
+                  {(edu.coursework ?? []).length > 0 ? (
+                    <Text style={s.eduDetail}>Relevant Coursework: {(edu.coursework ?? []).join(", ")}</Text>
+                  ) : null}
                 </View>
               </View>
             ))}
