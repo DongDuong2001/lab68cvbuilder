@@ -13,6 +13,7 @@ export function GuestBuilderClient() {
   const { setResume, data, title, templateId, fontFamily, isDirty } =
     useResumeStore();
   const [isMobilePreview, setIsMobilePreview] = useState(false);
+  const [isStoreReady, setIsStoreReady] = useState(false);
 
   // Initialize store from localStorage or empty data
   useEffect(() => {
@@ -27,22 +28,29 @@ export function GuestBuilderClient() {
           parsed.fontFamily || "inter",
           parsed.data || EMPTY_RESUME_DATA
         );
+        setIsStoreReady(true);
         return;
       } catch {
         // fall through to empty data
       }
     }
     setResume("guest", "My Resume", "harvard", "inter", EMPTY_RESUME_DATA);
+    setIsStoreReady(true);
   }, [setResume]);
 
   // Persist to localStorage whenever the store changes
   useEffect(() => {
+    if (!isStoreReady) return;
     if (!isDirty) return;
     localStorage.setItem(
       GUEST_STORAGE_KEY,
       JSON.stringify({ title, templateId, fontFamily, data })
     );
-  }, [isDirty, title, templateId, fontFamily, data]);
+  }, [isStoreReady, isDirty, title, templateId, fontFamily, data]);
+
+  if (!isStoreReady) {
+    return <div className="h-dvh bg-white" />;
+  }
 
   return (
     <div className="h-dvh flex flex-col bg-white">
