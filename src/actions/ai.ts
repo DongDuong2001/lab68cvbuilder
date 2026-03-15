@@ -3,6 +3,7 @@
 import Groq from "groq-sdk";
 import { auth } from "@/auth";
 import { createRateLimiter } from "@/lib/rate-limit";
+import type { ResumeData } from "@/db/schema";
 
 // 10 AI calls per hour per user
 const aiRateLimiter = createRateLimiter({ limit: 10, windowSeconds: 3600 });
@@ -159,4 +160,70 @@ ${description}`;
   if (!result) throw new Error("AI returned an empty response");
 
   return { result };
+}
+
+// ── CHECK RESUME GRAMMAR & SPELLING ────────────────────────
+
+function stripCodeFence(text: string): string {
+  const trimmed = text.trim();
+  if (!trimmed.startsWith("```") || !trimmed.endsWith("```")) return trimmed;
+  return trimmed.replace(/^```[a-zA-Z]*\n?/, "").replace(/```$/, "").trim();
+}
+
+/**
+ * Performs grammar and spelling correction across the full resume data.
+ * Keeps meaning/structure intact and only fixes writing quality.
+ */
+export async function checkResumeGrammarAndSpelling(
+  resumeData: ResumeData
+): Promise<{ result: ResumeData }> {
+  const userId = await getAuthUserId();
+
+  const rateCheck = aiRateLimiter.check(userId);
+  if (!rateCheck.allowed) {
+    throw new Error(
+      `Rate limit exceeded. Try again in ${rateCheck.retryAfterSeconds} seconds.`
+    );
+  }
+
+  const groq = getGroqClient();
+
+  const prompt = `You are a strict grammar and spelling proofreader for resumes.
+Task:
+- Fix only grammar, spelling, punctuation, and obvious wording errors.
+- Keep original meaning, facts, dates, and structure unchanged.
+- Do NOT invent new achievements, metrics, or job details.
+- Preserve all IDs and array shapes exactly.
+- Preserve language of each text (English/Vietnamese/etc) and only correct mistakes in that language.
+
+Return ONLY valid JSON (no markdown, no explanations) matching this shape exactly:
+{
+  "personalInfo": {"fullName":"","email":"","phone":"","location":"","website":"","linkedin":"","github":"","summary":"","avatarUrl":""},
+  "experience": [{"id":"","company":"","position":"","location":"","startDate":"","endDate":"","current":false,"description":"","highlights":[""]}],
+  "education": [{"id":"","institution":"","degree":"","field":"","location":"","startDate":"","endDate":"","current":false,"gpa":"","coursework":[""],"highlights":[""]}],
+  "skills": [{"id":"","category":"","items":[""]}],
+  "projects": [{"id":"","name":"","description":"","url":"","githubUrl":"","websiteUrl":"","technologies":[""],"highlights":[""]}],
+  "certifications": [{"id":"","name":"","issuer":"","date":"","url":""}],
+  "languages": [{"id":"","language":"","proficiency":"native"}]
+}
+
+Input JSON:
+${JSON.stringify(resumeData)}`;
+
+  const completion = await groq.chat.completions.create({
+    model: "llama-3.3-70b-versatile",
+    messages: [{ role: "user", content: prompt }],
+    max_tokens: 5000,
+    temperature: 0.1,
+  });
+
+  const content = completion.choices[0]?.message?.content?.trim();
+  if (!content) throw new Error("AI returned an empty response");
+
+  try {
+    const parsed = JSON.parse(stripCodeFence(content)) as ResumeData;
+    return { result: parsed };
+  } catch {
+    throw new Error("AI returned invalid JSON. Please try again.");
+  }
 }
