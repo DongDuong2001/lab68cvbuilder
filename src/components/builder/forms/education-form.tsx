@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useResumeStore } from "@/store/resume-store";
 import type { ResumeData } from "@/db/schema";
 import { MonthInput } from "./month-input";
@@ -7,6 +8,7 @@ import { MonthInput } from "./month-input";
 export function EducationForm() {
   const { data, setData } = useResumeStore();
   const { education } = data;
+  const [courseworkInputs, setCourseworkInputs] = useState<Record<string, string>>({});
 
   const addEducation = () => {
     const newEducation: ResumeData["education"][0] = {
@@ -19,6 +21,7 @@ export function EducationForm() {
       endDate: "",
       current: false,
       gpa: "",
+      coursework: [],
       highlights: [],
     };
 
@@ -32,6 +35,12 @@ export function EducationForm() {
     setData({
       ...data,
       education: education.filter((edu) => edu.id !== id),
+    });
+
+    setCourseworkInputs((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
     });
   };
 
@@ -53,6 +62,44 @@ export function EducationForm() {
         edu.id === id ? { ...edu, ...updates } : edu
       ),
     });
+  };
+
+  const addCoursework = (eduId: string, value: string) => {
+    const edu = education.find((e) => e.id === eduId);
+    const clean = value.trim();
+    if (!edu || !clean) return;
+
+    updateEducation(eduId, {
+      coursework: [...(edu.coursework ?? []), clean],
+    });
+  };
+
+  const removeCoursework = (eduId: string, idx: number) => {
+    const edu = education.find((e) => e.id === eduId);
+    if (!edu) return;
+
+    updateEducation(eduId, {
+      coursework: (edu.coursework ?? []).filter((_, i) => i !== idx),
+    });
+  };
+
+  const handleCourseworkKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    eduId: string
+  ) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      const value = courseworkInputs[eduId] || "";
+      if (value.trim()) {
+        addCoursework(eduId, value);
+        setCourseworkInputs((prev) => ({ ...prev, [eduId]: "" }));
+      }
+    } else if (e.key === "Backspace" && !(courseworkInputs[eduId] || "")) {
+      const edu = education.find((item) => item.id === eduId);
+      if (edu && (edu.coursework ?? []).length > 0) {
+        removeCoursework(eduId, (edu.coursework ?? []).length - 1);
+      }
+    }
   };
 
   return (
@@ -210,6 +257,62 @@ export function EducationForm() {
                 >
                   Currently enrolled
                 </label>
+              </div>
+
+              <div>
+                <label className="label-mono block mb-2">RELEVANT_COURSEWORK</label>
+                <div className="border border-gray-400 bg-transparent p-2 min-h-12">
+                  <div className="flex flex-wrap gap-2">
+                    {(edu.coursework ?? []).length === 0 && (
+                      <span className="text-xs text-gray-500">No coursework added yet.</span>
+                    )}
+                    {(edu.coursework ?? []).map((course, idx) => (
+                      <span
+                        key={`${edu.id}-course-${idx}`}
+                        className="inline-flex items-center gap-1 border border-black bg-black text-white px-2 py-1 text-sm"
+                      >
+                        {course}
+                        <button
+                          type="button"
+                          onClick={() => removeCoursework(edu.id, idx)}
+                          className="ml-1 hover:text-red-400 transition-colors"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="mt-2 flex gap-2">
+                  <input
+                    type="text"
+                    value={courseworkInputs[edu.id] || ""}
+                    onChange={(e) =>
+                      setCourseworkInputs((prev) => ({
+                        ...prev,
+                        [edu.id]: e.target.value,
+                      }))
+                    }
+                    onKeyDown={(e) => handleCourseworkKeyDown(e, edu.id)}
+                    placeholder="Add a course (e.g. Data Structures)"
+                    className="flex-1 border border-gray-400 bg-transparent px-3 py-2 focus:border-black focus:bg-black focus:text-white transition-all duration-150"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const value = courseworkInputs[edu.id] || "";
+                      if (!value.trim()) return;
+                      addCoursework(edu.id, value);
+                      setCourseworkInputs((prev) => ({ ...prev, [edu.id]: "" }));
+                    }}
+                    className="border border-black px-3 py-2 text-xs font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-150"
+                  >
+                    Add
+                  </button>
+                </div>
+                <span className="label-mono text-gray-500 text-xs block mt-2">
+                  Optional • Press ENTER or comma to add
+                </span>
               </div>
             </div>
           </div>
