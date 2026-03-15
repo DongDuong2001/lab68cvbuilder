@@ -189,6 +189,9 @@ export function AtsPDF({ data, fontFamily, labels, dateLocale }: PDFTemplateProp
                     <Text style={s.eduSchool}>{edu.field} — {edu.institution}</Text>
                     <Text style={s.eduDate}>{fmtRange(edu.startDate, edu.endDate || "", edu.current)}</Text>
                     {edu.gpa ? <Text style={s.eduDate}>{l.gpa}: {edu.gpa}</Text> : null}
+                    {(edu.coursework ?? []).length > 0 ? (
+                      <Text style={s.eduDate}>Relevant Coursework: {(edu.coursework ?? []).join(", ")}</Text>
+                    ) : null}
                   </View>
                 ))}
               </View>
