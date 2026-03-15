@@ -13,7 +13,12 @@ export function ExecutiveTemplate({ data, labels, dateLocale }: TemplateProps) {
   const dl = dateLocale ?? getDateLocale("en");
   const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
   const completeEducation = education.filter(
-    (edu) => edu.institution.trim() && edu.degree.trim() && edu.field.trim() && edu.startDate.trim()
+    (edu) =>
+      edu.institution.trim() ||
+      edu.degree.trim() ||
+      edu.field.trim() ||
+      edu.startDate.trim() ||
+      (edu.coursework ?? []).some((c) => c.trim())
   );
 
   const formatDate = (dateStr: string, current: boolean) => {
@@ -125,6 +130,11 @@ export function ExecutiveTemplate({ data, labels, dateLocale }: TemplateProps) {
                     <div className="text-sm">{edu.institution}</div>
                     {edu.location && (
                       <div className="text-xs text-gray-600">{edu.location}</div>
+                    )}
+                    {(edu.coursework ?? []).length > 0 && (
+                      <div className="text-xs text-gray-600 mt-1">
+                        Relevant Coursework: {(edu.coursework ?? []).join(", ")}
+                      </div>
                     )}
                   </div>
                   <div className="text-xs font-mono text-right">
