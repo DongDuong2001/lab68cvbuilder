@@ -13,7 +13,12 @@ export function HarvardTemplate({ data, labels, dateLocale }: TemplateProps) {
   const dl = dateLocale ?? getDateLocale("en");
   const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
   const completeEducation = education.filter(
-    (edu) => edu.institution.trim() && edu.degree.trim() && edu.field.trim() && edu.startDate.trim()
+    (edu) =>
+      edu.institution.trim() ||
+      edu.degree.trim() ||
+      edu.field.trim() ||
+      edu.startDate.trim() ||
+      (edu.coursework ?? []).some((c) => c.trim())
   );
 
   const formatDate = (dateStr: string) => {
@@ -114,6 +119,11 @@ export function HarvardTemplate({ data, labels, dateLocale }: TemplateProps) {
                   <h3 className="text-sm font-bold text-black">{edu.degree} in {edu.field}</h3>
                   <div className="text-sm text-gray-500">{edu.institution}</div>
                   {edu.gpa && <div className="text-xs text-gray-400 mt-1">{l.gpa}: {edu.gpa}</div>}
+                  {(edu.coursework ?? []).length > 0 && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      Relevant Coursework: {(edu.coursework ?? []).join(", ")}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
