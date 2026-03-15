@@ -50,6 +50,7 @@ export function sanitizeResumeData(data: ResumeData): ResumeData {
       field: sanitizeText(edu.field),
       location: sanitizeText(edu.location ?? ""),
       gpa: sanitizeText(edu.gpa ?? ""),
+      coursework: (edu.coursework ?? []).map(sanitizeText),
       highlights: edu.highlights.map(sanitizeText),
     })),
     skills: data.skills.map((cat) => ({
