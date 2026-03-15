@@ -13,7 +13,12 @@ export function AtsTemplate({ data, labels, dateLocale }: TemplateProps) {
   const dl = dateLocale ?? getDateLocale("en");
   const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
   const completeEducation = education.filter(
-    (edu) => edu.institution.trim() && edu.degree.trim() && edu.field.trim() && edu.startDate.trim()
+    (edu) =>
+      edu.institution.trim() ||
+      edu.degree.trim() ||
+      edu.field.trim() ||
+      edu.startDate.trim() ||
+      (edu.coursework ?? []).some((c) => c.trim())
   );
 
   const formatDate = (dateStr: string) => {
@@ -115,11 +120,16 @@ export function AtsTemplate({ data, labels, dateLocale }: TemplateProps) {
           <h2 className="text-xs font-bold uppercase mb-2">{l.education}</h2>
           <div className="space-y-1.5">
             {completeEducation.map((edu) => (
-              <div key={edu.id} className="flex justify-between items-baseline">
-                <div>
+              <div key={edu.id} className="flex justify-between items-start">
+                <div className="pr-2">
                   <span className="text-[12px] font-bold">{edu.degree} in {edu.field}</span>
                   <span className="text-[11px] text-gray-600"> — {edu.institution}</span>
                   {edu.gpa && <span className="text-[11px] text-gray-400"> ({l.gpa}: {edu.gpa})</span>}
+                  {(edu.coursework ?? []).length > 0 && (
+                    <div className="text-[10px] text-gray-500 mt-0.5">
+                      Relevant Coursework: {(edu.coursework ?? []).join(", ")}
+                    </div>
+                  )}
                 </div>
                 <span className="text-[10px] text-gray-500 shrink-0 ml-2">
                   {formatDateRange(edu.startDate, edu.endDate || "", edu.current)}
