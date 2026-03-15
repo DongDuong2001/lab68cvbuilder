@@ -243,6 +243,9 @@ export function CreativePDF({ data, fontFamily, labels, dateLocale }: PDFTemplat
                   <Text style={styles.educationDetails}>
                     {formatDateRange(edu.startDate, edu.endDate || "", edu.current)}
                   </Text>
+                  {(edu.coursework ?? []).length > 0 ? (
+                    <Text style={styles.educationDetails}>Relevant Coursework: {(edu.coursework ?? []).join(", ")}</Text>
+                  ) : null}
                 </View>
               ))}
             </View>
