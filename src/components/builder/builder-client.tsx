@@ -21,14 +21,17 @@ export function BuilderClient({ resume }: BuilderClientProps) {
 
   const [isMobilePreview, setIsMobilePreview] = useState(false);
   const [saveValidationError, setSaveValidationError] = useState<string | null>(null);
+  const [isStoreReady, setIsStoreReady] = useState(false);
 
   // Initialize store with resume data
   useEffect(() => {
     setResume(resume.id, resume.title, resume.templateId, resume.fontFamily ?? "inter", resume.data);
+    setIsStoreReady(true);
   }, [resume, setResume]);
 
   // Auto-save function
   const saveResume = useCallback(async () => {
+    if (!isStoreReady) return;
     if (!isDirty) return;
 
     // Block save if email is present but malformed — bad data integrity
@@ -51,7 +54,7 @@ export function BuilderClient({ resume }: BuilderClientProps) {
       console.error("Failed to save resume:", error);
       setIsSaving(false);
     }
-  }, [isDirty, resume.id, title, templateId, fontFamily, data, setIsSaving, markSaved]);
+  }, [isStoreReady, isDirty, resume.id, title, templateId, fontFamily, data, setIsSaving, markSaved]);
 
   // Keyboard shortcut: Ctrl+S to save immediately
   useEffect(() => {
@@ -70,10 +73,15 @@ export function BuilderClient({ resume }: BuilderClientProps) {
 
   // Trigger auto-save when data changes
   useEffect(() => {
+    if (!isStoreReady) return;
     if (isDirty) {
       debouncedSave();
     }
-  }, [isDirty, debouncedSave]);
+  }, [isStoreReady, isDirty, debouncedSave]);
+
+  if (!isStoreReady) {
+    return <div className="h-dvh bg-white" />;
+  }
 
   return (
     <div className="h-dvh flex flex-col bg-white">
