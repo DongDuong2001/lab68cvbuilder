@@ -137,6 +137,24 @@ export function BuilderHeader({
     }
   };
 
+  const jumpToSection = (sectionId: string) => {
+    if (typeof window === "undefined") return;
+    window.location.hash = sectionId;
+  };
+
+  const setBulletSymbol = (symbol: string) => {
+    const next = symbol.slice(0, 3);
+    setData({
+      ...data,
+      personalInfo: {
+        ...data.personalInfo,
+        bulletSymbol: next,
+      },
+    });
+  };
+
+  const activeBulletSymbol = (data.personalInfo.bulletSymbol || "•").slice(0, 3);
+
   return (
     <>
       <header className="sticky top-0 z-30 border-b border-black bg-white shadow-sm lg:static lg:shadow-none">
@@ -298,6 +316,81 @@ export function BuilderHeader({
                   </option>
                 ))}
               </select>
+            </div>
+          </div>
+
+          <div className="mt-4 border-t border-black pt-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="label-mono text-gray-500">QUICK_ACCESS</span>
+              <span className="text-[10px] text-gray-500 uppercase tracking-wider">Jump straight to key tools</span>
+            </div>
+
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => jumpToSection("personal")}
+              className="border border-black bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-150"
+            >
+              Profile Import
+            </button>
+            <button
+              type="button"
+              onClick={() => jumpToSection("versions")}
+              className="border border-black bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-150"
+            >
+              Version History
+            </button>
+            <button
+              type="button"
+              onClick={() => jumpToSection("score")}
+              className="border border-black bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-150"
+            >
+              Resume Score
+            </button>
+            <Link
+              href={isGuest ? "/login" : "/applications"}
+              className="border border-black bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-150"
+            >
+              Applications Tracker
+            </Link>
+
+            <div className="ml-0 sm:ml-2 flex items-center gap-2 border border-gray-300 bg-white px-2 py-1">
+              <span className="label-mono text-gray-500">BULLET</span>
+              <input
+                type="text"
+                value={activeBulletSymbol}
+                onChange={(e) => setBulletSymbol(e.target.value)}
+                maxLength={3}
+                aria-label="Bullet symbol"
+                className="w-10 border border-black bg-white px-1 py-0.5 text-center text-xs font-bold focus:bg-black focus:text-white transition-colors duration-150"
+              />
+              <button
+                type="button"
+                onClick={() => setBulletSymbol("•")}
+                className="border border-gray-300 px-2 py-0.5 text-[10px] font-bold hover:border-black hover:bg-black hover:text-white transition-colors duration-150"
+              >
+                •
+              </button>
+              <button
+                type="button"
+                onClick={() => setBulletSymbol("-")}
+                className="border border-gray-300 px-2 py-0.5 text-[10px] font-bold hover:border-black hover:bg-black hover:text-white transition-colors duration-150"
+              >
+                -
+              </button>
+              <button
+                type="button"
+                onClick={() => setBulletSymbol("→")}
+                className="border border-gray-300 px-2 py-0.5 text-[10px] font-bold hover:border-black hover:bg-black hover:text-white transition-colors duration-150"
+              >
+                →
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2 border border-emerald-300 bg-emerald-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-800">
+              <span className="label-mono text-emerald-700">LIVE</span>
+              <span className="normal-case font-semibold">{activeBulletSymbol} Built scalable checkout flow</span>
+            </div>
             </div>
           </div>
         </div>
