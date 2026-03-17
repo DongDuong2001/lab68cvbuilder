@@ -1,6 +1,7 @@
 import type { ResumeData } from "@/db/schema";
 import { ensureHref } from "@/lib/url-helpers";
 import { type PdfLabels, getPdfLabels, getDateLocale } from "@/lib/pdf-labels";
+import { getResumeBulletSymbol } from "@/lib/bullet-symbol";
 
 interface TemplateProps {
   data: ResumeData;
@@ -11,6 +12,7 @@ interface TemplateProps {
 export function AtsTemplate({ data, labels, dateLocale }: TemplateProps) {
   const l = labels ?? getPdfLabels("en");
   const dl = dateLocale ?? getDateLocale("en");
+  const bulletSymbol = getResumeBulletSymbol(data, "•");
   const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
   const completeEducation = education.filter(
     (edu) =>
@@ -59,7 +61,7 @@ export function AtsTemplate({ data, labels, dateLocale }: TemplateProps) {
       {personalInfo.summary && (
         <section className="mb-4">
           <h2 className="text-xs font-bold uppercase mb-1">{l.summary}</h2>
-          <p className="text-[11px] leading-snug text-gray-700">{personalInfo.summary}</p>
+          <p className="text-[11px] leading-snug text-gray-700 whitespace-pre-line">{personalInfo.summary}</p>
         </section>
       )}
 
@@ -96,14 +98,14 @@ export function AtsTemplate({ data, labels, dateLocale }: TemplateProps) {
                   </span>
                 </div>
                 {exp.description && (
-                  <p className="text-[11px] text-gray-700 mt-0.5">{exp.description}</p>
+                  <p className="text-[11px] text-gray-700 mt-0.5 whitespace-pre-line">{exp.description}</p>
                 )}
                 {exp.highlights.length > 0 && (
                   <ul className="mt-0.5 space-y-0">
                     {exp.highlights.map((h, i) => (
                       <li key={i} className="text-[11px] text-gray-700 flex gap-1.5">
-                        <span>•</span>
-                        <span>{h}</span>
+                        <span>{bulletSymbol}</span>
+                        <span className="whitespace-pre-line">{h}</span>
                       </li>
                     ))}
                   </ul>
@@ -169,14 +171,14 @@ export function AtsTemplate({ data, labels, dateLocale }: TemplateProps) {
                   </div>
                 )}
                 {project.description && (
-                  <p className="text-[11px] text-gray-700">{project.description}</p>
+                  <p className="text-[11px] text-gray-700 whitespace-pre-line">{project.description}</p>
                 )}
                 {project.highlights.length > 0 && (
                   <ul className="space-y-0">
                     {project.highlights.map((h, i) => (
                       <li key={i} className="text-[11px] text-gray-700 flex gap-1.5">
-                        <span>•</span>
-                        <span>{h}</span>
+                        <span>{bulletSymbol}</span>
+                        <span className="whitespace-pre-line">{h}</span>
                       </li>
                     ))}
                   </ul>
