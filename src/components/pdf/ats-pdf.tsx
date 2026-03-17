@@ -9,6 +9,7 @@ import {
 import type { ResumeData } from "@/db/schema";
 import { ensureHref } from "@/lib/url-helpers";
 import { type PdfLabels, getPdfLabels, getDateLocale } from "@/lib/pdf-labels";
+import { getResumeBulletSymbol } from "@/lib/bullet-symbol";
 
 
 
@@ -58,6 +59,7 @@ interface PDFTemplateProps { data: ResumeData; fontFamily?: string; labels?: Pdf
 
 export function AtsPDF({ data, fontFamily, labels, dateLocale }: PDFTemplateProps) {
   const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
+  const bulletSymbol = getResumeBulletSymbol(data, "•");
   const completeEducation = education.filter(
     (edu) => edu.institution.trim() && edu.degree.trim() && edu.field.trim() && edu.startDate.trim()
   );
@@ -108,7 +110,7 @@ export function AtsPDF({ data, fontFamily, labels, dateLocale }: PDFTemplateProp
                     {exp.description ? <Text style={s.expDesc}>{exp.description}</Text> : null}
                     {exp.highlights.map((h, i) => (
                       <View key={i} style={s.bulletRow}>
-                        <Text style={s.bulletDot}>•</Text>
+                        <Text style={s.bulletDot}>{bulletSymbol}</Text>
                         <Text style={s.bulletText}>{h}</Text>
                       </View>
                     ))}
@@ -137,7 +139,7 @@ export function AtsPDF({ data, fontFamily, labels, dateLocale }: PDFTemplateProp
                     {p.description ? <Text style={s.projDesc}>{p.description}</Text> : null}
                     {p.highlights.map((h, i) => (
                       <View key={i} style={s.bulletRow}>
-                        <Text style={s.bulletDot}>•</Text>
+                        <Text style={s.bulletDot}>{bulletSymbol}</Text>
                         <Text style={s.bulletText}>{h}</Text>
                       </View>
                     ))}
