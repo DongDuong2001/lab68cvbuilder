@@ -124,8 +124,7 @@ export function Footer() {
               </span>
             </div>
             <p className="text-xs text-gray-500 leading-relaxed max-w-xs">
-              Raw. Structured. Building developer tools with brutalist
-              precision.
+              Unlock Your Potential. Build Your Future.
             </p>
           </div>
 

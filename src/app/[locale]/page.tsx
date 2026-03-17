@@ -27,9 +27,9 @@ export default function HomePage() {
               {t("title")}
             </h1>
             <div className="w-full border-t border-black mb-8" />
-            <p className="text-sm font-light tracking-wide max-w-md mb-12 leading-relaxed">
+            <p className="text-sm md:text-base font-light tracking-wide max-w-xl mb-12 leading-relaxed">
               {t.rich("description", {
-                b: (chunks) => <span className="font-bold">{chunks}</span>,
+                b: (chunks) => <span className="font-bold underline decoration-2">{chunks}</span>,
               })}
             </p>
             <div className="flex flex-wrap gap-4">
