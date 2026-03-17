@@ -9,6 +9,11 @@ import {
   importFromGitHub,
   type SocialImportResult,
 } from "@/actions/import";
+import {
+  getForgProductOptions,
+  importFromForg,
+} from "@/actions/forg";
+import type { ForgProductOption } from "@/actions/import";
 import { parseLinkedInZip } from "@/lib/linkedin-zip-parser";
 import type { ResumeData } from "@/db/schema";
 import {
@@ -63,9 +68,13 @@ export function PersonalInfoForm() {
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [isImportingGithub, setIsImportingGithub] = useState(false);
   const [isImportingBehance, setIsImportingBehance] = useState(false);
+  const [isImportingForg, setIsImportingForg] = useState(false);
   const [isApplyingPreview, setIsApplyingPreview] = useState(false);
   const [githubInput, setGithubInput] = useState("");
   const [behanceInput, setBehanceInput] = useState("");
+  const [forgInput, setForgInput] = useState("");
+  const [forgOptions, setForgOptions] = useState<ForgProductOption[]>([]);
+  const [selectedForgProductId, setSelectedForgProductId] = useState("");
   const [importStatus, setImportStatus] = useState<string>("");
   const [previewDraft, setPreviewDraft] = useState<SocialImportResult | null>(null);
   const [previewSelection, setPreviewSelection] = useState<ImportSelection>(createEmptySelection());
@@ -457,6 +466,59 @@ export function PersonalInfoForm() {
     }
   };
 
+  const handleImportForg = async () => {
+    if (isImportingForg) return;
+
+    const input = forgInput.trim();
+    if (!input) {
+      setImportStatus(t("forgMissingInput"));
+      return;
+    }
+
+    setIsImportingForg(true);
+    setImportStatus("");
+    setForgOptions([]);
+    setSelectedForgProductId("");
+
+    try {
+      const optionsResult = await getForgProductOptions(input);
+
+      if (optionsResult.target === "profile" && optionsResult.options.length > 1) {
+        setForgOptions(optionsResult.options);
+        setSelectedForgProductId(optionsResult.options[0].id);
+        setImportStatus(t("forgMultiFound", { username: optionsResult.username }));
+        return;
+      }
+
+      const pickedId = optionsResult.options[0]?.id;
+      const imported = await importFromForg(input, pickedId);
+      openPreview(imported);
+      setImportStatus(t("previewReady", { source: "Forg", username: imported.username }));
+    } catch (err: unknown) {
+      setImportStatus((err as Error).message || t("forgFailed"));
+    } finally {
+      setIsImportingForg(false);
+    }
+  };
+
+  const handleImportSelectedForgProduct = async () => {
+    if (isImportingForg || !forgInput.trim() || !selectedForgProductId) return;
+
+    setIsImportingForg(true);
+    setImportStatus("");
+    try {
+      const imported = await importFromForg(forgInput.trim(), selectedForgProductId);
+      openPreview(imported);
+      setImportStatus(t("previewReady", { source: "Forg", username: imported.username }));
+      setForgOptions([]);
+      setSelectedForgProductId("");
+    } catch (err: unknown) {
+      setImportStatus((err as Error).message || t("forgFailed"));
+    } finally {
+      setIsImportingForg(false);
+    }
+  };
+
   const handleApplyPreview = () => {
     if (!previewDraft) return;
 
@@ -601,6 +663,67 @@ export function PersonalInfoForm() {
               {isImportingBehance ? t("importing") : t("previewImport")}
             </button>
           </div>
+
+          {/* Forg */}
+          <div className="flex items-center gap-3">
+            <span className="label-mono w-20 shrink-0 text-[11px]">FORG</span>
+            <input
+              type="text"
+              value={forgInput}
+              onChange={(e) => {
+                setForgInput(e.target.value);
+                if (forgOptions.length > 0) {
+                  setForgOptions([]);
+                  setSelectedForgProductId("");
+                }
+              }}
+              placeholder={t("forgPlaceholder")}
+              className="flex-1 min-w-0 border border-black bg-transparent px-3 py-1.5 text-sm focus:bg-black focus:text-white transition-all duration-150"
+            />
+            <button
+              onClick={handleImportForg}
+              disabled={isImportingForg}
+              className="shrink-0 border border-gray-400 px-3 py-1.5 text-xs font-bold uppercase tracking-wider hover:border-black hover:bg-black hover:text-white transition-all duration-150 disabled:opacity-40"
+            >
+              {isImportingForg ? t("importing") : t("previewImport")}
+            </button>
+          </div>
+
+          <p className="text-[11px] text-amber-700">
+            {t("forgDevNotice")}
+          </p>
+
+          {forgOptions.length > 1 && (
+            <div className="flex flex-col gap-2 border border-gray-300 p-3 bg-gray-50">
+              <p className="text-xs font-bold uppercase tracking-wider text-gray-600">
+                {t("forgPickerTitle")}
+              </p>
+              <div className="flex items-center gap-2">
+                <select
+                  value={selectedForgProductId}
+                  onChange={(e) => setSelectedForgProductId(e.target.value)}
+                  className="flex-1 min-w-0 border border-black bg-white px-3 py-1.5 text-sm"
+                  aria-label="Select Forg product"
+                >
+                  {forgOptions.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.title} ({option.id})
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={handleImportSelectedForgProduct}
+                  disabled={isImportingForg || !selectedForgProductId}
+                  className="shrink-0 border border-black px-3 py-1.5 text-xs font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-all duration-150 disabled:opacity-40"
+                >
+                  {isImportingForg ? t("importing") : t("forgUseSelected")}
+                </button>
+              </div>
+              <p className="text-[11px] text-gray-500">
+                {t("forgPickerHint")}
+              </p>
+            </div>
+          )}
 
           {importStatus && (
             <p className="text-xs text-gray-700 mt-1">{importStatus}</p>
