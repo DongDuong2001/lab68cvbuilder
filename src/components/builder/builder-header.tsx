@@ -308,10 +308,11 @@ export function BuilderHeader({
                   title="Font family"
                   value={fontFamily}
                   onChange={(e) => setFontFamily(e.target.value)}
-                  className="bg-transparent py-2 text-xs font-bold tracking-wider outline-none w-full"
+                  className="bg-transparent py-2 text-xs font-bold tracking-wider outline-none w-full text-black placeholder:text-black appearance-none"
+                  style={{ color: "black", background: "transparent" }}
                 >
                   {CV_FONTS.map((font) => (
-                    <option key={font.id} value={font.id} className="text-black">
+                    <option key={font.id} value={font.id} className="text-black bg-white font-bold">
                       {font.name}
                     </option>
                   ))}
@@ -325,10 +326,11 @@ export function BuilderHeader({
                   title="PDF language"
                   value={pdfLocale}
                   onChange={(e) => setPdfLocale(e.target.value)}
-                  className="bg-transparent py-2 text-xs font-bold tracking-wider outline-none w-full"
+                  className="bg-transparent py-2 text-xs font-bold tracking-wider outline-none w-full text-black placeholder:text-black appearance-none"
+                  style={{ color: "black", background: "transparent" }}
                 >
                   {PDF_LOCALES.map((loc) => (
-                    <option key={loc.code} value={loc.code} className="text-black">
+                    <option key={loc.code} value={loc.code} className="text-black bg-white font-bold">
                       {loc.label}
                     </option>
                   ))}
