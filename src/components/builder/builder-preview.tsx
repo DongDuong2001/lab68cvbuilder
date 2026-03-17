@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useResumeStore } from "@/store/resume-store";
 import { CreativeTemplate } from "./templates/creative-template";
 import { ExecutiveTemplate } from "./templates/executive-template";
@@ -41,6 +41,37 @@ export function BuilderPreview() {
 
   const cssFontFamily = getCSSFontFamily(fontFamily);
 
+  // Auto-scaling logic to fit the 8.5in (~816px) resume into the viewport
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    const updateScale = () => {
+      if (!containerRef.current) return;
+      // The resume is 8.5in wide -> roughly 816px at 96 DPI
+      const RESUME_WIDTH_PX = 816;
+      // How much horizontal padding we want around the resume inside its container
+      const PADDING_PX = 32; 
+      
+      const containerWidth = containerRef.current.clientWidth;
+      const availableWidth = containerWidth - PADDING_PX;
+
+      if (availableWidth < RESUME_WIDTH_PX) {
+        setScale(availableWidth / RESUME_WIDTH_PX);
+      } else {
+        setScale(1); // Standard scale on Desktop
+      }
+    };
+
+    updateScale();
+    const observer = new ResizeObserver(updateScale);
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [templateId, fontFamily]);
+
   return (
     <div className={`min-h-full p-8 transition-colors duration-300 ${darkBg ? "bg-gray-900" : ""}`}>
       <div className="mb-6 flex items-center justify-between">
@@ -62,12 +93,21 @@ export function BuilderPreview() {
         </button>
       </div>
 
-      {/* Resume preview container — font applied here cascades to template */}
-      <div
-        className="bg-white shadow-2xl mx-auto"
-        style={{ width: "8.5in", minHeight: "11in", fontFamily: cssFontFamily }}
-      >
-        <Template data={data} labels={getPdfLabels(pdfLocale)} dateLocale={getDateLocale(pdfLocale)} />
+      {/* Resume preview container — dynamic scale applied, wrapped in calculating div */}
+      <div ref={containerRef} className="w-full flex justify-center overflow-hidden pb-16">
+        <div
+          className="bg-white shadow-2xl origin-top"
+          style={{
+            width: "816px",
+            height: "1056px", // 11in standard length for correct scaling calculations
+            fontFamily: cssFontFamily,
+            transform: `scale(${scale})`,
+            // Determine container height based on the scaled element height to prevent clipping
+            marginBottom: `-${1056 * (1 - scale)}px`
+          }}
+        >
+          <Template data={data} labels={getPdfLabels(pdfLocale)} dateLocale={getDateLocale(pdfLocale)} />
+        </div>
       </div>
     </div>
   );

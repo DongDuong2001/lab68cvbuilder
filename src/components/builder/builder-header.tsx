@@ -13,16 +13,12 @@ import { TutorialPopup } from "./tutorial-popup";
 
 interface BuilderHeaderProps {
   resumeId: string;
-  isMobilePreview: boolean;
-  onToggleMobilePreview: () => void;
   saveValidationError?: string | null;
   isGuest?: boolean;
 }
 
 export function BuilderHeader({
   resumeId,
-  isMobilePreview,
-  onToggleMobilePreview,
   saveValidationError,
   isGuest = false,
 }: BuilderHeaderProps) {
@@ -220,13 +216,7 @@ export function BuilderHeader({
                 ) : null}
               </div>
 
-              {/* Mobile preview toggle */}
-              <button
-                onClick={onToggleMobilePreview}
-                className="lg:hidden border border-black px-3 py-2 text-[10px] font-bold uppercase tracking-wider bg-black text-white hover:bg-white hover:text-black transition-colors duration-150 shrink-0 w-full sm:w-auto"
-              >
-                {isMobilePreview ? "Back to Edit" : "Preview PDF"}
-              </button>
+              {/* Mobile preview toggle removed for persistent split view */}
 
               {/* Grammar + Export actions */}
               <div className="flex flex-col items-end gap-1">
