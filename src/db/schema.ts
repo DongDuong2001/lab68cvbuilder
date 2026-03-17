@@ -88,6 +88,7 @@ export type ResumeData = {
     linkedin?: string;
     github?: string;
     summary?: string;
+    bulletSymbol?: string;
     avatarUrl?: string;
   };
   experience: Array<{
