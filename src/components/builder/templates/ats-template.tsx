@@ -13,7 +13,7 @@ export function AtsTemplate({ data, labels, dateLocale }: TemplateProps) {
   const l = labels ?? getPdfLabels("en");
   const dl = dateLocale ?? getDateLocale("en");
   const bulletSymbol = getResumeBulletSymbol(data, "•");
-  const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
+  const { personalInfo, experience, education, skills, projects, certifications, competitions = [], languages } = data;
   const completeEducation = education.filter(
     (edu) =>
       edu.institution.trim() ||
@@ -176,6 +176,49 @@ export function AtsTemplate({ data, labels, dateLocale }: TemplateProps) {
                 {project.highlights.length > 0 && (
                   <ul className="space-y-0">
                     {project.highlights.map((h, i) => (
+                      <li key={i} className="text-[11px] text-gray-700 flex gap-1.5">
+                        <span>{bulletSymbol}</span>
+                        <span className="whitespace-pre-line">{h}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Competitions - compact */}
+      {competitions.length > 0 && (
+        <section className="mb-4">
+          <h2 className="text-xs font-bold uppercase mb-2">{l.competitions}</h2>
+          <div className="space-y-2">
+            {competitions.map((comp) => (
+              <div key={comp.id}>
+                <div className="flex items-baseline justify-between gap-2">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-[12px] font-bold">{comp.name}</span>
+                    {comp.role && <span className="text-[10px] text-gray-500"> — {comp.role}</span>}
+                    {comp.location && <span className="text-[10px] text-gray-400">({comp.location})</span>}
+                  </div>
+                  {comp.date && (
+                    <span className="text-[10px] text-gray-500 shrink-0 ml-2">
+                      {formatDate(comp.date)}
+                    </span>
+                  )}
+                </div>
+                {comp.url && (
+                  <div className="text-[10px] text-gray-500 mt-0.5">
+                    <a href={ensureHref(comp.url)} target="_blank" rel="noopener noreferrer" className="hover:underline">{l.project}</a>
+                  </div>
+                )}
+                {comp.description && (
+                  <p className="text-[11px] text-gray-700 whitespace-pre-line mt-0.5">{comp.description}</p>
+                )}
+                {comp.highlights.length > 0 && (
+                  <ul className="space-y-0 mt-0.5">
+                    {comp.highlights.map((h, i) => (
                       <li key={i} className="text-[11px] text-gray-700 flex gap-1.5">
                         <span>{bulletSymbol}</span>
                         <span className="whitespace-pre-line">{h}</span>

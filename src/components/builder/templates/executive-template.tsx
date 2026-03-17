@@ -13,7 +13,7 @@ export function ExecutiveTemplate({ data, labels, dateLocale }: TemplateProps) {
   const l = labels ?? getPdfLabels("en");
   const dl = dateLocale ?? getDateLocale("en");
   const bulletSymbol = getResumeBulletSymbol(data, "•");
-  const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
+  const { personalInfo, experience, education, skills, projects, certifications, competitions = [], languages } = data;
   const completeEducation = education.filter(
     (edu) =>
       edu.institution.trim() ||
@@ -205,6 +205,51 @@ export function ExecutiveTemplate({ data, labels, dateLocale }: TemplateProps) {
                 {project.highlights.length > 0 && (
                   <ul className="space-y-1 text-sm">
                     {project.highlights.map((highlight, idx) => (
+                      <li key={idx} className="flex">
+                        <span className="mr-3 font-bold">{bulletSymbol}</span>
+                        <span className="flex-1 whitespace-pre-line">{highlight}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Competitions */}
+      {competitions.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-sm font-black uppercase tracking-widest mb-4 border-b border-black pb-1">
+            {l.competitions}
+          </h2>
+          <div className="space-y-5">
+            {competitions.map((comp) => (
+              <div key={comp.id}>
+                <div className="flex justify-between items-baseline mb-1">
+                  <div>
+                    <h3 className="text-base font-bold leading-tight">{comp.name}</h3>
+                    {comp.role && <div className="text-sm">{comp.role}</div>}
+                  </div>
+                  <div className="text-xs font-mono text-right">
+                    {comp.date && formatDate(comp.date, false)}
+                  </div>
+                </div>
+                {comp.location && (
+                  <div className="text-xs text-gray-600 mb-1">{comp.location}</div>
+                )}
+                {comp.url && (
+                  <a href={ensureHref(comp.url)} target="_blank" rel="noopener noreferrer" className="text-xs text-gray-600 hover:underline hover:text-black mb-2 block">
+                    {l.project}
+                  </a>
+                )}
+                {comp.description && (
+                  <p className="text-sm leading-relaxed mb-2 whitespace-pre-line">{comp.description}</p>
+                )}
+                {comp.highlights.length > 0 && (
+                  <ul className="space-y-1 text-sm">
+                    {comp.highlights.map((highlight, idx) => (
                       <li key={idx} className="flex">
                         <span className="mr-3 font-bold">{bulletSymbol}</span>
                         <span className="flex-1 whitespace-pre-line">{highlight}</span>

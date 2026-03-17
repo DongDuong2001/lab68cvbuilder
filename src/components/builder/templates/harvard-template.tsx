@@ -13,7 +13,7 @@ export function HarvardTemplate({ data, labels, dateLocale }: TemplateProps) {
   const l = labels ?? getPdfLabels("en");
   const dl = dateLocale ?? getDateLocale("en");
   const bulletSymbol = getResumeBulletSymbol(data, "–");
-  const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
+  const { personalInfo, experience, education, skills, projects, certifications, competitions = [], languages } = data;
   const completeEducation = education.filter(
     (edu) =>
       edu.institution.trim() ||
@@ -223,6 +223,51 @@ export function HarvardTemplate({ data, labels, dateLocale }: TemplateProps) {
                     <a href={ensureHref(cert.url)} target="_blank" rel="noopener noreferrer" className="text-[10px] text-gray-400 hover:underline hover:text-black">
                       {l.viewCertificate}
                     </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Competitions */}
+      {competitions.length > 0 && (
+        <section className="mb-10">
+          <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-400 mb-6">
+            {l.competitions}
+          </h2>
+          <div className="space-y-4">
+            {competitions.map((comp) => (
+              <div key={comp.id} className="grid grid-cols-[160px_1fr] gap-6">
+                <div className="text-right">
+                  {comp.date && (
+                    <div className="text-xs text-gray-400">{formatDate(comp.date)}</div>
+                  )}
+                  {comp.location && (
+                    <div className="text-[10px] text-gray-300 mt-1">{comp.location}</div>
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-black">{comp.name}</h3>
+                  {comp.role && <div className="text-sm text-gray-500">{comp.role}</div>}
+                  {comp.url && (
+                    <a href={ensureHref(comp.url)} target="_blank" rel="noopener noreferrer" className="text-[10px] text-gray-400 hover:underline hover:text-black block mb-1">
+                      {l.project}
+                    </a>
+                  )}
+                  {comp.description && (
+                    <p className="text-xs leading-relaxed text-gray-600 mb-2 whitespace-pre-line">{comp.description}</p>
+                  )}
+                  {comp.highlights.length > 0 && (
+                    <ul className="space-y-1">
+                      {comp.highlights.map((h, i) => (
+                        <li key={i} className="text-xs text-gray-600 flex gap-1.5">
+                          <span className="text-gray-300 shrink-0">{bulletSymbol}</span>
+                          <span className="whitespace-pre-line">{h}</span>
+                        </li>
+                      ))}
+                    </ul>
                   )}
                 </div>
               </div>

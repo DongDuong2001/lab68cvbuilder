@@ -11,6 +11,7 @@ export interface PdfLabels {
   skills: string;
   projects: string;
   certifications: string;
+  competitions: string;
   languages: string;
   summary: string;
   contact: string;
@@ -55,6 +56,7 @@ const LABELS: Record<PdfLocaleCode, PdfLabels> = {
     skills: "Skills",
     projects: "Projects",
     certifications: "Certifications",
+    competitions: "Competitions",
     languages: "Languages",
     summary: "Summary",
     contact: "Contact",
@@ -80,6 +82,7 @@ const LABELS: Record<PdfLocaleCode, PdfLabels> = {
     skills: "Kỹ năng",
     projects: "Dự án",
     certifications: "Chứng chỉ",
+    competitions: "Cuộc thi",
     languages: "Ngôn ngữ",
     summary: "Tóm tắt",
     contact: "Liên hệ",
@@ -105,6 +108,7 @@ const LABELS: Record<PdfLocaleCode, PdfLabels> = {
     skills: "Compétences",
     projects: "Projets",
     certifications: "Certifications",
+    competitions: "Compétitions",
     languages: "Langues",
     summary: "Résumé",
     contact: "Contact",
@@ -130,6 +134,7 @@ const LABELS: Record<PdfLocaleCode, PdfLabels> = {
     skills: "Fähigkeiten",
     projects: "Projekte",
     certifications: "Zertifizierungen",
+    competitions: "Wettbewerbe",
     languages: "Sprachen",
     summary: "Zusammenfassung",
     contact: "Kontakt",
@@ -155,6 +160,7 @@ const LABELS: Record<PdfLocaleCode, PdfLabels> = {
     skills: "Habilidades",
     projects: "Proyectos",
     certifications: "Certificaciones",
+    competitions: "Competiciones",
     languages: "Idiomas",
     summary: "Resumen",
     contact: "Contacto",
@@ -180,6 +186,7 @@ const LABELS: Record<PdfLocaleCode, PdfLabels> = {
     skills: "Habilidades",
     projects: "Projetos",
     certifications: "Certificações",
+    competitions: "Competições",
     languages: "Idiomas",
     summary: "Resumo",
     contact: "Contato",
@@ -205,6 +212,7 @@ const LABELS: Record<PdfLocaleCode, PdfLabels> = {
     skills: "スキル",
     projects: "プロジェクト",
     certifications: "資格",
+    competitions: "コンペティション",
     languages: "言語",
     summary: "概要",
     contact: "連絡先",
@@ -230,6 +238,7 @@ const LABELS: Record<PdfLocaleCode, PdfLabels> = {
     skills: "기술",
     projects: "프로젝트",
     certifications: "자격증",
+    competitions: "대회",
     languages: "언어",
     summary: "요약",
     contact: "연락처",
@@ -255,6 +264,7 @@ const LABELS: Record<PdfLocaleCode, PdfLabels> = {
     skills: "技能",
     projects: "项目",
     certifications: "证书",
+    competitions: "比赛",
     languages: "语言",
     summary: "摘要",
     contact: "联系方式",
