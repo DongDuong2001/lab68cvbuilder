@@ -35,7 +35,6 @@ const PRODUCTS = [
   { name: "CV Builder", url: "/", current: true },
   { name: "Lab68 Store", url: "https://lab68store.vercel.app/" },
   { name: "Lab68 Platform", url: "https://lab68devplatform.vercel.app/" },
-  { name: "Lab68 Video Resizer", url: "https://lab68videoresizer.netlify.app/" },
 ];
 
 const OWNER_LINKS = [
