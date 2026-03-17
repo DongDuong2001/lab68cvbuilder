@@ -1,13 +1,11 @@
-"use client";
-
 import { Link } from "@/i18n/routing";
 import Image from "next/image";
-import { ProductsDropdown } from "./products-dropdown";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
+import { ProductsDropdownClient } from "./products-dropdown-client";
 
-export function Header() {
-  const t = useTranslations("Common");
+export async function Header() {
+  const t = await getTranslations("Common");
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white">
@@ -40,7 +38,7 @@ export function Header() {
           </Link>
 
           {/* Products Dropdown */}
-          <ProductsDropdown />
+          <ProductsDropdownClient />
         </div>
 
         {/* Right: Current product label */}
