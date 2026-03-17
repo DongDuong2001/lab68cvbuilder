@@ -39,6 +39,21 @@ export function BuilderForm() {
   const activeIndex = orderedSections.findIndex((s) => s.id === activeSection);
 
   useEffect(() => {
+    const applyHashSection = () => {
+      const raw = window.location.hash.replace("#", "").trim();
+      if (!raw) return;
+      const exists = orderedSections.some((section) => section.id === raw);
+      if (exists) {
+        setActiveSection(raw);
+      }
+    };
+
+    applyHashSection();
+    window.addEventListener("hashchange", applyHashSection);
+    return () => window.removeEventListener("hashchange", applyHashSection);
+  }, [orderedSections]);
+
+  useEffect(() => {
     if (!tabsContainerRef.current) return;
     const activeTab = tabsContainerRef.current.querySelector(
       `[data-section-id="${activeSection}"]`
