@@ -34,6 +34,7 @@ export function sanitizeResumeData(data: ResumeData): ResumeData {
       phone: sanitizeText(data.personalInfo.phone),
       location: sanitizeText(data.personalInfo.location),
       summary: sanitizeText(data.personalInfo.summary),
+      bulletSymbol: sanitizeText(data.personalInfo.bulletSymbol ?? "").slice(0, 3),
     },
     experience: data.experience.map((exp) => ({
       ...exp,
