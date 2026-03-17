@@ -80,6 +80,14 @@
         "CTA": {
             "title": "Ready to build?",
             "subtitle": "Compile your professional history into a pixel-perfect document."
+        },
+        "Sponsors": {
+            "label": "COMMUNITY // SPONSORS",
+            "title": "BACKED BY YOU",
+            "subtitle": "lab68cv is an open-source project. If it has helped you land a job or save time, consider supporting our ongoing development.",
+            "cta": "Sponsor Lab68dev →",
+            "emptyTitle": "Fuel the Lab",
+            "emptyDesc": "Be the first to get your logo proudly displayed here as an official supporter of an open-source tool."
         }
     },
     "Common": {

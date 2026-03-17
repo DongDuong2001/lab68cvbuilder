@@ -4,6 +4,10 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { useTranslations } from "next-intl";
 
+// Sponsor data. Leave array empty [] to show the fallback "Be the first" UI, 
+// or fill with { name, url, logoUrl } to populate the grid.
+const SPONSORS: Array<{name: string, url: string, logoUrl: string}> = [];
+
 // Cache this fully-static page for 24 hours (ISR)
 export const revalidate = 86400;
 
@@ -342,6 +346,74 @@ export default function HomePage() {
               >
                 {t("enterLab")}
               </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* SPONSORS */}
+        <section className="relative z-10 border-t border-black bg-white">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row">
+            {/* Left label panel */}
+            <div className="md:w-1/3 border-b md:border-b-0 md:border-r border-black p-8 md:p-16 flex flex-col justify-between gap-8 bg-black text-white">
+              <div>
+                <span className="label-mono block text-white/50 mb-4 text-[10px] tracking-[0.2em]">{t("Sponsors.label")}</span>
+                <h2 className="text-3xl font-black tracking-tight uppercase leading-tight">
+                  {t("Sponsors.title")}
+                </h2>
+                <p className="text-sm text-gray-400 font-light leading-relaxed mt-4">
+                  {t("Sponsors.subtitle")}
+                </p>
+              </div>
+              <a
+                href="https://github.com/sponsors/lab68dev"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="self-start border border-white px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-colors duration-150 flex items-center gap-2"
+              >
+                {t("Sponsors.cta")}
+              </a>
+            </div>
+            
+            {/* Right Sponsors Grid */}
+            <div className="md:w-2/3 bg-gray-50 flex flex-col">
+              {SPONSORS.length > 0 ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 h-full">
+                  {SPONSORS.map((sponsor, index) => (
+                    <a
+                      key={index}
+                      href={sponsor.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`border-black flex items-center justify-center p-8 hover:bg-white transition-colors duration-200 ${
+                        index % 3 !== 2 ? 'border-r' : '' // No right border on last item of row
+                      } ${
+                        index < SPONSORS.length - 3 ? 'border-b' : '' // No bottom border on last row
+                      }`}
+                      title={`Sponsored by ${sponsor.name}`}
+                    >
+                      {/* Using unoptimized Image or img tag depending on implementation, 
+                          fallback to alt text if logo fails to load */}
+                      <img 
+                        src={sponsor.logoUrl} 
+                        alt={sponsor.name}
+                        className="max-h-12 max-w-[120px] object-contain grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all duration-300" 
+                      />
+                    </a>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex-1 flex flex-col items-center justify-center p-12 text-center min-h-[300px]">
+                  <div className="w-16 h-16 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center mb-6">
+                    <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-bold tracking-widest uppercase mb-2 text-gray-800">{t("Sponsors.emptyTitle")}</h3>
+                  <p className="text-sm text-gray-500 font-light max-w-sm leading-relaxed">
+                    {t("Sponsors.emptyDesc")}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </section>
