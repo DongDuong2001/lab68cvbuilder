@@ -1,6 +1,7 @@
 import type { ResumeData } from "@/db/schema";
 import { ensureHref } from "@/lib/url-helpers";
 import { type PdfLabels, getPdfLabels, getDateLocale } from "@/lib/pdf-labels";
+import { getResumeBulletSymbol } from "@/lib/bullet-symbol";
 
 interface TemplateProps {
   data: ResumeData;
@@ -11,6 +12,7 @@ interface TemplateProps {
 export function HarvardTemplate({ data, labels, dateLocale }: TemplateProps) {
   const l = labels ?? getPdfLabels("en");
   const dl = dateLocale ?? getDateLocale("en");
+  const bulletSymbol = getResumeBulletSymbol(data, "–");
   const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
   const completeEducation = education.filter(
     (edu) =>
@@ -56,7 +58,7 @@ export function HarvardTemplate({ data, labels, dateLocale }: TemplateProps) {
       {/* Summary */}
       {personalInfo.summary && (
         <section className="mb-10 max-w-2xl mx-auto text-center">
-          <p className="text-sm leading-relaxed text-gray-600">
+          <p className="text-sm leading-relaxed text-gray-600 whitespace-pre-line">
             {personalInfo.summary}
           </p>
         </section>
@@ -83,13 +85,14 @@ export function HarvardTemplate({ data, labels, dateLocale }: TemplateProps) {
                   <h3 className="text-sm font-bold text-black leading-tight">{exp.position}</h3>
                   <div className="text-sm text-gray-500 mb-2">{exp.company}</div>
                   {exp.description && (
-                    <p className="text-xs leading-relaxed text-gray-600 mb-2">{exp.description}</p>
+                    <p className="text-xs leading-relaxed text-gray-600 mb-2 whitespace-pre-line">{exp.description}</p>
                   )}
                   {exp.highlights.length > 0 && (
                     <ul className="space-y-1">
                       {exp.highlights.map((h, i) => (
-                        <li key={i} className="text-xs text-gray-600 pl-4 relative before:content-['–'] before:absolute before:left-0 before:text-gray-300">
-                          {h}
+                        <li key={i} className="text-xs text-gray-600 flex gap-1.5">
+                          <span className="text-gray-300 shrink-0">{bulletSymbol}</span>
+                          <span className="whitespace-pre-line">{h}</span>
                         </li>
                       ))}
                     </ul>
@@ -180,13 +183,14 @@ export function HarvardTemplate({ data, labels, dateLocale }: TemplateProps) {
                     </div>
                   )}
                   {project.description && (
-                    <p className="text-xs text-gray-600 leading-relaxed mb-1">{project.description}</p>
+                    <p className="text-xs text-gray-600 leading-relaxed mb-1 whitespace-pre-line">{project.description}</p>
                   )}
                   {project.highlights.length > 0 && (
                     <ul className="space-y-1">
                       {project.highlights.map((h, i) => (
-                        <li key={i} className="text-xs text-gray-600 pl-4 relative before:content-['–'] before:absolute before:left-0 before:text-gray-300">
-                          {h}
+                        <li key={i} className="text-xs text-gray-600 flex gap-1.5">
+                          <span className="text-gray-300 shrink-0">{bulletSymbol}</span>
+                          <span className="whitespace-pre-line">{h}</span>
                         </li>
                       ))}
                     </ul>
