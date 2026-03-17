@@ -2,12 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useResumeStore } from "@/store/resume-store";
-import { EMPTY_RESUME_DATA } from "@/lib/constants";
+import { EMPTY_RESUME_DATA, GUEST_STORAGE_KEY } from "@/lib/constants";
 import { BuilderForm } from "./builder-form";
 import { BuilderPreview } from "./builder-preview";
 import { BuilderHeader } from "./builder-header";
-
-export const GUEST_STORAGE_KEY = "lab68_guest_resume";
 
 export function GuestBuilderClient() {
   const { setResume, data, title, templateId, fontFamily, isDirty } =
