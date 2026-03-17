@@ -9,6 +9,7 @@ import { TEMPLATES } from "@/lib/constants";
 import { checkResumeGrammarAndSpelling } from "@/actions/ai";
 import { PdfPreviewModal } from "./pdf-preview-modal";
 import { TemplatePicker } from "./template-picker";
+import { TutorialPopup } from "./tutorial-popup";
 
 interface BuilderHeaderProps {
   resumeId: string;
@@ -30,6 +31,7 @@ export function BuilderHeader({
 
   const [isExporting, setIsExporting] = useState(false);
   const [isCheckingWriting, setIsCheckingWriting] = useState(false);
+  const [writingStatus, setWritingStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
   const [previewFilename, setPreviewFilename] = useState("resume.pdf");
   const [exportError, setExportError] = useState<string | null>(null);
@@ -46,6 +48,15 @@ export function BuilderHeader({
       setExportError(null);
     }
   }, [exportError, templateId, data.personalInfo.fullName, data.personalInfo.email]);
+
+  useEffect(() => {
+    if (!writingStatus) return;
+    const timer = window.setTimeout(() => {
+      setWritingStatus(null);
+    }, 3500);
+
+    return () => window.clearTimeout(timer);
+  }, [writingStatus]);
 
   const handlePreviewPdf = async () => {
     // Prevent concurrent exports and re-generation while modal is open
@@ -107,13 +118,20 @@ export function BuilderHeader({
   const handleCheckWriting = async () => {
     if (isCheckingWriting) return;
     setIsCheckingWriting(true);
+    setWritingStatus(null);
     try {
       const { result } = await checkResumeGrammarAndSpelling(data);
       setData(result);
-      alert("Grammar & spelling check completed.");
+      setWritingStatus({
+        type: "success",
+        message: "Grammar & spelling check completed.",
+      });
     } catch (error) {
       console.error("Failed to check grammar/spelling:", error);
-      alert((error as Error).message || "Failed to check writing. Please try again.");
+      setWritingStatus({
+        type: "error",
+        message: (error as Error).message || "Failed to check writing. Please try again.",
+      });
     } finally {
       setIsCheckingWriting(false);
     }
@@ -121,7 +139,7 @@ export function BuilderHeader({
 
   return (
     <>
-      <header className="border-b border-black bg-white">
+      <header className="sticky top-0 z-30 border-b border-black bg-white shadow-sm lg:static lg:shadow-none">
         <div className="p-4">
           {/* Top row */}
           <div className="flex items-center justify-between mb-4">
@@ -176,37 +194,51 @@ export function BuilderHeader({
                 {isMobilePreview ? "Edit" : "Preview"}
               </button>
 
-              {/* Export button */}
+              {/* Grammar + Export actions */}
               <div className="flex flex-col items-end gap-1">
                 {isGuest ? (
-                  <Link
-                    href="/login"
-                    className="border border-black px-4 py-2 text-xs font-bold uppercase tracking-wider bg-black text-white hover:bg-white hover:text-black transition-colors duration-150"
-                  >
-                    SIGN IN TO EXPORT
-                  </Link>
+                  <div className="flex flex-wrap justify-end items-center gap-2">
+                    <TutorialPopup isGuest triggerClassName="border border-gray-400 px-4 py-2 text-xs font-bold uppercase tracking-wider hover:border-black hover:bg-black hover:text-white transition-colors duration-150" />
+                    <Link
+                      href="/login"
+                      className="border border-black px-4 py-2 text-xs font-bold uppercase tracking-wider bg-black text-white hover:bg-white hover:text-black transition-colors duration-150"
+                    >
+                      SIGN IN TO EXPORT
+                    </Link>
+                  </div>
                 ) : (
                   <>
-                    <button
-                      onClick={handleCheckWriting}
-                      disabled={isCheckingWriting}
-                      className={`border border-gray-400 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors duration-150 mb-1 ${isCheckingWriting
-                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                        : "hover:border-black hover:bg-black hover:text-white"
-                        }`}
-                    >
-                      {isCheckingWriting ? "CHECKING..." : "CHECK GRAMMAR"}
-                    </button>
-                    <button
-                      onClick={handlePreviewPdf}
-                      disabled={isExporting}
-                      className={`border border-black px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors duration-150 ${isExporting
-                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                        : "bg-black text-white hover:bg-white hover:text-black"
-                        }`}
-                    >
-                      {isExporting ? "GENERATING..." : "EXPORT PDF"}
-                    </button>
+                    <div className="flex flex-wrap justify-end items-center gap-2">
+                      <TutorialPopup triggerClassName="border border-gray-400 px-4 py-2 text-xs font-bold uppercase tracking-wider hover:border-black hover:bg-black hover:text-white transition-colors duration-150" />
+                      <button
+                        onClick={handleCheckWriting}
+                        disabled={isCheckingWriting}
+                        className={`border border-gray-400 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors duration-150 ${isCheckingWriting
+                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                          : "hover:border-black hover:bg-black hover:text-white"
+                          }`}
+                      >
+                        {isCheckingWriting ? "CHECKING..." : "CHECK GRAMMAR"}
+                      </button>
+                      <button
+                        onClick={handlePreviewPdf}
+                        disabled={isExporting}
+                        className={`border border-black px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors duration-150 ${isExporting
+                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                          : "bg-black text-white hover:bg-white hover:text-black"
+                          }`}
+                      >
+                        {isExporting ? "GENERATING..." : "EXPORT PDF"}
+                      </button>
+                    </div>
+                    {writingStatus && (
+                      <p
+                        className={`text-[10px] font-bold uppercase tracking-wider max-w-64 text-right ${writingStatus.type === "success" ? "text-green-600" : "text-red-600"
+                          }`}
+                      >
+                        {writingStatus.message}
+                      </p>
+                    )}
                     {exportError && (
                       <p className="text-[10px] font-bold text-red-600 uppercase tracking-wider max-w-48 text-right">
                         {exportError}
