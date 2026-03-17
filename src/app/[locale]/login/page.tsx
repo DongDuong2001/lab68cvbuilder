@@ -4,8 +4,7 @@ import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/routing";
-import { createResumeFromGuestData } from "@/actions/resume";
-import { GUEST_STORAGE_KEY } from "@/components/builder/guest-builder-client";
+import { GUEST_STORAGE_KEY } from "@/lib/constants";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
@@ -47,7 +46,19 @@ function LoginForm() {
           const stored = localStorage.getItem(GUEST_STORAGE_KEY);
           if (stored) {
             const parsed = JSON.parse(stored);
-            const resume = await createResumeFromGuestData(parsed);
+            const response = await fetch("/api/resume/guest", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(parsed),
+            });
+
+            if (!response.ok) {
+              throw new Error("Failed to migrate guest resume");
+            }
+
+            const resume = await response.json();
             localStorage.removeItem(GUEST_STORAGE_KEY);
             window.location.href = `/builder/${resume.id}`;
             return;
