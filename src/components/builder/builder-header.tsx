@@ -160,18 +160,34 @@ export function BuilderHeader({
       <header className="sticky top-0 z-30 border-b border-black bg-white shadow-sm lg:static lg:shadow-none">
         <div className="p-4">
           {/* Top row */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
+            <div className="flex items-center justify-between sm:justify-start gap-4">
               <Link
                 href={isGuest ? "/" : "/dashboard"}
-                className="border border-black px-3 py-2 text-xs font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-150"
+                className="border border-black px-3 py-2 text-xs font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-150 shrink-0"
               >
                 ← {isGuest ? "Home" : "Back"}
               </Link>
-              <span className="label-mono">{isGuest ? "GUEST_MODE" : "BUILDER_MODE"}</span>
+              <div className="flex items-center gap-2">
+                <span className="label-mono">{isGuest ? "GUEST_MODE" : "BUILDER_MODE"}</span>
+                {/* Mobile view only save status marker */}
+                <span className="md:hidden">
+                  {isGuest ? (
+                    <span className="inline-block w-2 h-2 rounded-full bg-gray-400" />
+                  ) : saveValidationError ? (
+                    <span className="inline-block w-2 h-2 rounded-full bg-red-500" />
+                  ) : isSaving ? (
+                    <span className="inline-block w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
+                  ) : isDirty ? (
+                    <span className="inline-block w-2 h-2 rounded-full bg-orange-400" />
+                  ) : lastSavedAt ? (
+                    <span className="inline-block w-2 h-2 rounded-full bg-green-500" />
+                  ) : null}
+                </span>
+              </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
               {/* Save status */}
               <div className="hidden md:flex items-center gap-2">
                 {isGuest ? (
@@ -207,9 +223,9 @@ export function BuilderHeader({
               {/* Mobile preview toggle */}
               <button
                 onClick={onToggleMobilePreview}
-                className="lg:hidden border border-black px-3 py-2 text-xs font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-150"
+                className="lg:hidden border border-black px-3 py-2 text-[10px] font-bold uppercase tracking-wider bg-black text-white hover:bg-white hover:text-black transition-colors duration-150 shrink-0 w-full sm:w-auto"
               >
-                {isMobilePreview ? "Edit" : "Preview"}
+                {isMobilePreview ? "Back to Edit" : "Preview PDF"}
               </button>
 
               {/* Grammar + Export actions */}
@@ -269,9 +285,9 @@ export function BuilderHeader({
           </div>
 
           {/* Bottom row */}
-          <div className="flex flex-col md:flex-row md:items-center gap-4">
+          <div className="flex flex-col xl:flex-row xl:items-center gap-4">
             {/* Title input */}
-            <div className="flex-1">
+            <div className="flex-1 w-full">
               <input
                 type="text"
                 value={title}
@@ -281,41 +297,43 @@ export function BuilderHeader({
               />
             </div>
 
-            {/* Template selector */}
-            <TemplatePicker value={templateId} onChange={setTemplateId} />
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Template selector */}
+              <TemplatePicker value={templateId} onChange={setTemplateId} />
 
-            {/* Font selector */}
-            <div className="flex items-center gap-2">
-              <span className="label-mono">FONT:</span>
-              <select
-                title="Font family"
-                value={fontFamily}
-                onChange={(e) => setFontFamily(e.target.value)}
-                className="border border-black bg-transparent px-3 py-2 text-xs font-bold tracking-wider focus:bg-black focus:text-white transition-all duration-150"
-              >
-                {CV_FONTS.map((font) => (
-                  <option key={font.id} value={font.id}>
-                    {font.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+              {/* Font selector */}
+              <div className="flex items-center gap-2 border border-gray-300 px-2 pl-0 bg-transparent flex-1 sm:flex-none">
+                <span className="label-mono ml-2">FONT:</span>
+                <select
+                  title="Font family"
+                  value={fontFamily}
+                  onChange={(e) => setFontFamily(e.target.value)}
+                  className="bg-transparent py-2 text-xs font-bold tracking-wider outline-none w-full"
+                >
+                  {CV_FONTS.map((font) => (
+                    <option key={font.id} value={font.id} className="text-black">
+                      {font.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            {/* PDF Language selector */}
-            <div className="flex items-center gap-2">
-              <span className="label-mono">LANG:</span>
-              <select
-                title="PDF language"
-                value={pdfLocale}
-                onChange={(e) => setPdfLocale(e.target.value)}
-                className="border border-black bg-transparent px-3 py-2 text-xs font-bold tracking-wider focus:bg-black focus:text-white transition-all duration-150"
-              >
-                {PDF_LOCALES.map((loc) => (
-                  <option key={loc.code} value={loc.code}>
-                    {loc.label}
-                  </option>
-                ))}
-              </select>
+              {/* PDF Language selector */}
+              <div className="flex items-center gap-2 border border-gray-300 px-2 pl-0 bg-transparent flex-1 sm:flex-none">
+                <span className="label-mono ml-2">LANG:</span>
+                <select
+                  title="PDF language"
+                  value={pdfLocale}
+                  onChange={(e) => setPdfLocale(e.target.value)}
+                  className="bg-transparent py-2 text-xs font-bold tracking-wider outline-none w-full"
+                >
+                  {PDF_LOCALES.map((loc) => (
+                    <option key={loc.code} value={loc.code} className="text-black">
+                      {loc.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 

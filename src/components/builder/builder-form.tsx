@@ -131,22 +131,22 @@ export function BuilderForm() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 px-2 py-2">
+          <div className="flex items-center gap-2 px-0 sm:px-2 py-2">
           <div className="flex-1 overflow-x-auto scrollbar-none" ref={tabsContainerRef}>
-            <div className="flex min-w-max gap-2 snap-x snap-mandatory px-2">
+            <div className="flex min-w-max gap-2 snap-x snap-mandatory px-4 sm:px-2">
               {orderedSections.map((section, index) => (
                 <button
                   key={section.id}
                   data-section-id={section.id}
                   onClick={() => setActiveSection(section.id)}
-                  className={`snap-start px-4 py-2 text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-colors duration-150 border ${
+                  className={`snap-start px-3 py-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-colors duration-150 border ${
                     activeSection === section.id
                       ? "bg-black text-white border-black"
                       : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
                   }`}
                   aria-current={activeSection === section.id ? "page" : undefined}
                 >
-                  <span className="mr-2 opacity-70">{String(index + 1).padStart(2, "0")}</span>
+                  <span className="mr-1.5 opacity-70">{String(index + 1).padStart(2, "0")}</span>
                   {section.label}
                 </button>
               ))}
