@@ -41,6 +41,7 @@ export async function createResume(title: string, templateId: string = "harvard"
     skills: [],
     projects: [],
     certifications: [],
+    competitions: [],
     languages: [],
   };
 
