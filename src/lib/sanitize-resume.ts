@@ -74,5 +74,13 @@ export function sanitizeResumeData(data: ResumeData): ResumeData {
       ...lang,
       language: sanitizeText(lang.language),
     })),
+    competitions: (data.competitions || []).map((comp) => ({
+      ...comp,
+      name: sanitizeText(comp.name),
+      role: sanitizeText(comp.role ?? ""),
+      location: sanitizeText(comp.location ?? ""),
+      description: sanitizeText(comp.description),
+      highlights: comp.highlights.map(sanitizeText),
+    })),
   };
 }

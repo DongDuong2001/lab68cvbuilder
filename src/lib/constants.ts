@@ -21,6 +21,7 @@ export const EMPTY_RESUME_DATA: ResumeData = {
   projects: [],
   certifications: [],
   languages: [],
+  competitions: [],
 };
 
 /**
