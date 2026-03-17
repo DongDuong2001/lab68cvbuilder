@@ -53,3 +53,8 @@ export const TEMPLATES = [
 ] as const;
 
 export type TemplateId = (typeof TEMPLATES)[number]["id"];
+
+/**
+ * localStorage key for unauthenticated resume draft persistence.
+ */
+export const GUEST_STORAGE_KEY = "lab68_guest_resume";
