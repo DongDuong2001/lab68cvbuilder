@@ -934,6 +934,21 @@ export function PersonalInfoForm() {
             {personalInfo.summary?.length || 0} / {MAX_SUMMARY_LENGTH} characters
           </span>
         </div>
+
+        <div>
+          <label className="label-mono block mb-2">BULLET_SYMBOL</label>
+          <input
+            type="text"
+            value={personalInfo.bulletSymbol || "•"}
+            onChange={(e) => updateField("bulletSymbol", e.target.value.slice(0, 3))}
+            placeholder="•"
+            maxLength={3}
+            className="w-full border border-black bg-transparent px-4 py-3 focus:bg-black focus:text-white transition-all duration-150"
+          />
+          <span className="text-[10px] text-gray-500 mt-1 block">
+            Use any symbol for CV bullets, for example: •, -, ▪, or →
+          </span>
+        </div>
       </div>
 
       {previewDraft && (
