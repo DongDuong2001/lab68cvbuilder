@@ -1,6 +1,7 @@
 import type { ResumeData } from "@/db/schema";
 import { ensureHref } from "@/lib/url-helpers";
 import { type PdfLabels, getPdfLabels, getDateLocale } from "@/lib/pdf-labels";
+import { getResumeBulletSymbol } from "@/lib/bullet-symbol";
 
 interface TemplateProps {
   data: ResumeData;
@@ -11,6 +12,7 @@ interface TemplateProps {
 export function ExecutiveTemplate({ data, labels, dateLocale }: TemplateProps) {
   const l = labels ?? getPdfLabels("en");
   const dl = dateLocale ?? getDateLocale("en");
+  const bulletSymbol = getResumeBulletSymbol(data, "•");
   const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
   const completeEducation = education.filter(
     (edu) =>
@@ -69,7 +71,7 @@ export function ExecutiveTemplate({ data, labels, dateLocale }: TemplateProps) {
           <h2 className="text-sm font-black uppercase tracking-widest mb-3 border-b border-black pb-1">
             {l.professionalSummary}
           </h2>
-          <p className="text-sm leading-relaxed">{personalInfo.summary}</p>
+          <p className="text-sm leading-relaxed whitespace-pre-line">{personalInfo.summary}</p>
         </section>
       )}
 
@@ -95,14 +97,14 @@ export function ExecutiveTemplate({ data, labels, dateLocale }: TemplateProps) {
                   <div className="text-xs text-gray-600 mb-2">{exp.location}</div>
                 )}
                 {exp.description && (
-                  <p className="text-sm leading-relaxed mb-2">{exp.description}</p>
+                  <p className="text-sm leading-relaxed mb-2 whitespace-pre-line">{exp.description}</p>
                 )}
                 {exp.highlights.length > 0 && (
                   <ul className="space-y-1.5 text-sm">
                     {exp.highlights.map((highlight, idx) => (
                       <li key={idx} className="flex">
-                        <span className="mr-3 font-bold">•</span>
-                        <span className="flex-1">{highlight}</span>
+                        <span className="mr-3 font-bold">{bulletSymbol}</span>
+                        <span className="flex-1 whitespace-pre-line">{highlight}</span>
                       </li>
                     ))}
                   </ul>
@@ -193,7 +195,7 @@ export function ExecutiveTemplate({ data, labels, dateLocale }: TemplateProps) {
                   </div>
                 )}
                 {project.description && (
-                  <p className="text-sm leading-relaxed mb-2">{project.description}</p>
+                  <p className="text-sm leading-relaxed mb-2 whitespace-pre-line">{project.description}</p>
                 )}
                 {project.technologies.length > 0 && (
                   <div className="text-xs font-mono text-gray-600 mb-2">
@@ -204,8 +206,8 @@ export function ExecutiveTemplate({ data, labels, dateLocale }: TemplateProps) {
                   <ul className="space-y-1 text-sm">
                     {project.highlights.map((highlight, idx) => (
                       <li key={idx} className="flex">
-                        <span className="mr-3 font-bold">•</span>
-                        <span className="flex-1">{highlight}</span>
+                        <span className="mr-3 font-bold">{bulletSymbol}</span>
+                        <span className="flex-1 whitespace-pre-line">{highlight}</span>
                       </li>
                     ))}
                   </ul>
