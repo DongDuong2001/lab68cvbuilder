@@ -1,9 +1,9 @@
 "use server";
 
 import { db } from "@/db";
-import { resumes } from "@/db/schema";
+import { resumes, resumeVersions } from "@/db/schema";
 import { auth } from "@/auth";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import type { ResumeData } from "@/db/schema";
 import { sanitizeResumeData } from "@/lib/sanitize-resume";
 import { revalidatePath } from "next/cache";
@@ -90,6 +90,50 @@ export async function updateResume(
   }>
 ) {
   const userId = await getAuthUserId();
+
+  const [existing] = await db
+    .select()
+    .from(resumes)
+    .where(and(eq(resumes.id, resumeId), eq(resumes.userId, userId)));
+
+  if (!existing) {
+    throw new Error("Resume not found or unauthorized");
+  }
+
+  const hasContentChange =
+    data.data !== undefined &&
+    JSON.stringify(existing.data) !== JSON.stringify(data.data);
+
+  if (hasContentChange) {
+    try {
+      const [lastVersion] = await db
+        .select({ createdAt: resumeVersions.createdAt })
+        .from(resumeVersions)
+        .where(and(eq(resumeVersions.resumeId, resumeId), eq(resumeVersions.userId, userId)))
+        .orderBy(desc(resumeVersions.createdAt))
+        .limit(1);
+
+      const now = Date.now();
+      const fifteenMinutes = 15 * 60 * 1000;
+      const canSnapshot =
+        !lastVersion || now - new Date(lastVersion.createdAt).getTime() >= fifteenMinutes;
+
+      if (canSnapshot) {
+        await db.insert(resumeVersions).values({
+          userId,
+          resumeId,
+          title: existing.title,
+          templateId: existing.templateId,
+          fontFamily: existing.fontFamily,
+          data: existing.data,
+          source: "autosave",
+          changeSummary: "Automatic pre-save snapshot",
+        });
+      }
+    } catch (error) {
+      console.warn("Skipping resume version autosnapshot due to DB error", error);
+    }
+  }
 
   const sanitizedPayload = {
     ...data,
