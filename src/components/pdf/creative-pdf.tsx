@@ -10,6 +10,7 @@ import {
 import type { ResumeData } from "@/db/schema";
 import { ensureHref } from "@/lib/url-helpers";
 import { type PdfLabels, getPdfLabels, getDateLocale } from "@/lib/pdf-labels";
+import { getResumeBulletSymbol } from "@/lib/bullet-symbol";
 
 
 
@@ -147,6 +148,7 @@ interface PDFTemplateProps {
 
 export function CreativePDF({ data, fontFamily, labels, dateLocale }: PDFTemplateProps) {
   const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
+  const bulletSymbol = getResumeBulletSymbol(data, "▪");
   const completeEducation = education.filter(
     (edu) => edu.institution.trim() && edu.degree.trim() && edu.field.trim() && edu.startDate.trim()
   );
@@ -298,7 +300,7 @@ export function CreativePDF({ data, fontFamily, labels, dateLocale }: PDFTemplat
                     <View style={styles.bulletList}>
                       {exp.highlights.map((highlight, idx) => (
                         <View key={idx} style={styles.bulletItem}>
-                          <Text style={styles.bullet}>▪</Text>
+                          <Text style={styles.bullet}>{bulletSymbol}</Text>
                           <Text style={styles.bulletText}>{highlight}</Text>
                         </View>
                       ))}
@@ -337,7 +339,7 @@ export function CreativePDF({ data, fontFamily, labels, dateLocale }: PDFTemplat
                     <View style={styles.bulletList}>
                       {project.highlights.map((highlight, idx) => (
                         <View key={idx} style={styles.bulletItem}>
-                          <Text style={styles.bullet}>▪</Text>
+                          <Text style={styles.bullet}>{bulletSymbol}</Text>
                           <Text style={styles.bulletText}>{highlight}</Text>
                         </View>
                       ))}
