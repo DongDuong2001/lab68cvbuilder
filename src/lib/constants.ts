@@ -13,6 +13,7 @@ export const EMPTY_RESUME_DATA: ResumeData = {
     linkedin: "",
     github: "",
     summary: "",
+    bulletSymbol: "•",
   },
   experience: [],
   education: [],
