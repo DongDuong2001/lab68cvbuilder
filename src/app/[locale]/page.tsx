@@ -88,6 +88,38 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* ACHIEVEMENTS */}
+        <section className="relative z-10 border-t border-black bg-white">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 divide-y divide-black md:divide-y-0 md:divide-x">
+            <div className="p-8 md:p-10 flex items-center">
+              <div>
+                <span className="label-mono block mb-3">{t("Achievements.label")}</span>
+                <h2 className="text-3xl font-black tracking-tight uppercase leading-tight">
+                  {t("Achievements.title")}
+                </h2>
+              </div>
+            </div>
+
+            <div className="p-8 md:p-10 bg-gray-50">
+              <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 mb-4">
+                UNIKORN
+              </p>
+              <p className="text-2xl md:text-3xl font-black tracking-tight uppercase leading-tight">
+                {t("Achievements.unikornRank")}
+              </p>
+            </div>
+
+            <div className="p-8 md:p-10 bg-black text-white">
+              <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/60 mb-4">
+                FORG
+              </p>
+              <p className="text-2xl md:text-3xl font-black tracking-tight uppercase leading-tight">
+                {t("Achievements.forgRank")}
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* FEATURES GRID */}
         <section className="relative z-10 border-t border-black bg-white">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row">
@@ -96,20 +128,20 @@ export default function HomePage() {
                 {t("Features.title")}
               </h2>
             </div>
-            <div className="md:w-2/3 grid grid-cols-1 sm:grid-cols-2">
-              <div className="p-8 md:p-12 border-b sm:border-r border-black">
+            <div className="md:w-2/3 grid grid-cols-1 sm:grid-cols-2 border-l border-t border-black md:border-l-0">
+              <div className="p-8 md:p-12 border-r border-b border-black">
                 <h3 className="text-sm font-bold tracking-widest uppercase mb-4">01. {t("Features.pdfTitle")}</h3>
                 <p className="text-sm text-gray-600 leading-relaxed font-light">{t("Features.pdfDesc")}</p>
               </div>
-              <div className="p-8 md:p-12 border-b border-black">
+              <div className="p-8 md:p-12 border-r border-b border-black sm:border-r-0">
                 <h3 className="text-sm font-bold tracking-widest uppercase mb-4">02. {t("Features.atsTitle")}</h3>
                 <p className="text-sm text-gray-600 leading-relaxed font-light">{t("Features.atsDesc")}</p>
               </div>
-              <div className="p-8 md:p-12 border-b sm:border-b-0 sm:border-r border-black">
+              <div className="p-8 md:p-12 border-r border-b border-black sm:border-b-0">
                 <h3 className="text-sm font-bold tracking-widest uppercase mb-4">03. {t("Features.templatesTitle")}</h3>
                 <p className="text-sm text-gray-600 leading-relaxed font-light">{t("Features.templatesDesc")}</p>
               </div>
-              <div className="p-8 md:p-12">
+              <div className="p-8 md:p-12 border-r border-b border-black sm:border-r-0 sm:border-b-0">
                 <h3 className="text-sm font-bold tracking-widest uppercase mb-4">04. {t("Features.freeTitle")}</h3>
                 <p className="text-sm text-gray-600 leading-relaxed font-light">{t("Features.freeDesc")}</p>
               </div>
