@@ -43,6 +43,12 @@ export default async function DashboardPage() {
             </div>
           </div>
           <div className="flex items-center gap-6">
+            <Link
+              href="/applications"
+              className="hidden md:inline-flex border border-black px-4 py-2 text-xs font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-150"
+            >
+              Applications
+            </Link>
             <div className="text-right hidden md:block">
               <span className="label-mono block">USER</span>
               <p className="text-sm font-medium">{session.user.email}</p>
