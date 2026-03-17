@@ -7,6 +7,7 @@ import { EducationForm } from "./forms/education-form";
 import { SkillsForm } from "./forms/skills-form";
 import { ProjectsForm } from "./forms/projects-form";
 import { CertificationsForm } from "./forms/certifications-form";
+import { CompetitionsForm } from "./forms/competitions-form";
 import { LanguagesForm } from "./forms/languages-form";
 import { ResumeScorePanel } from "./resume-score";
 import { AISuggestionsPanel } from "./ai-suggestions";
@@ -19,6 +20,7 @@ const SECTIONS = [
   { id: "skills", label: "Skills", component: SkillsForm },
   { id: "projects", label: "Projects", component: ProjectsForm },
   { id: "certifications", label: "Certifications", component: CertificationsForm },
+  { id: "competitions", label: "Competitions", component: CompetitionsForm },
   { id: "languages", label: "Languages", component: LanguagesForm },
   { id: "versions", label: "Versions", component: VersionHistoryPanel },
   { id: "score", label: "Score", component: ResumeScorePanel },
