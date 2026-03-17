@@ -157,12 +157,93 @@ export const resumes = pgTable("resumes", {
   updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
 });
 
+export const jobs = pgTable("jobs", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  company: text("company").notNull(),
+  location: text("location"),
+  sourceUrl: text("source_url"),
+  jdText: text("jd_text").notNull(),
+  extractedKeywords: jsonb("extracted_keywords").$type<string[]>().notNull().default([]),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const resumeVersions = pgTable("resume_versions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  resumeId: uuid("resume_id")
+    .notNull()
+    .references(() => resumes.id, { onDelete: "cascade" }),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  templateId: text("template_id").notNull(),
+  fontFamily: text("font_family").notNull(),
+  data: jsonb("data").$type<ResumeData>().notNull(),
+  source: text("source").notNull().default("autosave"),
+  changeSummary: text("change_summary"),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const applications = pgTable("applications", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  jobId: uuid("job_id")
+    .notNull()
+    .references(() => jobs.id, { onDelete: "cascade" }),
+  resumeId: uuid("resume_id")
+    .references(() => resumes.id, { onDelete: "set null" }),
+  resumeVersionId: uuid("resume_version_id")
+    .references(() => resumeVersions.id, { onDelete: "set null" }),
+  status: text("status").notNull().default("wishlist"),
+  appliedAt: timestamp("applied_at", { mode: "date" }),
+  nextStepAt: timestamp("next_step_at", { mode: "date" }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const coverLetters = pgTable("cover_letters", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  applicationId: uuid("application_id")
+    .notNull()
+    .references(() => applications.id, { onDelete: "cascade" }),
+  tone: text("tone").notNull().default("professional"),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const usageEvents = pgTable("usage_events", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  eventName: text("event_name").notNull(),
+  metadata: jsonb("metadata").$type<Record<string, unknown>>().notNull().default({}),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});
+
 // ============================================================
 // RELATIONS
 // ============================================================
 
 export const usersRelations = relations(users, ({ many }) => ({
   resumes: many(resumes),
+  jobs: many(jobs),
+  applications: many(applications),
+  resumeVersions: many(resumeVersions),
+  coverLetters: many(coverLetters),
+  usageEvents: many(usageEvents),
   accounts: many(accounts),
   sessions: many(sessions),
 }));
@@ -170,6 +251,64 @@ export const usersRelations = relations(users, ({ many }) => ({
 export const resumesRelations = relations(resumes, ({ one }) => ({
   user: one(users, {
     fields: [resumes.userId],
+    references: [users.id],
+  }),
+}));
+
+export const jobsRelations = relations(jobs, ({ one, many }) => ({
+  user: one(users, {
+    fields: [jobs.userId],
+    references: [users.id],
+  }),
+  applications: many(applications),
+}));
+
+export const resumeVersionsRelations = relations(resumeVersions, ({ one, many }) => ({
+  user: one(users, {
+    fields: [resumeVersions.userId],
+    references: [users.id],
+  }),
+  resume: one(resumes, {
+    fields: [resumeVersions.resumeId],
+    references: [resumes.id],
+  }),
+  applications: many(applications),
+}));
+
+export const applicationsRelations = relations(applications, ({ one, many }) => ({
+  user: one(users, {
+    fields: [applications.userId],
+    references: [users.id],
+  }),
+  job: one(jobs, {
+    fields: [applications.jobId],
+    references: [jobs.id],
+  }),
+  resume: one(resumes, {
+    fields: [applications.resumeId],
+    references: [resumes.id],
+  }),
+  resumeVersion: one(resumeVersions, {
+    fields: [applications.resumeVersionId],
+    references: [resumeVersions.id],
+  }),
+  coverLetters: many(coverLetters),
+}));
+
+export const coverLettersRelations = relations(coverLetters, ({ one }) => ({
+  user: one(users, {
+    fields: [coverLetters.userId],
+    references: [users.id],
+  }),
+  application: one(applications, {
+    fields: [coverLetters.applicationId],
+    references: [applications.id],
+  }),
+}));
+
+export const usageEventsRelations = relations(usageEvents, ({ one }) => ({
+  user: one(users, {
+    fields: [usageEvents.userId],
     references: [users.id],
   }),
 }));
@@ -196,3 +335,13 @@ export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Resume = typeof resumes.$inferSelect;
 export type NewResume = typeof resumes.$inferInsert;
+export type Job = typeof jobs.$inferSelect;
+export type NewJob = typeof jobs.$inferInsert;
+export type Application = typeof applications.$inferSelect;
+export type NewApplication = typeof applications.$inferInsert;
+export type ResumeVersion = typeof resumeVersions.$inferSelect;
+export type NewResumeVersion = typeof resumeVersions.$inferInsert;
+export type CoverLetter = typeof coverLetters.$inferSelect;
+export type NewCoverLetter = typeof coverLetters.$inferInsert;
+export type UsageEvent = typeof usageEvents.$inferSelect;
+export type NewUsageEvent = typeof usageEvents.$inferInsert;
