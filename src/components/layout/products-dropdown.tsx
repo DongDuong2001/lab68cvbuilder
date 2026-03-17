@@ -13,11 +13,6 @@ const PRODUCTS = [
     description: "Developer platform and tools",
     url: "https://lab68devplatform.vercel.app/",
   },
-  {
-    name: "Lab68 Video Resizer",
-    description: "Resize and convert videos",
-    url: "https://lab68videoresizer.netlify.app/",
-  },
 ];
 
 export function ProductsDropdown() {
