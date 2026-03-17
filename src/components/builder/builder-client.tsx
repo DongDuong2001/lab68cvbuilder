@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useResumeStore } from "@/store/resume-store";
-import { updateResume } from "@/actions/resume";
 import { useDebounce } from "@/hooks/use-debounce";
 import type { Resume } from "@/db/schema";
 import { BuilderForm } from "./builder-form";
@@ -43,12 +42,26 @@ export function BuilderClient({ resume }: BuilderClientProps) {
 
     setIsSaving(true);
     try {
-      await updateResume(resume.id, {
-        title,
-        templateId,
-        fontFamily,
-        data,
+      const response = await fetch(`/api/resume/${resume.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title,
+          templateId,
+          fontFamily,
+          data,
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to update resume");
+      }
+
+      await response.json();
+
+      // Mark local state clean after server confirms persistence.
       markSaved();
     } catch (error) {
       console.error("Failed to save resume:", error);
