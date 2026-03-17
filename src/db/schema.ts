@@ -142,6 +142,16 @@ export type ResumeData = {
     language: string;
     proficiency: "native" | "fluent" | "advanced" | "intermediate" | "beginner";
   }>;
+  competitions: Array<{
+    id: string;
+    name: string;
+    role?: string;
+    date: string;
+    location?: string;
+    url?: string;
+    description: string;
+    highlights: string[];
+  }>;
 };
 
 export const resumes = pgTable("resumes", {
