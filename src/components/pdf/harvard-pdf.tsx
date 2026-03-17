@@ -9,6 +9,7 @@ import {
 import type { ResumeData } from "@/db/schema";
 import { ensureHref } from "@/lib/url-helpers";
 import { type PdfLabels, getPdfLabels, getDateLocale } from "@/lib/pdf-labels";
+import { getResumeBulletSymbol } from "@/lib/bullet-symbol";
 
 
 
@@ -45,6 +46,7 @@ interface PDFTemplateProps { data: ResumeData; fontFamily?: string; labels?: Pdf
 
 export function HarvardPDF({ data, fontFamily, labels, dateLocale }: PDFTemplateProps) {
   const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
+  const bulletSymbol = getResumeBulletSymbol(data, "–");
   const completeEducation = education.filter(
     (edu) => edu.institution.trim() && edu.degree.trim() && edu.field.trim() && edu.startDate.trim()
   );
@@ -98,7 +100,7 @@ export function HarvardPDF({ data, fontFamily, labels, dateLocale }: PDFTemplate
                   {exp.description ? <Text style={s.desc}>{exp.description}</Text> : null}
                   {exp.highlights.map((h, i) => (
                     <View key={i} style={s.bulletItem}>
-                      <Text style={s.bulletMark}>–</Text>
+                      <Text style={s.bulletMark}>{bulletSymbol}</Text>
                       <Text style={s.bulletText}>{h}</Text>
                     </View>
                   ))}
@@ -166,7 +168,7 @@ export function HarvardPDF({ data, fontFamily, labels, dateLocale }: PDFTemplate
                   {p.description ? <Text style={s.desc}>{p.description}</Text> : null}
                   {p.highlights.map((h, i) => (
                     <View key={i} style={s.bulletItem}>
-                      <Text style={s.bulletMark}>–</Text>
+                      <Text style={s.bulletMark}>{bulletSymbol}</Text>
                       <Text style={s.bulletText}>{h}</Text>
                     </View>
                   ))}
