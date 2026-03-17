@@ -128,7 +128,7 @@ export default function HomePage() {
                 {t("Features.title")}
               </h2>
             </div>
-            <div className="md:w-2/3 grid grid-cols-1 sm:grid-cols-2 border-l border-t border-black md:border-l-0">
+            <div className="md:w-2/3 grid grid-cols-1 sm:grid-cols-2">
               <div className="p-8 md:p-12 border-r border-b border-black">
                 <h3 className="text-sm font-bold tracking-widest uppercase mb-4">01. {t("Features.pdfTitle")}</h3>
                 <p className="text-sm text-gray-600 leading-relaxed font-light">{t("Features.pdfDesc")}</p>
