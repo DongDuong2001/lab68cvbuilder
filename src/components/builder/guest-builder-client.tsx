@@ -10,7 +10,6 @@ import { BuilderHeader } from "./builder-header";
 export function GuestBuilderClient() {
   const { setResume, data, title, templateId, fontFamily, isDirty } =
     useResumeStore();
-  const [isMobilePreview, setIsMobilePreview] = useState(false);
   const [isStoreReady, setIsStoreReady] = useState(false);
 
   // Initialize store from localStorage or empty data
@@ -51,28 +50,18 @@ export function GuestBuilderClient() {
   }
 
   return (
-    <div className="h-dvh flex flex-col bg-white">
+    <div className="h-dvh flex flex-col bg-white overflow-hidden">
       <BuilderHeader
         resumeId="guest"
-        isMobilePreview={isMobilePreview}
-        onToggleMobilePreview={() => setIsMobilePreview(!isMobilePreview)}
         isGuest
       />
 
-      <div className="flex-1 flex min-h-0">
-        <div
-          className={`w-full lg:w-1/2 overflow-y-auto overscroll-y-contain border-r border-black ${
-            isMobilePreview ? "hidden lg:block" : "block"
-          }`}
-        >
+      <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
+        <div className="w-full lg:w-1/2 flex-1 lg:flex-none overflow-y-auto overscroll-y-contain border-b lg:border-b-0 lg:border-r border-black relative z-10 bg-white">
           <BuilderForm />
         </div>
 
-        <div
-          className={`w-full lg:w-1/2 overflow-y-auto overscroll-y-contain bg-gray-50 ${
-            isMobilePreview ? "block" : "hidden lg:block"
-          }`}
-        >
+        <div className="w-full lg:w-1/2 h-[45vh] lg:h-auto overflow-y-auto overscroll-y-contain bg-gray-50 shrink-0">
           <BuilderPreview />
         </div>
       </div>
