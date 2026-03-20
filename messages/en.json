@@ -88,6 +88,12 @@
             "cta": "Sponsor Lab68dev →",
             "emptyTitle": "Fuel the Lab",
             "emptyDesc": "Be the first to get your logo proudly displayed here as an official supporter of an open-source tool."
+        },
+        "Ecosystem": {
+            "label": "ECOSYSTEM // GROWTH",
+            "title": "Launch on Forg",
+            "subtitle": "Ready to showcase your product? Forg is the minimalist launchpad for hackers. Join the community and get your project noticed.",
+            "cta": "Upload to Forg →"
         }
     },
     "Common": {
