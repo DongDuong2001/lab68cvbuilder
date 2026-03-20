@@ -13,6 +13,8 @@ interface ResumeState {
   isDirty: boolean;
   isSaving: boolean;
   lastSavedAt: Date | null;
+  hiddenSections: string[];
+  activeSection: string;
 
   // ── Actions ───────────────────────────────────────────
   setResume: (id: string, title: string, templateId: string, fontFamily: string, data: ResumeData) => void;
@@ -24,6 +26,8 @@ interface ResumeState {
   updatePersonalInfo: (info: Partial<ResumeData["personalInfo"]>) => void;
   setIsSaving: (saving: boolean) => void;
   markSaved: () => void;
+  toggleSectionVisibility: (sectionId: string) => void;
+  setActiveSection: (sectionId: string) => void;
   reset: () => void;
 }
 
@@ -38,6 +42,8 @@ export const useResumeStore = create<ResumeState>((set) => ({
   isDirty: false,
   isSaving: false,
   lastSavedAt: null,
+  hiddenSections: [],
+  activeSection: "personal",
 
   // ── Actions ───────────────────────────────────────────
   setResume: (id, title, templateId, fontFamily, data) =>
@@ -84,6 +90,17 @@ export const useResumeStore = create<ResumeState>((set) => ({
       lastSavedAt: new Date(),
     }),
 
+  toggleSectionVisibility: (sectionId) =>
+    set((state) => {
+      const hidden = state.hiddenSections.includes(sectionId)
+        ? state.hiddenSections.filter((id) => id !== sectionId)
+        : [...state.hiddenSections, sectionId];
+      return { hiddenSections: hidden };
+    }),
+
+  setActiveSection: (activeSection) =>
+    set({ activeSection }),
+
   reset: () =>
     set({
       resumeId: null,
@@ -95,5 +112,7 @@ export const useResumeStore = create<ResumeState>((set) => ({
       isDirty: false,
       isSaving: false,
       lastSavedAt: null,
+      hiddenSections: [],
+      activeSection: "personal",
     }),
 }));
