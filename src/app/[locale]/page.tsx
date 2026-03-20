@@ -418,6 +418,42 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* ECOSYSTEM / LAUNCH ON FORG */}
+        <section className="relative z-10 border-t border-black bg-black text-white p-8 md:p-14 lg:p-24">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12">
+            <div className="md:w-1/2">
+              <span className="label-mono block text-white/50 mb-4">{t("Ecosystem.label")}</span>
+              <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-6 uppercase">
+                {t("Ecosystem.title")}
+              </h2>
+              <p className="text-lg text-gray-400 font-light leading-relaxed mb-10 max-w-xl">
+                {t("Ecosystem.subtitle")}
+              </p>
+              <a
+                href="https://forg.to/ref/duongphudong"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block border border-white bg-white text-black px-10 py-4 text-sm font-bold uppercase tracking-widest hover:bg-transparent hover:text-white transition-all duration-150"
+              >
+                {t("Ecosystem.cta")}
+              </a>
+            </div>
+            <div className="md:w-1/2 flex justify-center w-full">
+              <div className="relative w-full aspect-video border-2 border-white/20 bg-gray-900 group overflow-hidden max-w-lg">
+                <div className="absolute inset-0 flex items-center justify-center opacity-20 group-hover:opacity-40 transition-opacity">
+                   <svg className="w-32 h-32" viewBox="0 0 24 24" fill="white">
+                     <path d="M12 2L2 12L12 22L22 12L12 2Z" />
+                   </svg>
+                </div>
+                <div className="absolute bottom-6 left-6 right-6 p-6 bg-white text-black border-2 border-black translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-[8px_8px_0_#fff]">
+                   <p className="label-mono text-[10px] mb-2 text-gray-400">TARGET: FORG.TO</p>
+                   <p className="font-bold text-sm tracking-tight uppercase">Ready to launch your project?</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* TESTIMONIALS */}
         <section className="relative z-10 border-t border-black bg-white">
           <div className="max-w-7xl mx-auto p-8 md:p-16">
