@@ -65,7 +65,7 @@ export function ProductsDropdown() {
         <div className="border border-black bg-white shadow-[4px_4px_0_#000]">
           <div className="p-1">
             <span className="label-mono block px-3 pt-3 pb-2 text-black">
-              LAB68DEV PRODUCTS
+              LAB68CV PRODUCTS
             </span>
             {PRODUCTS.map((product) => (
               <a
