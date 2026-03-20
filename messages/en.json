@@ -1,6 +1,6 @@
 {
     "Index": {
-        "label": "SYS.INIT // LAB68DEV STUDIO",
+        "label": "SYS.INIT // LAB68CV.BUILDER STUDIO",
         "title": "resume.build()",
         "description": "Unlock your potential. Build your future. The ultimate Resume Builder engineered for professionals to create clean, structured, and ATS-friendly CVs in seconds.",
         "enterLab": "Start Building →",
@@ -84,8 +84,8 @@
         "Sponsors": {
             "label": "COMMUNITY // SPONSORS",
             "title": "BACKED BY YOU",
-            "subtitle": "lab68cv is an open-source project. If it has helped you land a job or save time, consider supporting our ongoing development.",
-            "cta": "Sponsor Lab68dev →",
+            "subtitle": "lab68cv.builder is an open-source project. If it has helped you land a job or save time, consider supporting our ongoing development.",
+            "cta": "Sponsor lab68cv.builder →",
             "emptyTitle": "Fuel the Lab",
             "emptyDesc": "Be the first to get your logo proudly displayed here as an official supporter of an open-source tool."
         },
