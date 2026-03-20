@@ -25,15 +25,8 @@ export async function Header() {
         {/* Left: Logo + Brand */}
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-3 group">
-            <Image
-              src="/lab68dev_logo.png"
-              alt="lab68dev"
-              width={28}
-              height={28}
-              className="invert"
-            />
             <span className="text-sm font-black uppercase tracking-wider">
-              lab68dev
+              lab68cv.builder
             </span>
           </Link>
 
