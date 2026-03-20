@@ -84,9 +84,15 @@ export function BuilderHeader({
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
 
-      // Extract filename from Content-Disposition if available
+      // Build a professional filename from the user's name + title
       const disposition = response.headers.get("Content-Disposition");
-      let filename = `${title || "resume"}.pdf`;
+      let filename: string;
+      const safeName = data.personalInfo.fullName.trim().replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_\-]/g, "") || "Resume";
+      const safeTitle = (title || "").trim().replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_\-]/g, "");
+      filename = safeTitle && safeTitle !== safeName
+        ? `${safeName}_${safeTitle}.pdf`
+        : `${safeName}_Resume.pdf`;
+      // Override with server-provided filename if present
       if (disposition && disposition.indexOf("filename=") !== -1) {
         const matches = /filename="([^"]+)"/.exec(disposition);
         if (matches != null && matches[1]) {
