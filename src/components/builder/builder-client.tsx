@@ -20,12 +20,24 @@ export function BuilderClient({ resume }: BuilderClientProps) {
 
   const [saveValidationError, setSaveValidationError] = useState<string | null>(null);
   const [isStoreReady, setIsStoreReady] = useState(false);
+  const [showSaveToast, setShowSaveToast] = useState(false);
 
   // Initialize store with resume data
   useEffect(() => {
     setResume(resume.id, resume.title, resume.templateId, resume.fontFamily ?? "inter", resume.data);
     setIsStoreReady(true);
   }, [resume, setResume]);
+
+  // ── Unsaved changes warning ────────────────────────────
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
 
   // Auto-save function
   const saveResume = useCallback(async () => {
@@ -62,11 +74,20 @@ export function BuilderClient({ resume }: BuilderClientProps) {
 
       // Mark local state clean after server confirms persistence.
       markSaved();
+      // Show a brief toast notification
+      setShowSaveToast(true);
     } catch (error) {
       console.error("Failed to save resume:", error);
       setIsSaving(false);
     }
   }, [isStoreReady, isDirty, resume.id, title, templateId, fontFamily, data, setIsSaving, markSaved]);
+
+  // Auto-dismiss the toast
+  useEffect(() => {
+    if (!showSaveToast) return;
+    const timer = window.setTimeout(() => setShowSaveToast(false), 2000);
+    return () => window.clearTimeout(timer);
+  }, [showSaveToast]);
 
   // Keyboard shortcut: Ctrl+S to save immediately
   useEffect(() => {
@@ -113,6 +134,20 @@ export function BuilderClient({ resume }: BuilderClientProps) {
         {/* Bottom/Right Panel - Preview */}
         <div className="w-full lg:w-1/2 h-[45vh] lg:h-auto overflow-y-auto overscroll-y-contain bg-gray-50 shrink-0">
           <BuilderPreview />
+        </div>
+      </div>
+
+      {/* Save toast */}
+      <div
+        className={`fixed bottom-6 right-6 z-50 transition-all duration-300 pointer-events-none ${
+          showSaveToast
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-2"
+        }`}
+      >
+        <div className="bg-black text-white border border-black px-4 py-2 text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-lg">
+          <span className="inline-block w-2 h-2 rounded-full bg-green-400" />
+          All changes saved
         </div>
       </div>
     </div>
