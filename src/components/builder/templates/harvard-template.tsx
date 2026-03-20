@@ -7,9 +7,10 @@ interface TemplateProps {
   data: ResumeData;
   labels?: PdfLabels;
   dateLocale?: string;
+  activeSection?: string;
 }
 
-export function HarvardTemplate({ data, labels, dateLocale }: TemplateProps) {
+export function HarvardTemplate({ data, labels, dateLocale, activeSection }: TemplateProps) {
   const l = labels ?? getPdfLabels("en");
   const dl = dateLocale ?? getDateLocale("en");
   const bulletSymbol = getResumeBulletSymbol(data, "–");
@@ -33,10 +34,19 @@ export function HarvardTemplate({ data, labels, dateLocale }: TemplateProps) {
     return `${formatDate(start)} – ${current ? l.present : formatDate(end)}`;
   };
 
+  const getSectionClasses = (id: string) => {
+    const isActive = activeSection === id;
+    return `transition-all duration-700 rounded-lg ${
+      isActive 
+        ? "bg-blue-50/40 ring-4 ring-blue-100/30 -mx-4 px-4 py-2" 
+        : "bg-transparent"
+    }`;
+  };
+
   return (
     <div className="p-12 bg-white text-gray-800">
       {/* Header - centered, airy */}
-      <header className="text-center mb-12">
+      <header id="preview-section-personal" className={`text-center mb-12 ${getSectionClasses("personal")}`}>
         <h1 className="text-4xl font-bold tracking-tight text-black mb-3">
           {personalInfo.fullName || l.yourName}
         </h1>
@@ -53,20 +63,18 @@ export function HarvardTemplate({ data, labels, dateLocale }: TemplateProps) {
           {personalInfo.github && <a href={ensureHref(personalInfo.github)} target="_blank" rel="noopener noreferrer" className="hover:underline">GitHub</a>}
         </div>
         <div className="w-20 h-px bg-gray-200 mx-auto mt-6" />
+        {personalInfo.summary && (
+          <div className="mt-8 max-w-2xl mx-auto">
+            <p className="text-sm leading-relaxed text-gray-600 whitespace-pre-line text-center">
+              {personalInfo.summary}
+            </p>
+          </div>
+        )}
       </header>
-
-      {/* Summary */}
-      {personalInfo.summary && (
-        <section className="mb-10 max-w-2xl mx-auto text-center">
-          <p className="text-sm leading-relaxed text-gray-600 whitespace-pre-line">
-            {personalInfo.summary}
-          </p>
-        </section>
-      )}
 
       {/* Experience */}
       {experience.length > 0 && (
-        <section className="mb-10">
+        <section id="preview-section-experience" className={`mb-10 ${getSectionClasses("experience")}`}>
           <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-400 mb-6">
             {l.experience}
           </h2>
@@ -106,7 +114,7 @@ export function HarvardTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Education */}
       {completeEducation.length > 0 && (
-        <section className="mb-10">
+        <section id="preview-section-education" className={`mb-10 ${getSectionClasses("education")}`}>
           <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-400 mb-6">
             {l.education}
           </h2>
@@ -136,7 +144,7 @@ export function HarvardTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Skills */}
       {skills.length > 0 && (
-        <section className="mb-10">
+        <section id="preview-section-skills" className={`mb-10 ${getSectionClasses("skills")}`}>
           <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-400 mb-6">
             {l.skills}
           </h2>
@@ -153,7 +161,7 @@ export function HarvardTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Projects */}
       {projects.length > 0 && (
-        <section>
+        <section id="preview-section-projects" className={getSectionClasses("projects")}>
           <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-400 mb-6">
             {l.projects}
           </h2>
@@ -204,7 +212,7 @@ export function HarvardTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Certifications */}
       {certifications.length > 0 && (
-        <section className="mb-10">
+        <section id="preview-section-certifications" className={`mb-10 ${getSectionClasses("certifications")}`}>
           <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-400 mb-6">
             {l.certifications}
           </h2>
@@ -233,7 +241,7 @@ export function HarvardTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Competitions */}
       {competitions.length > 0 && (
-        <section className="mb-10">
+        <section id="preview-section-competitions" className={`mb-10 ${getSectionClasses("competitions")}`}>
           <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-400 mb-6">
             {l.competitions}
           </h2>
@@ -278,7 +286,7 @@ export function HarvardTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Languages */}
       {languages.length > 0 && (
-        <section>
+        <section id="preview-section-languages" className={getSectionClasses("languages")}>
           <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-400 mb-6">
             {l.languages}
           </h2>

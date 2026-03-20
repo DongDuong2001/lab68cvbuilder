@@ -12,7 +12,7 @@ import { ComponentType } from "react";
 import { getGoogleFontsCSSUrl, getCSSFontFamily } from "@/lib/fonts";
 import { type PdfLabels, getPdfLabels, getDateLocale } from "@/lib/pdf-labels";
 
-const TEMPLATE_COMPONENTS: Record<TemplateId, ComponentType<{ data: ResumeData; labels?: PdfLabels; dateLocale?: string }>> = {
+const TEMPLATE_COMPONENTS: Record<TemplateId, ComponentType<{ data: ResumeData; labels?: PdfLabels; dateLocale?: string; activeSection?: string }>> = {
   "creative": CreativeTemplate,
   "executive": ExecutiveTemplate,
   "harvard": HarvardTemplate,
@@ -20,9 +20,27 @@ const TEMPLATE_COMPONENTS: Record<TemplateId, ComponentType<{ data: ResumeData; 
 };
 
 export function BuilderPreview() {
-  const { templateId, fontFamily, data, pdfLocale } = useResumeStore();
+  const { templateId, fontFamily, data, pdfLocale, activeSection } = useResumeStore();
   const Template = TEMPLATE_COMPONENTS[templateId as TemplateId] || HarvardTemplate;
   const [darkBg, setDarkBg] = useState(false);
+
+  // Auto-scroll to active section in preview
+  useEffect(() => {
+    if (!activeSection) return;
+    
+    // Give a small delay to ensure the template has rendered the new highlight
+    const timer = setTimeout(() => {
+      const element = document.getElementById(`preview-section-${activeSection}`);
+      if (element) {
+        element.scrollIntoView({ 
+          behavior: "smooth", 
+          block: "center" 
+        });
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [activeSection]);
 
   // Dynamically load the selected Google Font
   useEffect(() => {
@@ -106,7 +124,7 @@ export function BuilderPreview() {
             marginBottom: `-${1056 * (1 - scale)}px`
           }}
         >
-          <Template data={data} labels={getPdfLabels(pdfLocale)} dateLocale={getDateLocale(pdfLocale)} />
+          <Template data={data} labels={getPdfLabels(pdfLocale)} dateLocale={getDateLocale(pdfLocale)} activeSection={activeSection} />
         </div>
       </div>
     </div>

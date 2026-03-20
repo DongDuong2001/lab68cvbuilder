@@ -7,9 +7,10 @@ interface TemplateProps {
   data: ResumeData;
   labels?: PdfLabels;
   dateLocale?: string;
+  activeSection?: string;
 }
 
-export function AtsTemplate({ data, labels, dateLocale }: TemplateProps) {
+export function AtsTemplate({ data, labels, dateLocale, activeSection }: TemplateProps) {
   const l = labels ?? getPdfLabels("en");
   const dl = dateLocale ?? getDateLocale("en");
   const bulletSymbol = getResumeBulletSymbol(data, "•");
@@ -33,10 +34,19 @@ export function AtsTemplate({ data, labels, dateLocale }: TemplateProps) {
     return `${formatDate(start)} - ${current ? l.present : formatDate(end)}`;
   };
 
+  const getSectionClasses = (id: string) => {
+    const isActive = activeSection === id;
+    return `transition-all duration-700 rounded ${
+      isActive 
+        ? "bg-blue-50/40 ring-2 ring-blue-100/30 -mx-2 px-2 py-1" 
+        : "bg-transparent"
+    }`;
+  };
+
   return (
     <div className="p-8 bg-white text-black leading-tight">
       {/* Header - compact single line */}
-      <header className="mb-4">
+      <header id="preview-section-personal" className={`mb-4 ${getSectionClasses("personal")}`}>
         <h1 className="text-2xl font-bold mb-1">
           {personalInfo.fullName || l.yourName}
         </h1>
@@ -59,7 +69,7 @@ export function AtsTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Summary */}
       {personalInfo.summary && (
-        <section className="mb-4">
+        <section id="preview-section-summary-fallback" className={`mb-4 ${getSectionClasses("personal")}`}>
           <h2 className="text-xs font-bold uppercase mb-1">{l.summary}</h2>
           <p className="text-[11px] leading-snug text-gray-700 whitespace-pre-line">{personalInfo.summary}</p>
         </section>
@@ -67,7 +77,7 @@ export function AtsTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Skills - inline to save space */}
       {skills.length > 0 && (
-        <section className="mb-4">
+        <section id="preview-section-skills" className={`mb-4 ${getSectionClasses("skills")}`}>
           <h2 className="text-xs font-bold uppercase mb-1">{l.technicalSkills}</h2>
           <div className="space-y-0.5">
             {skills.map((cat) => (
@@ -82,7 +92,7 @@ export function AtsTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Experience - dense */}
       {experience.length > 0 && (
-        <section className="mb-4">
+        <section id="preview-section-experience" className={`mb-4 ${getSectionClasses("experience")}`}>
           <h2 className="text-xs font-bold uppercase mb-2">{l.professionalExperience}</h2>
           <div className="space-y-3">
             {experience.map((exp) => (
@@ -118,7 +128,7 @@ export function AtsTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Education - inline */}
       {completeEducation.length > 0 && (
-        <section className="mb-4">
+        <section id="preview-section-education" className={`mb-4 ${getSectionClasses("education")}`}>
           <h2 className="text-xs font-bold uppercase mb-2">{l.education}</h2>
           <div className="space-y-1.5">
             {completeEducation.map((edu) => (
@@ -144,7 +154,7 @@ export function AtsTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Projects - compact */}
       {projects.length > 0 && (
-        <section>
+        <section id="preview-section-projects" className={getSectionClasses("projects")}>
           <h2 className="text-xs font-bold uppercase mb-2">{l.projects}</h2>
           <div className="space-y-2">
             {projects.map((project) => (
@@ -191,7 +201,7 @@ export function AtsTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Competitions - compact */}
       {competitions.length > 0 && (
-        <section className="mb-4">
+        <section id="preview-section-competitions" className={`mb-4 ${getSectionClasses("competitions")}`}>
           <h2 className="text-xs font-bold uppercase mb-2">{l.competitions}</h2>
           <div className="space-y-2">
             {competitions.map((comp) => (
@@ -234,7 +244,7 @@ export function AtsTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Certifications */}
       {certifications.length > 0 && (
-        <section className="mb-4">
+        <section id="preview-section-certifications" className={`mb-4 ${getSectionClasses("certifications")}`}>
           <h2 className="text-xs font-bold uppercase mb-2">{l.certifications}</h2>
           <div className="space-y-1.5">
             {certifications.map((cert) => (
@@ -262,7 +272,7 @@ export function AtsTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Languages */}
       {languages.length > 0 && (
-        <section>
+        <section id="preview-section-languages" className={getSectionClasses("languages")}>
           <h2 className="text-xs font-bold uppercase mb-1">{l.languages}</h2>
           <div className="text-[11px]">
             {languages.map((lang, i) => (

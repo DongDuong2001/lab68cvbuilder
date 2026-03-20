@@ -7,9 +7,10 @@ interface TemplateProps {
   data: ResumeData;
   labels?: PdfLabels;
   dateLocale?: string;
+  activeSection?: string;
 }
 
-export function CreativeTemplate({ data, labels, dateLocale }: TemplateProps) {
+export function CreativeTemplate({ data, labels, dateLocale, activeSection }: TemplateProps) {
   const l = labels ?? getPdfLabels("en");
   const dl = dateLocale ?? getDateLocale("en");
   const bulletSymbol = getResumeBulletSymbol(data, "▪");
@@ -38,6 +39,15 @@ export function CreativeTemplate({ data, labels, dateLocale }: TemplateProps) {
     const startFormatted = formatDate(start, false);
     const endFormatted = current ? l.present : formatDate(end, false);
     return `${startFormatted} - ${endFormatted}`;
+  };
+
+  const getSectionClasses = (id: string) => {
+    const isActive = activeSection === id;
+    return `transition-all duration-700 rounded-lg ${
+      isActive 
+        ? "bg-blue-50/40 ring-4 ring-blue-100/30 -mx-4 px-4 py-2" 
+        : "bg-transparent"
+    }`;
   };
 
   return (
@@ -79,7 +89,7 @@ export function CreativeTemplate({ data, labels, dateLocale }: TemplateProps) {
 
         {/* Links */}
         {(personalInfo.website || personalInfo.linkedin || personalInfo.github) && (
-          <div className="mb-8">
+          <div id="preview-section-personal-links" className={`mb-8 ${getSectionClasses("personal")}`}>
             <h2 className="font-mono text-[10px] uppercase tracking-widest mb-3 opacity-60">
               {l.links.toUpperCase()}
             </h2>
@@ -105,7 +115,7 @@ export function CreativeTemplate({ data, labels, dateLocale }: TemplateProps) {
 
         {/* Skills */}
         {skills.length > 0 && (
-          <div className="mb-8">
+          <div id="preview-section-skills" className={`mb-8 ${getSectionClasses("skills")}`}>
             <h2 className="font-mono text-[10px] uppercase tracking-widest mb-3 opacity-60">
               {l.technical.toUpperCase()}
             </h2>
@@ -124,7 +134,7 @@ export function CreativeTemplate({ data, labels, dateLocale }: TemplateProps) {
 
         {/* Education */}
         {completeEducation.length > 0 && (
-          <div>
+          <div id="preview-section-education" className={getSectionClasses("education")}>
             <h2 className="font-mono text-[10px] uppercase tracking-widest mb-3 opacity-60">
               {l.education.toUpperCase()}
             </h2>
@@ -170,7 +180,7 @@ export function CreativeTemplate({ data, labels, dateLocale }: TemplateProps) {
       <div className="flex-1 p-8">
         {/* Summary */}
         {personalInfo.summary && (
-          <div className="mb-8">
+          <div id="preview-section-personal" className={`mb-8 ${getSectionClasses("personal")}`}>
             <h2 className="font-mono text-[10px] uppercase tracking-widest border-b border-black pb-1 mb-3">
               {l.profile.toUpperCase()}
             </h2>
@@ -180,7 +190,7 @@ export function CreativeTemplate({ data, labels, dateLocale }: TemplateProps) {
 
         {/* Experience */}
         {experience.length > 0 && (
-          <div className="mb-8">
+          <div id="preview-section-experience" className={`mb-8 ${getSectionClasses("experience")}`}>
             <h2 className="font-mono text-[10px] uppercase tracking-widest border-b border-black pb-1 mb-4">
               {l.experience.toUpperCase()}
             </h2>
@@ -220,7 +230,7 @@ export function CreativeTemplate({ data, labels, dateLocale }: TemplateProps) {
 
         {/* Projects */}
         {projects.length > 0 && (
-          <div>
+          <div id="preview-section-projects" className={getSectionClasses("projects")}>
             <h2 className="font-mono text-[10px] uppercase tracking-widest border-b border-black pb-1 mb-4">
               {l.projects.toUpperCase()}
             </h2>
@@ -271,7 +281,7 @@ export function CreativeTemplate({ data, labels, dateLocale }: TemplateProps) {
 
         {/* Certifications */}
         {certifications.length > 0 && (
-          <div>
+          <div id="preview-section-certifications" className={getSectionClasses("certifications")}>
             <h2 className="font-mono text-[10px] uppercase tracking-widest border-b border-black pb-1 mb-4">
               {l.certifications.toUpperCase()}
             </h2>

@@ -7,9 +7,10 @@ interface TemplateProps {
   data: ResumeData;
   labels?: PdfLabels;
   dateLocale?: string;
+  activeSection?: string;
 }
 
-export function ExecutiveTemplate({ data, labels, dateLocale }: TemplateProps) {
+export function ExecutiveTemplate({ data, labels, dateLocale, activeSection }: TemplateProps) {
   const l = labels ?? getPdfLabels("en");
   const dl = dateLocale ?? getDateLocale("en");
   const bulletSymbol = getResumeBulletSymbol(data, "•");
@@ -40,10 +41,19 @@ export function ExecutiveTemplate({ data, labels, dateLocale }: TemplateProps) {
     return `${startFormatted} – ${endFormatted}`;
   };
 
+  const getSectionClasses = (id: string) => {
+    const isActive = activeSection === id;
+    return `transition-all duration-700 rounded-lg ${
+      isActive 
+        ? "bg-blue-50/40 ring-4 ring-blue-100/30 -mx-4 px-4 py-2" 
+        : "bg-transparent"
+    }`;
+  };
+
   return (
     <div className="p-12 bg-white text-black">
       {/* Header */}
-      <header className="mb-10 pb-6 border-b-2 border-black">
+      <header id="preview-section-personal" className={`mb-10 pb-6 border-b-2 border-black ${getSectionClasses("personal")}`}>
         <h1 className="text-5xl font-black tracking-tight mb-3 leading-none">
           {personalInfo.fullName || l.yourName}
         </h1>
@@ -67,7 +77,7 @@ export function ExecutiveTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Summary */}
       {personalInfo.summary && (
-        <section className="mb-8">
+        <section id="preview-section-summary-fallback" className={`mb-8 ${getSectionClasses("personal")}`}>
           <h2 className="text-sm font-black uppercase tracking-widest mb-3 border-b border-black pb-1">
             {l.professionalSummary}
           </h2>
@@ -77,7 +87,7 @@ export function ExecutiveTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Experience */}
       {experience.length > 0 && (
-        <section className="mb-8">
+        <section id="preview-section-experience" className={`mb-8 ${getSectionClasses("experience")}`}>
           <h2 className="text-sm font-black uppercase tracking-widest mb-4 border-b border-black pb-1">
             {l.professionalExperience}
           </h2>
@@ -117,7 +127,7 @@ export function ExecutiveTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Education */}
       {completeEducation.length > 0 && (
-        <section className="mb-8">
+        <section id="preview-section-education" className={`mb-8 ${getSectionClasses("education")}`}>
           <h2 className="text-sm font-black uppercase tracking-widest mb-4 border-b border-black pb-1">
             {l.education}
           </h2>
@@ -152,7 +162,7 @@ export function ExecutiveTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Skills */}
       {skills.length > 0 && (
-        <section className="mb-8">
+        <section id="preview-section-skills" className={`mb-8 ${getSectionClasses("skills")}`}>
           <h2 className="text-sm font-black uppercase tracking-widest mb-4 border-b border-black pb-1">
             {l.technicalSkills}
           </h2>
@@ -169,7 +179,7 @@ export function ExecutiveTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Projects */}
       {projects.length > 0 && (
-        <section>
+        <section id="preview-section-projects" className={getSectionClasses("projects")}>
           <h2 className="text-sm font-black uppercase tracking-widest mb-4 border-b border-black pb-1">
             {l.notableProjects}
           </h2>
@@ -220,7 +230,7 @@ export function ExecutiveTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Competitions */}
       {competitions.length > 0 && (
-        <section className="mb-8">
+        <section id="preview-section-competitions" className={`mb-8 ${getSectionClasses("competitions")}`}>
           <h2 className="text-sm font-black uppercase tracking-widest mb-4 border-b border-black pb-1">
             {l.competitions}
           </h2>
@@ -265,7 +275,7 @@ export function ExecutiveTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Certifications */}
       {certifications.length > 0 && (
-        <section className="mb-8">
+        <section id="preview-section-certifications" className={`mb-8 ${getSectionClasses("certifications")}`}>
           <h2 className="text-sm font-black uppercase tracking-widest mb-4 border-b border-black pb-1">
             {l.certifications}
           </h2>
@@ -296,7 +306,7 @@ export function ExecutiveTemplate({ data, labels, dateLocale }: TemplateProps) {
 
       {/* Languages */}
       {languages.length > 0 && (
-        <section>
+        <section id="preview-section-languages" className={getSectionClasses("languages")}>
           <h2 className="text-sm font-black uppercase tracking-widest mb-4 border-b border-black pb-1">
             {l.languages}
           </h2>
