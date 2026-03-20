@@ -5,6 +5,22 @@ import { useResumeStore } from "@/store/resume-store";
 import type { ResumeData } from "@/db/schema";
 import { improveBullet, improveDescription } from "@/actions/ai";
 import { MonthInput } from "./month-input";
+import { 
+  DndContext, 
+  closestCenter, 
+  KeyboardSensor, 
+  PointerSensor, 
+  useSensor, 
+  useSensors,
+  DragEndEvent
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { SortableItem } from "./sortable-item";
 
 function isEndBeforeStart(start: string, end: string): boolean {
   if (!start || !end) return false;
@@ -17,6 +33,17 @@ export function ExperienceForm() {
   const [dateErrors, setDateErrors] = useState<Record<string, string>>({});
   const [improvingBullet, setImprovingBullet] = useState<string | null>(null);
   const [improvingDescription, setImprovingDescription] = useState<string | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const handleImproveBullet = async (
     expId: string,
@@ -128,6 +155,22 @@ export function ExperienceForm() {
     updateExperience(expId, {
       highlights: exp.highlights.filter((_, i) => i !== index),
     });
+  };
+
+  const handleDragEnd = (expId: string, event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const exp = experience.find((e) => e.id === expId);
+    if (!exp) return;
+
+    const oldIndex = exp.highlights.indexOf(active.id.toString());
+    const newIndex = exp.highlights.indexOf(over.id.toString());
+
+    if (oldIndex !== -1 && newIndex !== -1) {
+      const newHighlights = arrayMove(exp.highlights, oldIndex, newIndex);
+      updateExperience(expId, { highlights: newHighlights });
+    }
   };
 
   return (
@@ -326,41 +369,54 @@ export function ExperienceForm() {
                 <label className="label-mono block mb-2">
                   KEY_ACHIEVEMENTS
                 </label>
-                <div className="space-y-2 mb-3">
-                  {exp.highlights.map((highlight, idx) => {
-                    const key = `${exp.id}-${idx}`;
-                    const isImproving = improvingBullet === key;
-                    return (
-                      <div key={idx} className="flex gap-2">
-                        <input
-                          type="text"
-                          value={highlight}
-                          onChange={(e) =>
-                            updateHighlight(exp.id, idx, e.target.value)
-                          }
-                          placeholder="Increased revenue by 40%..."
-                          className="flex-1 border border-gray-400 bg-transparent px-3 py-2 focus:border-black focus:bg-black focus:text-white transition-all duration-150"
-                        />
-                        <button
-                          onClick={() =>
-                            handleImproveBullet(exp.id, idx, highlight, exp.position, exp.company)
-                          }
-                          disabled={isImproving || !highlight.trim()}
-                          title="Improve with AI"
-                          className="border border-gray-400 px-3 py-2 text-xs font-bold hover:border-black hover:bg-black hover:text-white transition-all duration-150 disabled:opacity-30"
-                        >
-                          {isImproving ? "..." : "✦"}
-                        </button>
-                        <button
-                          onClick={() => removeHighlight(exp.id, idx)}
-                          className="border border-gray-400 px-3 py-2 text-xs font-bold hover:border-red-600 hover:text-red-600 transition-colors duration-150"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={(event) => handleDragEnd(exp.id, event)}
+                >
+                  <SortableContext
+                    items={exp.highlights}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="space-y-2 mb-3">
+                      {exp.highlights.map((highlight, idx) => {
+                        const key = `${exp.id}-${idx}`;
+                        const isImproving = improvingBullet === key;
+                        return (
+                          <SortableItem key={highlight || idx} id={highlight}>
+                            <div className="flex gap-2">
+                              <input
+                                type="text"
+                                value={highlight}
+                                onChange={(e) =>
+                                  updateHighlight(exp.id, idx, e.target.value)
+                                }
+                                placeholder="Increased revenue by 40%..."
+                                className="flex-1 border border-gray-400 bg-transparent px-3 py-2 focus:border-black focus:bg-black focus:text-white transition-all duration-150"
+                              />
+                              <button
+                                onClick={() =>
+                                  handleImproveBullet(exp.id, idx, highlight, exp.position, exp.company)
+                                }
+                                disabled={isImproving || !highlight.trim()}
+                                title="Improve with AI"
+                                className="border border-gray-400 px-3 py-2 text-xs font-bold hover:border-black hover:bg-black hover:text-white transition-all duration-150 disabled:opacity-30"
+                              >
+                                {isImproving ? "..." : "✦"}
+                              </button>
+                              <button
+                                onClick={() => removeHighlight(exp.id, idx)}
+                                className="border border-gray-400 px-3 py-2 text-xs font-bold hover:border-red-600 hover:text-red-600 transition-colors duration-150"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          </SortableItem>
+                        );
+                      })}
+                    </div>
+                  </SortableContext>
+                </DndContext>
                 <button
                   onClick={() => addHighlight(exp.id)}
                   className="border border-gray-400 px-4 py-2 text-xs font-bold uppercase tracking-wider hover:border-black hover:bg-black hover:text-white transition-all duration-150"
