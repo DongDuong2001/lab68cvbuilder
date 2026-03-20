@@ -29,6 +29,18 @@ const SOCIAL_LINKS = [
       </svg>
     ),
   },
+  {
+    name: "Unikorn",
+    url: "https://unikorn.vn/u/duong-phu-dong",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2L12 12L22 12" />
+        <path d="M12 12L2 12" />
+        <path d="M12 12L12 22" />
+        <circle cx="12" cy="12" r="10" />
+      </svg>
+    ),
+  },
 ];
 
 const PRODUCTS = [
