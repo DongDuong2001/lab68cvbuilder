@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     creator: "@lab68dev",
   },
   verification: {
-    google: "dJTA2GKl41t-nBR_9oCK4Hz2OMgne24DzBidG6z7Ytg",
+    google: "BuShHiu-1s_TOwKrSW0RlicUZGYeWi-fnYslAIqTcFI",
   },
   robots: {
     index: true,
