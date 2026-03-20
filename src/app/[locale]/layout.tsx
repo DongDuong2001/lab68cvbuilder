@@ -17,21 +17,21 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://lab68cvbuilder.verc
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "lab68dev CV Builder — Build Your Resume",
-    template: "%s | lab68dev CV Builder",
+    default: "lab68cv.builder — Build Your Resume",
+    template: "%s | lab68cv.builder",
   },
   description:
     "Raw. Structured. ATS-optimized brutalist resumes engineered for developers and designers. Export pixel-perfect PDFs for free.",
   keywords: [
     "CV builder", "resume builder", "ATS resume", "free resume",
-    "PDF resume", "developer resume", "brutalist design", "lab68dev",
+    "PDF resume", "developer resume", "brutalist design", "lab68cv.builder",
   ],
-  authors: [{ name: "lab68dev" }],
-  creator: "lab68dev",
+  authors: [{ name: "lab68cv.builder" }],
+  creator: "lab68cv.builder",
   openGraph: {
     type: "website",
-    siteName: "lab68dev CV Builder",
-    title: "lab68dev CV Builder — Build Your Resume",
+    siteName: "lab68cv.builder",
+    title: "lab68cv.builder — Build Your Resume",
     description:
       "Raw. Structured. ATS-optimized brutalist resumes engineered for developers and designers.",
     locale: "en_US",
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "lab68dev CV Builder — Build Your Resume",
+    title: "lab68cv.builder — Build Your Resume",
     description:
       "Raw. Structured. ATS-optimized brutalist resumes engineered for developers and designers.",
     creator: "@lab68dev",
