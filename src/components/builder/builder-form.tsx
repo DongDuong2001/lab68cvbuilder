@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useResumeStore } from "@/store/resume-store";
 import { PersonalInfoForm } from "./forms/personal-info-form";
 import { ExperienceForm } from "./forms/experience-form";
@@ -29,6 +30,7 @@ const SECTIONS = [
 ] as const;
 
 export function BuilderForm() {
+  const searchParams = useSearchParams();
   const activeSection = useResumeStore((state) => state.activeSection);
   const setActiveSection = useResumeStore((state) => state.setActiveSection);
   const hiddenSections = useResumeStore((state) => state.hiddenSections);
@@ -68,6 +70,10 @@ export function BuilderForm() {
   const activeIndex = visibleSections.findIndex((s) => s.id === activeSection);
 
   useEffect(() => {
+    if (searchParams.get("entry") === "import") {
+      setActiveSection("personal");
+    }
+
     const applyHashSection = () => {
       const raw = window.location.hash.replace("#", "").trim();
       if (!raw) return;
@@ -80,7 +86,7 @@ export function BuilderForm() {
     applyHashSection();
     window.addEventListener("hashchange", applyHashSection);
     return () => window.removeEventListener("hashchange", applyHashSection);
-  }, [visibleSections]);
+  }, [searchParams, visibleSections, setActiveSection]);
 
   useEffect(() => {
     if (!tabsContainerRef.current) return;
