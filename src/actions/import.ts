@@ -204,13 +204,27 @@ type ForgTarget =
   | { kind: "product"; id: string }
   | { kind: "profile"; handle: string; profileUrl: string };
 
-type ForgProductCandidate = {
-  id: string;
-  occurrences: number;
-  firstIndex: number;
-  engagementHint: number;
-  ownerHint: number;
-};
+async function fetchForgAPI<T>(path: string): Promise<T> {
+  const apiKey = process.env.FORG_API_KEY;
+  if (!apiKey) {
+    throw new Error("Forg API key not configured");
+  }
+  const res = await fetch(`https://forg.to/api${path}`, {
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      Accept: "application/json",
+    },
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    throw new Error(`Forg API error: ${res.status}`);
+  }
+  return (await res.json()) as T;
+}
+
+function isValidForgProductId(value: string): boolean {
+  return /^[a-zA-Z0-9-]{2,120}$/.test(value);
+}
 
 export type ForgProductOption = {
   id: string;
@@ -218,192 +232,7 @@ export type ForgProductOption = {
   score: number;
 };
 
-const FORG_PRODUCT_ID_BLOCKLIST = new Set([
-  "logo",
-  "products",
-  "explore",
-  "search",
-  "launchpad",
-  "inbox",
-  "updates",
-  "profile",
-  "home",
-]);
-
-function candidateBaseScore(candidate: ForgProductCandidate): number {
-  return (
-    candidate.occurrences * 1000 +
-    Math.min(candidate.engagementHint, 5000) +
-    candidate.ownerHint +
-    Math.max(0, 100000 - candidate.firstIndex) / 1000
-  );
-}
-
-function isValidForgProductId(value: string): boolean {
-  return /^[a-zA-Z0-9-]{2,120}$/.test(value);
-}
-
-function extractForgProductIds(html: string): string[] {
-  const ids = [...html.matchAll(/\/products\/([a-zA-Z0-9-]{2,120})/gi)]
-    .map((m) => m[1]?.toLowerCase())
-    .filter((id): id is string => Boolean(id) && !FORG_PRODUCT_ID_BLOCKLIST.has(id));
-
-  return [...new Set(ids)];
-}
-
-function extractForgUpdatePaths(html: string): string[] {
-  const updates = [...html.matchAll(/\/updates\/([a-zA-Z0-9]{8,120})/gi)]
-    .map((m) => m[1])
-    .filter((id): id is string => Boolean(id));
-
-  return [...new Set(updates)].map((id) => `/updates/${id}`);
-}
-
-function rankForgProductCandidates(html: string, handle?: string): ForgProductCandidate[] {
-  const matches = [...html.matchAll(/\/products\/([a-zA-Z0-9-]{2,120})/gi)];
-  if (matches.length === 0) return [];
-
-  const candidates = new Map<string, ForgProductCandidate>();
-  const normalizedHandle = handle?.toLowerCase();
-
-  for (const match of matches) {
-    const id = match[1];
-    if (!id) continue;
-
-    const normalized = id.toLowerCase();
-    if (FORG_PRODUCT_ID_BLOCKLIST.has(normalized)) continue;
-
-    const index = match.index ?? 0;
-
-    const windowStart = Math.max(0, index - 220);
-    const windowEnd = Math.min(html.length, index + 220);
-    const windowText = html.slice(windowStart, windowEnd);
-    const windowTextLower = windowText.toLowerCase();
-
-    // Approximate engagement by summing nearby short numeric counters.
-    const numbers = [...windowText.matchAll(/\b(\d{1,5})\b/g)]
-      .map((n) => Number(n[1]))
-      .filter((n) => Number.isFinite(n) && n >= 0 && n <= 100000)
-      .slice(0, 8);
-    const engagementHint = numbers.reduce((sum, n) => sum + n, 0);
-    const ownerHint =
-      normalizedHandle && windowTextLower.includes(`@${normalizedHandle}`) ? 4000 : 0;
-
-    const existing = candidates.get(normalized);
-    if (existing) {
-      existing.occurrences += 1;
-      existing.firstIndex = Math.min(existing.firstIndex, index);
-      existing.engagementHint += engagementHint;
-      existing.ownerHint += ownerHint;
-      continue;
-    }
-
-    candidates.set(normalized, {
-      id,
-      occurrences: 1,
-      firstIndex: index,
-      engagementHint,
-      ownerHint,
-    });
-  }
-
-  return [...candidates.values()].sort((a, b) => {
-    const scoreA = candidateBaseScore(a);
-    const scoreB = candidateBaseScore(b);
-
-    if (scoreA !== scoreB) return scoreB - scoreA;
-    return a.firstIndex - b.firstIndex;
-  });
-}
-
-async function rerankForgProductCandidatesWithRecency(
-  html: string,
-  handle: string
-): Promise<ForgProductCandidate[]> {
-  const ranked = rankForgProductCandidates(html, handle);
-  if (ranked.length === 0) return [];
-
-  // Recency-aware fallback: inspect recent update pages and heavily boost linked products.
-  const updatePaths = extractForgUpdatePaths(html).slice(0, 4);
-  const updateBoostById = new Map<string, number>();
-  if (updatePaths.length > 0) {
-    const updatePages = await Promise.all(
-      updatePaths.map(async (path, idx) => {
-        try {
-          const page = await fetchHtml(`https://forg.to${path}`);
-          return { page, idx };
-        } catch {
-          return { page: "", idx };
-        }
-      })
-    );
-
-    for (const { page, idx } of updatePages) {
-      if (!page) continue;
-      const ids = extractForgProductIds(page);
-      const recencyBoost = 4000 - idx * 700;
-      for (const id of ids) {
-        updateBoostById.set(id, (updateBoostById.get(id) ?? 0) + Math.max(1200, recencyBoost));
-      }
-    }
-  }
-
-  return [...ranked].sort((a, b) => {
-    const scoreA = candidateBaseScore(a) + (updateBoostById.get(a.id.toLowerCase()) ?? 0);
-    const scoreB = candidateBaseScore(b) + (updateBoostById.get(b.id.toLowerCase()) ?? 0);
-
-    if (scoreA !== scoreB) return scoreB - scoreA;
-    return a.firstIndex - b.firstIndex;
-  });
-}
-
-async function buildForgOption(candidate: ForgProductCandidate): Promise<ForgProductOption> {
-  const fallbackTitle = candidate.id
-    .replace(/-/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-
-  try {
-    const productHtml = await fetchHtml(`https://forg.to/products/${candidate.id}`);
-    const ogTitle = extractMetaContent(productHtml, "og:title");
-    const cleanedTitle = (ogTitle ?? "").replace(/\s*\|\s*forg.*$/i, "").trim();
-    return {
-      id: candidate.id,
-      title: cleanedTitle || fallbackTitle,
-      score: Math.round(candidateBaseScore(candidate)),
-    };
-  } catch {
-    return {
-      id: candidate.id,
-      title: fallbackTitle,
-      score: Math.round(candidateBaseScore(candidate)),
-    };
-  }
-}
-
-async function resolveForgProductIdFromProfile(html: string, handle: string): Promise<string | null> {
-  const reranked = await rerankForgProductCandidatesWithRecency(html, handle);
-  const ranked = reranked;
-  if (ranked.length === 0) return null;
-
-  const normalizedHandle = handle.toLowerCase();
-
-  const finalTopCandidates = reranked.slice(0, 3);
-
-  for (const candidate of finalTopCandidates) {
-    try {
-      const productHtml = await fetchHtml(`https://forg.to/products/${candidate.id}`);
-      if (productHtml.toLowerCase().includes(`@${normalizedHandle}`)) {
-        return candidate.id;
-      }
-    } catch {
-      // Skip failed candidate verification and continue ranking fallback.
-    }
-  }
-
-  return reranked[0]?.id ?? null;
-}
-
-export async function getForgProductOptions(forgInput: string): Promise<{
+async function doGetForgProductOptions(forgInput: string): Promise<{
   target: "profile" | "product";
   username: string;
   options: ForgProductOption[];
@@ -413,23 +242,44 @@ export async function getForgProductOptions(forgInput: string): Promise<{
   const target = parseForgTarget(forgInput);
 
   if (target.kind === "product") {
-    return {
-      target: "product",
-      username: target.id,
-      options: [
-        {
-          id: target.id,
-          title: target.id.replace(/-/g, " "),
-          score: 1000,
-        },
-      ],
-    };
+    try {
+      const prod = await fetchForgAPI<any>(`/products/${target.id}`);
+      return {
+        target: "product",
+        username: target.id,
+        options: [
+          {
+            id: prod.slug || target.id,
+            title: prod.name || target.id,
+            score: 1000,
+          },
+        ],
+      };
+    } catch {
+      return {
+        target: "product",
+        username: target.id,
+        options: [
+          {
+            id: target.id,
+            title: target.id.replace(/-/g, " "),
+            score: 1000,
+          },
+        ],
+      };
+    }
   }
 
-  const profileHtml = await fetchHtml(target.profileUrl);
-  const ranked = await rerankForgProductCandidatesWithRecency(profileHtml, target.handle);
-  const top = ranked.slice(0, 5);
-  const options = await Promise.all(top.map((candidate) => buildForgOption(candidate)));
+  const data = await fetchForgAPI<any>(`/users/${target.handle}`);
+  const products = data.products || [];
+
+  const options = products
+    .map((p: any) => ({
+      id: p.slug,
+      title: p.name || p.slug,
+      score: p.stats?.upvotes || 100,
+    }))
+    .sort((a: any, b: any) => b.score - a.score);
 
   return {
     target: "profile",
@@ -582,7 +432,7 @@ function uniqueStrings(values: Array<string | null | undefined>): string[] {
   return output;
 }
 
-export async function importFromGitHub(githubInput: string): Promise<SocialImportResult> {
+async function doImportFromGitHub(githubInput: string): Promise<SocialImportResult> {
   await getAuthUserId();
 
   const username = parseGitHubUsername(githubInput);
@@ -669,7 +519,7 @@ export async function importFromGitHub(githubInput: string): Promise<SocialImpor
   };
 }
 
-export async function importFromLinkedIn(linkedinInput: string): Promise<SocialImportResult> {
+async function doImportFromLinkedIn(linkedinInput: string): Promise<SocialImportResult> {
   await getAuthUserId();
 
   const handle = parseLinkedInHandle(linkedinInput);
@@ -723,7 +573,7 @@ export async function importFromLinkedIn(linkedinInput: string): Promise<SocialI
   };
 }
 
-export async function importFromBehance(behanceInput: string): Promise<SocialImportResult> {
+async function doImportFromBehance(behanceInput: string): Promise<SocialImportResult> {
   await getAuthUserId();
 
   const handle = parseBehanceHandle(behanceInput);
@@ -798,7 +648,7 @@ export async function importFromBehance(behanceInput: string): Promise<SocialImp
   };
 }
 
-export async function importFromForg(
+async function doImportFromForg(
   forgInput: string,
   preferredProductId?: string
 ): Promise<SocialImportResult> {
@@ -807,93 +657,192 @@ export async function importFromForg(
   const target = parseForgTarget(forgInput);
 
   let id = target.kind === "product" ? target.id : "";
+  let productData: any = null;
+  let userData: any = null;
 
-  if (preferredProductId) {
-    const normalizedPreferred = preferredProductId.trim();
-    if (!isValidForgProductId(normalizedPreferred)) {
-      throw new Error("Invalid selected forg.to product ID");
+  let profileData: any = null;
+
+  if (target.kind === "profile") {
+    profileData = await fetchForgAPI<any>(`/users/${target.handle}`);
+    userData = profileData.user;
+    if (preferredProductId) {
+      const normalizedPreferred = preferredProductId.trim();
+      if (!isValidForgProductId(normalizedPreferred)) {
+        throw new Error("Invalid selected forg.to product ID");
+      }
+      productData = (profileData.products || []).find((p: any) => p.slug === normalizedPreferred || p._id === normalizedPreferred) || profileData.products?.[0];
+      if (!productData) {
+        productData = await fetchForgAPI<any>(`/products/${normalizedPreferred}`);
+      }
+    } else {
+      productData = profileData.products?.[0];
     }
-    id = normalizedPreferred;
-  } else if (target.kind === "profile") {
-    const profileHtml = await fetchHtml(target.profileUrl);
-    const resolved = await resolveForgProductIdFromProfile(profileHtml, target.handle);
-    if (!resolved) {
-      throw new Error(
-        "Could not find a product on this forg.to profile. Try a direct product URL like forg.to/products/your-id"
-      );
+  } else {
+    if (preferredProductId) {
+      id = preferredProductId.trim();
     }
-    id = resolved;
+    productData = await fetchForgAPI<any>(`/products/${id}`);
   }
 
-  const productUrl = `https://forg.to/products/${id}`;
+  const title = productData?.name || id.replace(/-/g, " ");
+  const prodSummary = productData?.tagline || "";
+  const website = productData?.website
+    ? `https://${productData.website.replace(/^https?:\/\//, "")}`
+    : `https://forg.to/products/${productData?.slug || id}`;
 
-  let title = id.replace(/-/g, " ");
-  let summary = "";
-  let website = productUrl;
-  let githubUrl = "";
+  const displayName = title.replace(/\s*\|\s*forg.*$/i, "").trim() || id;
 
-  try {
-    const html = await fetchHtml(productUrl);
-    const ogTitle = extractMetaContent(html, "og:title");
-    const ogDescription = extractMetaContent(html, "og:description");
-    const ogUrl = extractMetaContent(html, "og:url");
+  const projects: ImportedProjectDraft[] = [];
+  const experience: ImportedExperienceDraft[] = [];
+  const certifications: ImportedCertificationDraft[] = [];
+  let skills: ImportedSkillCategoryDraft[] = [];
 
-    if (ogTitle) title = ogTitle;
-    if (ogDescription) summary = ogDescription;
-    if (ogUrl) website = ogUrl;
+  if (profileData) {
+    if (profileData.products && profileData.products.length > 0) {
+      for (const p of profileData.products) {
+        const pWebsite = p.website ? `https://${p.website.replace(/^https?:\/\//, "")}` : `https://forg.to/products/${p.slug || p._id}`;
+        projects.push({
+          name: p.name || "",
+          description: p.tagline || p.description || "Product from forg.to",
+          url: pWebsite,
+          githubUrl: "",
+          websiteUrl: pWebsite,
+          technologies: ["Product", "Web"],
+          highlights: p.stats?.upvotes ? [`Received ${p.stats.upvotes} upvotes on forg.to`] : [`Published on forg.to`],
+        });
+      }
+    }
 
-    const githubMatch = html.match(/https?:\/\/(?:www\.)?github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+/i);
-    githubUrl = githubMatch?.[0] ?? "";
-  } catch {
-    // Keep inferred fallback values when the page cannot be parsed.
+    if (profileData.workExperience && profileData.workExperience.length > 0) {
+      for (const exp of profileData.workExperience) {
+        experience.push({
+          company: exp.company || "",
+          position: exp.role || exp.primaryRole || "",
+          location: exp.location || undefined,
+          startDate: exp.startDate ? new Date(exp.startDate).toISOString().substring(0, 7) : "",
+          endDate: exp.endDate ? new Date(exp.endDate).toISOString().substring(0, 7) : undefined,
+          current: exp.isCurrent || false,
+          description: exp.description || "",
+          highlights: [],
+        });
+      }
+    }
+
+    if (profileData.certifications && profileData.certifications.length > 0) {
+      for (const cert of profileData.certifications) {
+        certifications.push({
+          name: cert.name || "",
+          issuer: cert.issuedBy || "",
+          date: cert.issuedDate ? new Date(cert.issuedDate).toISOString().substring(0, 7) : "",
+          url: cert.certificateUrl || undefined,
+        });
+      }
+    }
+
+    if (userData?.skills && userData.skills.length > 0) {
+      const skillNames = userData.skills.map((s: any) => s.name).filter(Boolean);
+      skills.push({
+        category: "Skills",
+        items: skillNames,
+      });
+    }
   }
 
-  const cleanedTitle = title.replace(/\s*\|\s*forg.*$/i, "").trim();
-  const displayName = cleanedTitle || id;
+  if (projects.length === 0 && productData) {
+    projects.push({
+      name: displayName,
+      description: prodSummary || "Product imported from forg.to",
+      url: website,
+      githubUrl: "",
+      websiteUrl: website,
+      technologies: ["Product", "Web"],
+      highlights: productData.stats?.upvotes ? [`Received ${productData.stats.upvotes} upvotes on forg.to`] : [`Published on forg.to`],
+    });
+  }
+
+  if (skills.length === 0) {
+    skills.push({
+      category: "Product",
+      items: ["Product Development", "Launch", "Portfolio"],
+    });
+  }
 
   return {
     source: "forg",
     username: target.kind === "profile" ? `@${target.handle}` : id,
     personalInfo: {
-      fullName: undefined,
+      fullName: userData?.displayName || undefined,
       email: undefined,
-      location: undefined,
-      website,
-      linkedin: undefined,
-      github: githubUrl,
-      summary: summary || `Built and launched ${displayName} on forg.to`,
+      location: userData?.location || undefined,
+      website: userData?.website || website,
+      linkedin: userData?.socialLinks?.find((l: any) => l.platform === "linkedin")?.url || undefined,
+      github: userData?.socialLinks?.find((l: any) => l.platform === "github")?.url || "",
+      summary: userData?.bio || userData?.tagline || prodSummary || `Built and launched ${displayName} on forg.to`,
     },
-    projects: [
-      {
-        name: displayName,
-        description: summary || "Product imported from forg.to profile",
-        url: website,
-        githubUrl,
-        websiteUrl: website,
-        technologies: ["Product", "Web"],
-        highlights: [
-          `Published on forg.to as ${id}`,
-        ],
-      },
-    ],
-    skills: [
-      {
-        category: "Product",
-        items: ["Product Development", "Launch", "Portfolio"],
-      },
-    ],
-    experience: [],
-    certifications: [],
+    projects,
+    skills,
+    experience,
+    certifications,
     confidence: {
       personal: {
+        fullName: userData?.displayName ? "confirmed" : "inferred",
+        location: userData?.location ? "confirmed" : "inferred",
         website: "confirmed",
-        github: githubUrl ? "inferred" : "inferred",
-        summary: summary ? "inferred" : "inferred",
+        linkedin: "confirmed",
+        github: "confirmed",
+        summary: "confirmed",
       },
-      skills: "inferred",
-      projects: "inferred",
-      experience: "inferred",
-      certifications: "inferred",
+      skills: userData?.skills?.length ? "confirmed" : "inferred",
+      projects: projects.length > 0 ? "confirmed" : "inferred",
+      experience: experience.length > 0 ? "confirmed" : "inferred",
+      certifications: certifications.length > 0 ? "confirmed" : "inferred",
     },
   };
+}
+
+export type ActionResponse<T> = { success: true; data: T } | { success: false; error: string };
+
+export async function importFromGitHub(input: string): Promise<ActionResponse<SocialImportResult>> {
+  try {
+    const data = await doImportFromGitHub(input);
+    return { success: true, data };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : "GitHub import failed." };
+  }
+}
+
+export async function importFromLinkedIn(input: string): Promise<ActionResponse<SocialImportResult>> {
+  try {
+    const data = await doImportFromLinkedIn(input);
+    return { success: true, data };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : "LinkedIn import failed." };
+  }
+}
+
+export async function importFromBehance(input: string): Promise<ActionResponse<SocialImportResult>> {
+  try {
+    const data = await doImportFromBehance(input);
+    return { success: true, data };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : "Behance import failed." };
+  }
+}
+
+export async function importFromForg(input: string, preferredProductId?: string): Promise<ActionResponse<SocialImportResult>> {
+  try {
+    const data = await doImportFromForg(input, preferredProductId);
+    return { success: true, data };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : "Forg import failed." };
+  }
+}
+
+export async function getForgProductOptions(input: string): Promise<ActionResponse<{ target: "profile" | "product"; username: string; options: ForgProductOption[]; }>> {
+  try {
+    const data = await doGetForgProductOptions(input);
+    return { success: true, data };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : "Failed to load Forg products." };
+  }
 }
