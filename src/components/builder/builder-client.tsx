@@ -1,9 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useResumeStore } from "@/store/resume-store";
 import { useDebounce } from "@/hooks/use-debounce";
 import type { Resume } from "@/db/schema";
+import { trackUsageEvent } from "@/actions/usage-event";
+import { USAGE_EVENTS } from "@/lib/usage-events";
 import { BuilderForm } from "./builder-form";
 import { BuilderPreview } from "./builder-preview";
 import { BuilderHeader } from "./builder-header";
@@ -21,6 +23,8 @@ export function BuilderClient({ resume }: BuilderClientProps) {
   const [saveValidationError, setSaveValidationError] = useState<string | null>(null);
   const [isStoreReady, setIsStoreReady] = useState(false);
   const [showSaveToast, setShowSaveToast] = useState(false);
+  const hasTrackedOpenRef = useRef(false);
+  const hasTrackedOnboardingRef = useRef(false);
 
   // Initialize store with resume data
   useEffect(() => {
@@ -74,6 +78,9 @@ export function BuilderClient({ resume }: BuilderClientProps) {
 
       // Mark local state clean after server confirms persistence.
       markSaved();
+      void trackUsageEvent(USAGE_EVENTS.BUILDER_AUTOSAVE_SUCCEEDED, {
+        resumeId: resume.id,
+      });
       // Show a brief toast notification
       setShowSaveToast(true);
     } catch (error) {
@@ -81,6 +88,29 @@ export function BuilderClient({ resume }: BuilderClientProps) {
       setIsSaving(false);
     }
   }, [isStoreReady, isDirty, resume.id, title, templateId, fontFamily, data, setIsSaving, markSaved]);
+
+  useEffect(() => {
+    if (!isStoreReady || hasTrackedOpenRef.current) return;
+    hasTrackedOpenRef.current = true;
+    void trackUsageEvent(USAGE_EVENTS.BUILDER_OPENED, { resumeId: resume.id });
+  }, [isStoreReady, resume.id]);
+
+  useEffect(() => {
+    if (!isStoreReady || hasTrackedOnboardingRef.current) return;
+
+    const hasContact = Boolean(
+      data.personalInfo.fullName.trim() && data.personalInfo.email.trim()
+    );
+    const hasExperience = data.experience.length > 0;
+    const hasSkills = data.skills.length > 0;
+
+    if (hasContact && hasExperience && hasSkills) {
+      hasTrackedOnboardingRef.current = true;
+      void trackUsageEvent(USAGE_EVENTS.BUILDER_ONBOARDING_COMPLETED, {
+        resumeId: resume.id,
+      });
+    }
+  }, [isStoreReady, data, resume.id]);
 
   // Auto-dismiss the toast
   useEffect(() => {
