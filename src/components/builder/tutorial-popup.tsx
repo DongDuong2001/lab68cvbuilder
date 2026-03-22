@@ -23,6 +23,11 @@ export function TutorialPopup({ isGuest = false, triggerClassName }: TutorialPop
           "If you prefer a guided flow, use Previous and Next to move step-by-step without hunting for the right tab.",
       },
       {
+        title: "Complete Progress Checklist",
+        description:
+          "Use FIRST_RESUME_PROGRESS in the header to finish Contact, Experience, Skills, and Projects before export.",
+      },
+      {
         title: "Edit Left, Preview Right",
         description:
           "Your edits appear instantly in the live preview panel. On mobile, use the Preview button to switch views.",
