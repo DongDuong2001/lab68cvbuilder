@@ -4,7 +4,9 @@ import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/routing";
-import { GUEST_STORAGE_KEY } from "@/lib/constants";
+import { trackUsageEvent } from "@/actions/usage-event";
+import { GUEST_MIGRATION_META_KEY, GUEST_STORAGE_KEY } from "@/lib/constants";
+import { USAGE_EVENTS } from "@/lib/usage-events";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
@@ -45,13 +47,22 @@ function LoginForm() {
         try {
           const stored = localStorage.getItem(GUEST_STORAGE_KEY);
           if (stored) {
+            const rawMeta = localStorage.getItem(GUEST_MIGRATION_META_KEY);
+            const metadata = rawMeta ? JSON.parse(rawMeta) : null;
+            void trackUsageEvent(USAGE_EVENTS.GUEST_MIGRATION_STARTED, {
+              source: metadata?.source || "unknown",
+            });
+
             const parsed = JSON.parse(stored);
             const response = await fetch("/api/resume/guest", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify(parsed),
+              body: JSON.stringify({
+                ...parsed,
+                metadata,
+              }),
             });
 
             if (!response.ok) {
@@ -60,12 +71,18 @@ function LoginForm() {
 
             const resume = await response.json();
             localStorage.removeItem(GUEST_STORAGE_KEY);
+            localStorage.removeItem(GUEST_MIGRATION_META_KEY);
+            void trackUsageEvent(USAGE_EVENTS.GUEST_MIGRATION_SUCCEEDED, {
+              resumeId: resume.id,
+            });
             window.location.href = `/builder/${resume.id}`;
             return;
           }
         } catch {
           // If migration fails, fall through to normal redirect
           localStorage.removeItem(GUEST_STORAGE_KEY);
+          localStorage.removeItem(GUEST_MIGRATION_META_KEY);
+          void trackUsageEvent(USAGE_EVENTS.GUEST_MIGRATION_FAILED);
         }
         window.location.href = callbackUrl;
       }
