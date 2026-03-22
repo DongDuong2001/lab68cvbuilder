@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 export default function BuilderError({
   error,
   reset,
@@ -24,12 +26,12 @@ export default function BuilderError({
           >
             Try Again
           </button>
-          <a
+          <Link
             href="/dashboard"
             className="border border-black px-6 py-3 text-xs font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-150"
           >
             Back to Dashboard
-          </a>
+          </Link>
         </div>
       </div>
     </div>
