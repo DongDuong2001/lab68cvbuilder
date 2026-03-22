@@ -60,3 +60,9 @@ export type TemplateId = (typeof TEMPLATES)[number]["id"];
  * localStorage key for unauthenticated resume draft persistence.
  */
 export const GUEST_STORAGE_KEY = "lab68_guest_resume";
+
+/**
+ * localStorage key for guest journey metadata used during login migration.
+ */
+export const GUEST_MIGRATION_META_KEY = "lab68_guest_migration_meta";
+
