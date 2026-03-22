@@ -2,7 +2,11 @@
 
 import { useEffect, useRef } from "react";
 import { useResumeStore } from "@/store/resume-store";
-import { EMPTY_RESUME_DATA, GUEST_STORAGE_KEY } from "@/lib/constants";
+import {
+  EMPTY_RESUME_DATA,
+  GUEST_MIGRATION_META_KEY,
+  GUEST_STORAGE_KEY,
+} from "@/lib/constants";
 import { BuilderForm } from "./builder-form";
 import { BuilderPreview } from "./builder-preview";
 import { BuilderHeader } from "./builder-header";
@@ -39,9 +43,18 @@ export function GuestBuilderClient() {
   useEffect(() => {
     if (!isStoreReadyRef.current) return;
     if (!isDirty) return;
+
+    const now = new Date().toISOString();
     localStorage.setItem(
       GUEST_STORAGE_KEY,
       JSON.stringify({ title, templateId, fontFamily, data })
+    );
+    localStorage.setItem(
+      GUEST_MIGRATION_META_KEY,
+      JSON.stringify({
+        source: "try",
+        lastDraftAt: now,
+      })
     );
   }, [isDirty, title, templateId, fontFamily, data]);
 
