@@ -204,6 +204,64 @@ type ForgTarget =
   | { kind: "product"; id: string }
   | { kind: "profile"; handle: string; profileUrl: string };
 
+type ForgStats = {
+  upvotes?: number;
+};
+
+type ForgSocialLink = {
+  platform?: string;
+  url?: string;
+};
+
+type ForgSkill = {
+  name?: string;
+};
+
+type ForgUser = {
+  displayName?: string;
+  location?: string;
+  website?: string;
+  bio?: string;
+  tagline?: string;
+  skills?: ForgSkill[];
+  socialLinks?: ForgSocialLink[];
+};
+
+type ForgProduct = {
+  _id?: string;
+  slug?: string;
+  name?: string;
+  tagline?: string;
+  description?: string;
+  website?: string;
+  stats?: ForgStats;
+};
+
+type ForgWorkExperience = {
+  company?: string;
+  role?: string;
+  primaryRole?: string;
+  location?: string;
+  startDate?: string;
+  endDate?: string;
+  isCurrent?: boolean;
+  description?: string;
+};
+
+type ForgCertification = {
+  name?: string;
+  issuedBy?: string;
+  issuedDate?: string;
+  certificateUrl?: string;
+};
+
+type ForgProfileResponse = {
+  user?: ForgUser;
+  products?: ForgProduct[];
+  workExperience?: ForgWorkExperience[];
+  certifications?: ForgCertification[];
+};
+
 async function fetchForgAPI<T>(path: string): Promise<T> {
   const apiKey = process.env.FORG_API_KEY;
   if (!apiKey) {
@@ -241,7 +299,7 @@ async function doGetForgProductOptions(forgInput: string): Promise<{
 
   if (target.kind === "product") {
     try {
-      const prod = await fetchForgAPI<any>(`/products/${target.id}`);
+      const prod = await fetchForgAPI<ForgProduct>(`/products/${target.id}`);
       return {
         target: "product",
         username: target.id,
@@ -268,16 +326,21 @@ async function doGetForgProductOptions(forgInput: string): Promise<{
     }
   }
 
-  const data = await fetchForgAPI<any>(`/users/${target.handle}`);
-  const products = data.products || [];
+  const data = await fetchForgAPI<ForgProfileResponse>(`/users/${target.handle}`);
+  const products = data.products ?? [];
 
   const options = products
-    .map((p: any) => ({
-      id: p.slug,
-      title: p.name || p.slug,
-      score: p.stats?.upvotes || 100,
-    }))
-    .sort((a: any, b: any) => b.score - a.score);
+    .map((p): ForgProductOption | null => {
+      const id = p.slug ?? p._id;
+      if (!id) return null;
+      return {
+        id,
+        title: p.name || id,
+        score: p.stats?.upvotes || 100,
+      };
+    })
+    .filter((option): option is ForgProductOption => option !== null)
+    .sort((a, b) => b.score - a.score);
 
   return {
     target: "profile",
@@ -647,31 +710,34 @@ async function doImportFromForg(
   const target = parseForgTarget(forgInput);
 
   let id = target.kind === "product" ? target.id : "";
-  let productData: any = null;
-  let userData: any = null;
+  let productData: ForgProduct | null = null;
+  let userData: ForgUser | undefined;
 
-  let profileData: any = null;
+  let profileData: ForgProfileResponse | null = null;
 
   if (target.kind === "profile") {
-    profileData = await fetchForgAPI<any>(`/users/${target.handle}`);
+    profileData = await fetchForgAPI<ForgProfileResponse>(`/users/${target.handle}`);
     userData = profileData.user;
     if (preferredProductId) {
       const normalizedPreferred = preferredProductId.trim();
       if (!isValidForgProductId(normalizedPreferred)) {
         throw new Error("Invalid selected forg.to product ID");
       }
-      productData = (profileData.products || []).find((p: any) => p.slug === normalizedPreferred || p._id === normalizedPreferred) || profileData.products?.[0];
+      productData =
+        (profileData.products || []).find(
+          (p) => p.slug === normalizedPreferred || p._id === normalizedPreferred
+        ) || profileData.products?.[0] || null;
       if (!productData) {
-        productData = await fetchForgAPI<any>(`/products/${normalizedPreferred}`);
+        productData = await fetchForgAPI<ForgProduct>(`/products/${normalizedPreferred}`);
       }
     } else {
-      productData = profileData.products?.[0];
+      productData = profileData.products?.[0] || null;
     }
   } else {
     if (preferredProductId) {
       id = preferredProductId.trim();
     }
-    productData = await fetchForgAPI<any>(`/products/${id}`);
+    productData = await fetchForgAPI<ForgProduct>(`/products/${id}`);
   }
 
   const title = productData?.name || id.replace(/-/g, " ");
@@ -685,7 +751,7 @@ async function doImportFromForg(
   const projects: ImportedProjectDraft[] = [];
   const experience: ImportedExperienceDraft[] = [];
   const certifications: ImportedCertificationDraft[] = [];
-  let skills: ImportedSkillCategoryDraft[] = [];
+  const skills: ImportedSkillCategoryDraft[] = [];
 
   if (profileData) {
     if (profileData.products && profileData.products.length > 0) {
@@ -730,7 +796,9 @@ async function doImportFromForg(
     }
 
     if (userData?.skills && userData.skills.length > 0) {
-      const skillNames = userData.skills.map((s: any) => s.name).filter(Boolean);
+      const skillNames = userData.skills
+        .map((s) => s.name)
+        .filter((name): name is string => Boolean(name));
       skills.push({
         category: "Skills",
         items: skillNames,
@@ -765,8 +833,10 @@ async function doImportFromForg(
       email: undefined,
       location: userData?.location || undefined,
       website: userData?.website || website,
-      linkedin: userData?.socialLinks?.find((l: any) => l.platform === "linkedin")?.url || undefined,
-      github: userData?.socialLinks?.find((l: any) => l.platform === "github")?.url || "",
+      linkedin:
+        userData?.socialLinks?.find((l) => l.platform === "linkedin")?.url ||
+        undefined,
+      github: userData?.socialLinks?.find((l) => l.platform === "github")?.url || "",
       summary: userData?.bio || userData?.tagline || prodSummary || `Built and launched ${displayName} on forg.to`,
     },
     projects,
