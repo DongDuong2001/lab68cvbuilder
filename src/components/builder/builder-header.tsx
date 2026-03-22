@@ -7,6 +7,8 @@ import { CV_FONTS } from "@/lib/fonts";
 import { PDF_LOCALES } from "@/lib/pdf-labels";
 import { TEMPLATES } from "@/lib/constants";
 import { checkResumeGrammarAndSpelling } from "@/actions/ai";
+import { trackUsageEvent } from "@/actions/usage-event";
+import { USAGE_EVENTS } from "@/lib/usage-events";
 import { PdfPreviewModal } from "./pdf-preview-modal";
 import { TemplatePicker } from "./template-picker";
 import { TutorialPopup } from "./tutorial-popup";
@@ -31,6 +33,31 @@ export function BuilderHeader({
   const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
   const [previewFilename, setPreviewFilename] = useState("resume.pdf");
   const [exportError, setExportError] = useState<string | null>(null);
+
+  const onboardingSteps = [
+    {
+      id: "contact",
+      label: "Contact",
+      done: Boolean(data.personalInfo.fullName.trim() && data.personalInfo.email.trim()),
+    },
+    {
+      id: "experience",
+      label: "Experience",
+      done: data.experience.length > 0,
+    },
+    {
+      id: "skills",
+      label: "Skills",
+      done: data.skills.length > 0,
+    },
+    {
+      id: "projects",
+      label: "Projects",
+      done: data.projects.length > 0,
+    },
+  ] as const;
+
+  const completedOnboardingSteps = onboardingSteps.filter((step) => step.done).length;
 
   // Auto-clear export error once the user fixes the underlying issue
   useEffect(() => {
@@ -73,6 +100,12 @@ export function BuilderHeader({
     }
     setExportError(null);
 
+    void trackUsageEvent(USAGE_EVENTS.EXPORT_STARTED, {
+      resumeId,
+      templateId,
+      pdfLocale,
+    });
+
     setIsExporting(true);
 
     try {
@@ -102,6 +135,11 @@ export function BuilderHeader({
 
       setPreviewFilename(filename);
       setPreviewPdfUrl(url);
+      void trackUsageEvent(USAGE_EVENTS.EXPORT_SUCCEEDED, {
+        resumeId,
+        templateId,
+        pdfLocale,
+      });
     } catch (error) {
       console.error("Failed to generate PDF preview:", error);
       alert("Failed to generate PDF. Please try again.");
@@ -298,13 +336,13 @@ export function BuilderHeader({
               <TemplatePicker value={templateId} onChange={setTemplateId} />
 
               {/* Font selector */}
-              <div className="flex items-center gap-2 border border-gray-300 px-2 pl-0 bg-transparent flex-1 sm:flex-none">
+              <div className="relative flex items-center gap-2 border border-gray-300 px-2 pl-0 bg-transparent flex-1 sm:flex-none">
                 <span className="label-mono ml-2">FONT:</span>
                 <select
                   title="Font family"
                   value={fontFamily}
                   onChange={(e) => setFontFamily(e.target.value)}
-                  className="bg-transparent py-2 text-xs font-bold tracking-wider outline-none w-full text-black placeholder:text-black appearance-none"
+                  className="bg-transparent py-2 pr-6 text-xs font-bold tracking-wider outline-none w-full text-black placeholder:text-black appearance-none"
                   style={{ color: "black", background: "transparent" }}
                 >
                   {CV_FONTS.map((font) => (
@@ -313,16 +351,21 @@ export function BuilderHeader({
                     </option>
                   ))}
                 </select>
+                <span className="pointer-events-none absolute right-2 text-gray-700" aria-hidden="true">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
               </div>
 
               {/* PDF Language selector */}
-              <div className="flex items-center gap-2 border border-gray-300 px-2 pl-0 bg-transparent flex-1 sm:flex-none">
+              <div className="relative flex items-center gap-2 border border-gray-300 px-2 pl-0 bg-transparent flex-1 sm:flex-none">
                 <span className="label-mono ml-2">LANG:</span>
                 <select
                   title="PDF language"
                   value={pdfLocale}
                   onChange={(e) => setPdfLocale(e.target.value)}
-                  className="bg-transparent py-2 text-xs font-bold tracking-wider outline-none w-full text-black placeholder:text-black appearance-none"
+                  className="bg-transparent py-2 pr-6 text-xs font-bold tracking-wider outline-none w-full text-black placeholder:text-black appearance-none"
                   style={{ color: "black", background: "transparent" }}
                 >
                   {PDF_LOCALES.map((loc) => (
@@ -331,11 +374,39 @@ export function BuilderHeader({
                     </option>
                   ))}
                 </select>
+                <span className="pointer-events-none absolute right-2 text-gray-700" aria-hidden="true">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
               </div>
             </div>
           </div>
 
           <div className="mt-4 border-t border-black pt-3">
+            <div className="mb-3 border border-gray-200 bg-gray-50 px-3 py-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="label-mono text-gray-500">FIRST_RESUME_PROGRESS</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-700">
+                  {completedOnboardingSteps}/{onboardingSteps.length} completed
+                </span>
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                {onboardingSteps.map((step) => (
+                  <span
+                    key={step.id}
+                    className={`border px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                      step.done
+                        ? "border-emerald-300 bg-emerald-50 text-emerald-700"
+                        : "border-gray-300 bg-white text-gray-600"
+                    }`}
+                  >
+                    {step.done ? "✓" : "○"} {step.label}
+                  </span>
+                ))}
+              </div>
+            </div>
+
             <div className="flex flex-wrap items-center gap-2">
               <span className="label-mono text-gray-500">QUICK_ACCESS</span>
               <span className="text-[10px] text-gray-500 uppercase tracking-wider">Jump straight to key tools</span>
