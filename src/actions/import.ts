@@ -237,8 +237,6 @@ async function doGetForgProductOptions(forgInput: string): Promise<{
   username: string;
   options: ForgProductOption[];
 }> {
-  await getAuthUserId();
-
   const target = parseForgTarget(forgInput);
 
   if (target.kind === "product") {
@@ -433,8 +431,6 @@ function uniqueStrings(values: Array<string | null | undefined>): string[] {
 }
 
 async function doImportFromGitHub(githubInput: string): Promise<SocialImportResult> {
-  await getAuthUserId();
-
   const username = parseGitHubUsername(githubInput);
 
   const [user, repos] = await Promise.all([
@@ -520,8 +516,6 @@ async function doImportFromGitHub(githubInput: string): Promise<SocialImportResu
 }
 
 async function doImportFromLinkedIn(linkedinInput: string): Promise<SocialImportResult> {
-  await getAuthUserId();
-
   const handle = parseLinkedInHandle(linkedinInput);
   const profileUrl = `https://www.linkedin.com/in/${handle}`;
 
@@ -574,8 +568,6 @@ async function doImportFromLinkedIn(linkedinInput: string): Promise<SocialImport
 }
 
 async function doImportFromBehance(behanceInput: string): Promise<SocialImportResult> {
-  await getAuthUserId();
-
   const handle = parseBehanceHandle(behanceInput);
   const profileUrl = `https://www.behance.net/${handle}`;
 
@@ -652,8 +644,6 @@ async function doImportFromForg(
   forgInput: string,
   preferredProductId?: string
 ): Promise<SocialImportResult> {
-  await getAuthUserId();
-
   const target = parseForgTarget(forgInput);
 
   let id = target.kind === "product" ? target.id : "";
