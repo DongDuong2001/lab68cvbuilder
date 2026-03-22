@@ -77,6 +77,12 @@ export function ResumeCard({ resume }: ResumeCardProps) {
             Edit
           </Link>
           <Link
+            href={`/builder/${resume.id}?entry=import#personal`}
+            className="border border-gray-400 px-4 py-2 text-xs font-bold uppercase tracking-wider hover:border-black hover:bg-black hover:text-white transition-colors duration-150"
+          >
+            Import
+          </Link>
+          <Link
             href={`/builder/${resume.id}`}
             target="_blank"
             rel="noopener noreferrer"
