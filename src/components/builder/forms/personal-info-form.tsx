@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useResumeStore } from "@/store/resume-store";
 import { useTranslations } from "next-intl";
 import { generateSummary } from "@/actions/ai";
+import { trackUsageEvent } from "@/actions/usage-event";
 import {
   importFromBehance,
   importFromGitHub,
@@ -20,6 +21,7 @@ import {
   ImportPreviewModal,
   type ImportSelection,
 } from "@/components/builder/import-preview-modal";
+import { USAGE_EVENTS } from "@/lib/usage-events";
 
 // ── Validation Helpers ────────────────────────────────────────
 const MAX_NAME_LENGTH = 100;
@@ -58,7 +60,7 @@ function sanitize(value: string): string {
 
 export function PersonalInfoForm() {
   const t = useTranslations("BuilderImport");
-  const { data, updatePersonalInfo, setData } = useResumeStore();
+  const { resumeId, data, updatePersonalInfo, setData } = useResumeStore();
   const { personalInfo } = data;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const linkedinZipRef = useRef<HTMLInputElement>(null);
@@ -78,6 +80,14 @@ export function PersonalInfoForm() {
   const [importStatus, setImportStatus] = useState<string>("");
   const [previewDraft, setPreviewDraft] = useState<SocialImportResult | null>(null);
   const [previewSelection, setPreviewSelection] = useState<ImportSelection>(createEmptySelection());
+
+  const trackImport = (eventName: typeof USAGE_EVENTS.IMPORT_STARTED | typeof USAGE_EVENTS.IMPORT_PREVIEW_READY | typeof USAGE_EVENTS.IMPORT_APPLIED, source: string, extra: Record<string, unknown> = {}) => {
+    void trackUsageEvent(eventName, {
+      source,
+      resumeId: resumeId ?? "guest",
+      ...extra,
+    });
+  };
 
   const mergeImportedSkills = (
     currentSkills: ResumeData["skills"],
@@ -407,12 +417,16 @@ export function PersonalInfoForm() {
 
     setIsImportingGithub(true);
     setImportStatus("");
+    trackImport(USAGE_EVENTS.IMPORT_STARTED, "github");
 
     try {
       const result = await importFromGitHub(githubInput.trim());
       if (!result.success) throw new Error(result.error);
       const imported = result.data;
       openPreview(imported);
+      trackImport(USAGE_EVENTS.IMPORT_PREVIEW_READY, "github", {
+        username: imported.username,
+      });
       setImportStatus(t("previewReady", { source: "GitHub", username: imported.username }));
     } catch (err: unknown) {
       setImportStatus((err as Error).message || t("githubFailed"));
@@ -432,10 +446,14 @@ export function PersonalInfoForm() {
 
     setIsParsingLinkedinZip(true);
     setImportStatus("");
+    trackImport(USAGE_EVENTS.IMPORT_STARTED, "linkedin_zip");
 
     try {
       const imported = await parseLinkedInZip(file);
       openPreview(imported);
+      trackImport(USAGE_EVENTS.IMPORT_PREVIEW_READY, "linkedin_zip", {
+        username: imported.username,
+      });
       setImportStatus(t("previewReady", { source: "LinkedIn", username: imported.username }));
     } catch (err: unknown) {
       setImportStatus((err as Error).message || t("linkedinZipFailed"));
@@ -456,12 +474,16 @@ export function PersonalInfoForm() {
 
     setIsImportingBehance(true);
     setImportStatus("");
+    trackImport(USAGE_EVENTS.IMPORT_STARTED, "behance");
 
     try {
       const result = await importFromBehance(input);
       if (!result.success) throw new Error(result.error);
       const imported = result.data;
       openPreview(imported);
+      trackImport(USAGE_EVENTS.IMPORT_PREVIEW_READY, "behance", {
+        username: imported.username,
+      });
       setImportStatus(t("previewReady", { source: "Behance", username: imported.username }));
     } catch (err: unknown) {
       setImportStatus((err as Error).message || t("behanceFailed"));
@@ -481,6 +503,7 @@ export function PersonalInfoForm() {
 
     setIsImportingForg(true);
     setImportStatus("");
+    trackImport(USAGE_EVENTS.IMPORT_STARTED, "forg");
     setForgOptions([]);
     setSelectedForgProductId("");
 
@@ -501,6 +524,9 @@ export function PersonalInfoForm() {
       if (!resImport.success) throw new Error(resImport.error);
       const imported = resImport.data;
       openPreview(imported);
+      trackImport(USAGE_EVENTS.IMPORT_PREVIEW_READY, "forg", {
+        username: imported.username,
+      });
       setImportStatus(t("previewReady", { source: "Forg", username: imported.username }));
     } catch (err: unknown) {
       setImportStatus((err as Error).message || t("forgFailed"));
@@ -514,11 +540,18 @@ export function PersonalInfoForm() {
 
     setIsImportingForg(true);
     setImportStatus("");
+    trackImport(USAGE_EVENTS.IMPORT_STARTED, "forg", {
+      selectedProductId: selectedForgProductId,
+    });
     try {
       const result = await importFromForg(forgInput.trim(), selectedForgProductId);
       if (!result.success) throw new Error(result.error);
       const imported = result.data;
       openPreview(imported);
+      trackImport(USAGE_EVENTS.IMPORT_PREVIEW_READY, "forg", {
+        username: imported.username,
+        selectedProductId: selectedForgProductId,
+      });
       setImportStatus(t("previewReady", { source: "Forg", username: imported.username }));
       setForgOptions([]);
       setSelectedForgProductId("");
@@ -583,6 +616,9 @@ export function PersonalInfoForm() {
       source: previewDraft.source.toUpperCase(),
       username: previewDraft.username,
     }));
+    trackImport(USAGE_EVENTS.IMPORT_APPLIED, previewDraft.source, {
+      username: previewDraft.username,
+    });
     setPreviewDraft(null);
     setIsApplyingPreview(false);
   };
