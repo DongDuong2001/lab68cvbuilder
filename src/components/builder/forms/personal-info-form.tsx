@@ -409,7 +409,9 @@ export function PersonalInfoForm() {
     setImportStatus("");
 
     try {
-      const imported = await importFromGitHub(githubInput.trim());
+      const result = await importFromGitHub(githubInput.trim());
+      if (!result.success) throw new Error(result.error);
+      const imported = result.data;
       openPreview(imported);
       setImportStatus(t("previewReady", { source: "GitHub", username: imported.username }));
     } catch (err: unknown) {
@@ -456,7 +458,9 @@ export function PersonalInfoForm() {
     setImportStatus("");
 
     try {
-      const imported = await importFromBehance(input);
+      const result = await importFromBehance(input);
+      if (!result.success) throw new Error(result.error);
+      const imported = result.data;
       openPreview(imported);
       setImportStatus(t("previewReady", { source: "Behance", username: imported.username }));
     } catch (err: unknown) {
@@ -481,7 +485,9 @@ export function PersonalInfoForm() {
     setSelectedForgProductId("");
 
     try {
-      const optionsResult = await getForgProductOptions(input);
+      const resOptions = await getForgProductOptions(input);
+      if (!resOptions.success) throw new Error(resOptions.error);
+      const optionsResult = resOptions.data;
 
       if (optionsResult.target === "profile" && optionsResult.options.length > 1) {
         setForgOptions(optionsResult.options);
@@ -491,7 +497,9 @@ export function PersonalInfoForm() {
       }
 
       const pickedId = optionsResult.options[0]?.id;
-      const imported = await importFromForg(input, pickedId);
+      const resImport = await importFromForg(input, pickedId);
+      if (!resImport.success) throw new Error(resImport.error);
+      const imported = resImport.data;
       openPreview(imported);
       setImportStatus(t("previewReady", { source: "Forg", username: imported.username }));
     } catch (err: unknown) {
@@ -507,7 +515,9 @@ export function PersonalInfoForm() {
     setIsImportingForg(true);
     setImportStatus("");
     try {
-      const imported = await importFromForg(forgInput.trim(), selectedForgProductId);
+      const result = await importFromForg(forgInput.trim(), selectedForgProductId);
+      if (!result.success) throw new Error(result.error);
+      const imported = result.data;
       openPreview(imported);
       setImportStatus(t("previewReady", { source: "Forg", username: imported.username }));
       setForgOptions([]);
