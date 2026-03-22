@@ -156,7 +156,7 @@
         "forgPickerTitle": "Select Forg Product",
         "forgPickerHint": "Found multiple strong matches on this profile. Pick one to import in one click.",
         "forgUseSelected": "Use Selected",
-        "forgDevNotice": "Forg ID import is currently in development and may be unstable.",
+        "forgDevNotice": "Forg ID now working, if there are any issues please write a ticket to developer below in footer",
         "linkedinUrlLabel": "LINKEDIN URL",
         "linkedinUrlHint": "Shown in your CV header.",
         "linkedinImportLabel": "Import from LinkedIn",
