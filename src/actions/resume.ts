@@ -74,7 +74,7 @@ export async function getResume(resumeId: string) {
     .select()
     .from(resumes)
     .where(and(eq(resumes.id, resumeId), eq(resumes.userId, userId)));
-  if (!resume) throw new Error("Resume not found");
+  if (!resume) return null;
   return resume;
 }
 
