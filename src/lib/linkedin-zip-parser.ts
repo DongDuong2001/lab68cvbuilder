@@ -152,6 +152,38 @@ export async function parseLinkedInZip(file: File): Promise<SocialImportResult> 
     ? fullName.toLowerCase().replace(/\s+/g, "-")
     : "linkedin-export";
 
+// ── Formatting Helpers ────────────────────────────────────────
+
+/**
+ * Optimizes unstructured LinkedIn descriptions by isolating bullet points
+ * into the `highlights` array for better ATS template rendering.
+ */
+function extractHighlights(text: string): { description: string; highlights: string[] } {
+  const raw = (text || "").trim();
+  if (!raw) return { description: "", highlights: [] };
+
+  const lines = raw.split(/\r?\n/);
+  const nonBulletLines: string[] = [];
+  const highlights: string[] = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    const bulletMatch = trimmed.match(/^[-•*●]\s+(.+)$/);
+    if (bulletMatch) {
+      highlights.push(bulletMatch[1].trim());
+    } else {
+      nonBulletLines.push(trimmed);
+    }
+  }
+
+  return {
+    description: nonBulletLines.join("\n").trim(),
+    highlights,
+  };
+}
+
   // ── Work experience ────────────────────────────────────────
   const experience: SocialImportResult["experience"] = positionRows
     .filter((r) => r["Company Name"] || r["Title"])
@@ -164,6 +196,8 @@ export async function parseLinkedInZip(file: File): Promise<SocialImportResult> 
         !endDate ||
         endDateRaw.toLowerCase() === "present" ||
         endDateRaw === "";
+      
+      const { description, highlights } = extractHighlights(r["Description"] || "");
 
       return {
         company: r["Company Name"] || "Company",
@@ -172,8 +206,8 @@ export async function parseLinkedInZip(file: File): Promise<SocialImportResult> 
         startDate,
         endDate: current ? "" : endDate,
         current,
-        description: r["Description"] || "",
-        highlights: [],
+        description,
+        highlights,
       };
     });
 
@@ -205,15 +239,19 @@ export async function parseLinkedInZip(file: File): Promise<SocialImportResult> 
   const projects: SocialImportResult["projects"] = projectRows
     .filter((r) => r["Title"])
     .slice(0, 6)
-    .map((r) => ({
-      name: r["Title"],
-      description: r["Description"] || "",
-      url: r["Url"] || "",
-      githubUrl: "",
-      websiteUrl: r["Url"] || "",
-      technologies: [],
-      highlights: [],
-    }));
+    .map((r) => {
+      const { description, highlights } = extractHighlights(r["Description"] || "");
+      
+      return {
+        name: r["Title"],
+        description,
+        url: r["Url"] || "",
+        githubUrl: "",
+        websiteUrl: r["Url"] || "",
+        technologies: [],
+        highlights,
+      };
+    });
 
   // ── Confidence ─────────────────────────────────────────────
   // Everything from the user's own export file is "confirmed"
