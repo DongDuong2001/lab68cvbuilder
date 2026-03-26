@@ -88,6 +88,9 @@ export default function HomePage() {
               <a href="https://www.producthunt.com/products/lab68dev-cv-builder?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-lab68dev-cv-builder" target="_blank" rel="noopener noreferrer" title="Featured on Product Hunt" className="shrink-0 opacity-60 hover:opacity-100 transition-opacity duration-200">
                 <Image src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1093292&theme=dark&t=1773130393873" alt="Featured on Product Hunt" width={160} height={36} style={{ width: 160, height: 36, objectFit: "contain" }} unoptimized />
               </a>
+              <a href="https://marketingdb.live" target="_blank" rel="noopener noreferrer" title="Listed on MarketingDB" className="shrink-0 opacity-60 hover:opacity-100 transition-opacity duration-200">
+                <Image src="https://marketingdb.live/badge.svg" alt="Listed on MarketingDB" width={190} height={44} style={{ width: 220, height: 44, objectFit: "contain" }} unoptimized />
+              </a>
             </div>
           </div>
         </section>
