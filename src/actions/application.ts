@@ -3,8 +3,14 @@
 import { auth } from "@/auth";
 import { db } from "@/db";
 import { applications, jobs, resumes } from "@/db/schema";
-import { and, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, or } from "drizzle-orm";
 import { isApplicationStatus, type ApplicationStatus } from "@/lib/application-status";
+import {
+  normalizeApplicationSort,
+  normalizeCompanyAndTitle,
+  normalizeSearchTerm,
+  type ApplicationFilters,
+} from "@/lib/application-filters";
 
 async function getAuthUserId(): Promise<string> {
   const session = await auth();
@@ -29,6 +35,40 @@ export async function createApplication(input: {
     throw new Error("Invalid application status");
   }
 
+  const [selectedJob] = await db
+    .select({ title: jobs.title, company: jobs.company })
+    .from(jobs)
+    .where(and(eq(jobs.id, input.jobId), eq(jobs.userId, userId)))
+    .limit(1);
+
+  if (!selectedJob) {
+    throw new Error("Job not found or unauthorized");
+  }
+
+  const duplicateSignature = normalizeCompanyAndTitle(
+    selectedJob.company,
+    selectedJob.title
+  );
+
+  const existing = await db
+    .select({
+      applicationId: applications.id,
+      company: jobs.company,
+      title: jobs.title,
+    })
+    .from(applications)
+    .innerJoin(jobs, eq(applications.jobId, jobs.id))
+    .where(eq(applications.userId, userId));
+
+  const duplicateExists = existing.some(
+    (entry) =>
+      normalizeCompanyAndTitle(entry.company, entry.title) === duplicateSignature
+  );
+
+  if (duplicateExists) {
+    throw new Error("Duplicate application detected for this company and role");
+  }
+
   const [created] = await db
     .insert(applications)
     .values({
@@ -45,10 +85,26 @@ export async function createApplication(input: {
   return created;
 }
 
-export async function getUserApplications() {
+export async function getUserApplications(filters: ApplicationFilters = {}) {
   const userId = await getAuthUserId();
 
-  return db
+  const normalizedQ = normalizeSearchTerm(filters.q);
+  const normalizedSort = normalizeApplicationSort(filters.sort);
+
+  const whereClauses = [eq(applications.userId, userId)];
+
+  if (filters.status) {
+    whereClauses.push(eq(applications.status, filters.status));
+  }
+
+  const companyOrRoleFilter = normalizedQ
+    ? or(
+        ilike(jobs.company, `%${normalizedQ}%`),
+        ilike(jobs.title, `%${normalizedQ}%`)
+      )
+    : undefined;
+
+  const baseQuery = db
     .select({
       applicationId: applications.id,
       status: applications.status,
@@ -61,14 +117,29 @@ export async function getUserApplications() {
       jobTitle: jobs.title,
       company: jobs.company,
       location: jobs.location,
+      extractedKeywords: jobs.extractedKeywords,
       resumeId: resumes.id,
       resumeTitle: resumes.title,
+      resumeData: resumes.data,
     })
     .from(applications)
     .innerJoin(jobs, eq(applications.jobId, jobs.id))
-    .leftJoin(resumes, eq(applications.resumeId, resumes.id))
-    .where(eq(applications.userId, userId))
-    .orderBy(desc(applications.updatedAt));
+    .leftJoin(resumes, eq(applications.resumeId, resumes.id));
+
+  const queryWithWhere = companyOrRoleFilter
+    ? baseQuery.where(and(...whereClauses, companyOrRoleFilter))
+    : baseQuery.where(and(...whereClauses));
+
+  switch (normalizedSort) {
+    case "updated_asc":
+      return queryWithWhere.orderBy(asc(applications.updatedAt));
+    case "applied_desc":
+      return queryWithWhere.orderBy(desc(applications.appliedAt), desc(applications.updatedAt));
+    case "applied_asc":
+      return queryWithWhere.orderBy(asc(applications.appliedAt), desc(applications.updatedAt));
+    default:
+      return queryWithWhere.orderBy(desc(applications.updatedAt));
+  }
 }
 
 export async function updateApplication(
