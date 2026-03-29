@@ -34,7 +34,7 @@ export async function improveBullet(
 ): Promise<{ result: string }> {
   const userId = await getAuthUserId();
 
-  const rateCheck = aiRateLimiter.check(userId);
+  const rateCheck = await aiRateLimiter.check(userId);
   if (!rateCheck.allowed) {
     throw new Error(
       `Rate limit exceeded. Try again in ${rateCheck.retryAfterSeconds} seconds.`
@@ -83,7 +83,7 @@ export async function generateSummary(input: {
 }): Promise<{ result: string }> {
   const userId = await getAuthUserId();
 
-  const rateCheck = aiRateLimiter.check(userId);
+  const rateCheck = await aiRateLimiter.check(userId);
   if (!rateCheck.allowed) {
     throw new Error(
       `Rate limit exceeded. Try again in ${rateCheck.retryAfterSeconds} seconds.`
@@ -127,7 +127,7 @@ export async function improveDescription(
 ): Promise<{ result: string }> {
   const userId = await getAuthUserId();
 
-  const rateCheck = aiRateLimiter.check(userId);
+  const rateCheck = await aiRateLimiter.check(userId);
   if (!rateCheck.allowed) {
     throw new Error(
       `Rate limit exceeded. Try again in ${rateCheck.retryAfterSeconds} seconds.`
@@ -179,7 +179,7 @@ export async function checkResumeGrammarAndSpelling(
 ): Promise<{ result: ResumeData }> {
   const userId = await getAuthUserId();
 
-  const rateCheck = aiRateLimiter.check(userId);
+  const rateCheck = await aiRateLimiter.check(userId);
   if (!rateCheck.allowed) {
     throw new Error(
       `Rate limit exceeded. Try again in ${rateCheck.retryAfterSeconds} seconds.`
