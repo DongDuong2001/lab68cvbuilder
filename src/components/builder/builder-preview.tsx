@@ -6,6 +6,8 @@ import { CreativeTemplate } from "./templates/creative-template";
 import { ExecutiveTemplate } from "./templates/executive-template";
 import { HarvardTemplate } from "./templates/harvard-template";
 import { AtsTemplate } from "./templates/ats-template";
+import { MinimalTemplate } from "./templates/minimal-template";
+import { ModernTemplate } from "./templates/modern-template";
 import type { ResumeData } from "@/db/schema";
 import type { TemplateId } from "@/lib/constants";
 import { ComponentType } from "react";
@@ -17,6 +19,8 @@ const TEMPLATE_COMPONENTS: Record<TemplateId, ComponentType<{ data: ResumeData; 
   "executive": ExecutiveTemplate,
   "harvard": HarvardTemplate,
   "ats": AtsTemplate,
+  "minimal": MinimalTemplate,
+  "modern": ModernTemplate,
 };
 
 export function BuilderPreview() {
