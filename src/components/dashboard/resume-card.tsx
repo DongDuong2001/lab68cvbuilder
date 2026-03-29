@@ -164,7 +164,7 @@ export function ResumeCard({ resume }: ResumeCardProps) {
       )}
 
       {showSharePanel && !showDeleteConfirm ? (
-        <div className="mt-4 border border-black p-3 space-y-3">
+        <div className="mt-4 border border-black p-3 space-y-3 bg-gray-50">
           <span className="label-mono block">PUBLIC SHARE</span>
           <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
             <input
@@ -213,7 +213,18 @@ export function ResumeCard({ resume }: ResumeCardProps) {
                    onClick={(e) => e.currentTarget.select()}
                  />
                  <button
-                   onClick={handleCopy}
+                   onClick={() => {
+                     const isDirty = 
+                       isPublic !== resume.isPublic ||
+                       shareEmail !== (resume.data.personalInfo.shareEmail !== false) ||
+                       sharePhone !== (resume.data.personalInfo.sharePhone !== false) ||
+                       shareLocation !== (resume.data.personalInfo.shareLocation !== false);
+                     if (isDirty) {
+                       alert("Please save your share settings before copying the link!");
+                       return;
+                     }
+                     handleCopy();
+                   }}
                    className="border border-black bg-black text-white px-4 py-2 text-xs font-bold uppercase tracking-wider hover:bg-white hover:text-black transition-colors duration-150 min-w-[80px]"
                  >
                    {isCopied ? "Copied" : "Copy"}
@@ -225,6 +236,17 @@ export function ResumeCard({ resume }: ResumeCardProps) {
                    target="_blank"
                    rel="noopener noreferrer"
                    className="text-[10px] text-gray-500 hover:text-black hover:underline uppercase tracking-wider"
+                   onClick={(e) => {
+                     const isDirty = 
+                       isPublic !== resume.isPublic ||
+                       shareEmail !== (resume.data.personalInfo.shareEmail !== false) ||
+                       sharePhone !== (resume.data.personalInfo.sharePhone !== false) ||
+                       shareLocation !== (resume.data.personalInfo.shareLocation !== false);
+                     if (isDirty) {
+                       e.preventDefault();
+                       alert("Please save your share settings first!");
+                     }
+                   }}
                  >
                    Open in new tab ↗
                  </Link>
@@ -232,13 +254,21 @@ export function ResumeCard({ resume }: ResumeCardProps) {
             </div>
           ) : null}
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-gray-200">
+            {(isPublic !== resume.isPublic ||
+              shareEmail !== (resume.data.personalInfo.shareEmail !== false) ||
+              sharePhone !== (resume.data.personalInfo.sharePhone !== false) ||
+              shareLocation !== (resume.data.personalInfo.shareLocation !== false)) && (
+              <span className="text-xs text-red-600 font-bold uppercase tracking-wider animate-pulse">
+                ⚠️ Unsaved Changes
+              </span>
+            )}
             <button
               onClick={handleSaveShare}
               disabled={isSavingShare}
-              className="border border-black bg-black text-white px-3 py-1 text-xs font-bold uppercase tracking-wider hover:bg-white hover:text-black transition-colors duration-150 disabled:opacity-50"
+              className="ml-auto border border-black bg-black text-white px-4 py-2 text-xs font-bold uppercase tracking-wider hover:bg-white hover:text-black transition-colors duration-150 disabled:opacity-50 inline-flex items-center gap-2"
             >
-              {isSavingShare ? "Saving..." : "Save share settings"}
+              {isSavingShare ? "Saving..." : "Save Settings"}
             </button>
           </div>
         </div>
