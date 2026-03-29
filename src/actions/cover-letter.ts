@@ -4,7 +4,7 @@ import Groq from "groq-sdk";
 import { auth } from "@/auth";
 import { db } from "@/db";
 import { applications, coverLetters, jobs, resumes } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 
 async function getAuthUserId(): Promise<string> {
   const session = await auth();
@@ -92,4 +92,63 @@ Top Skills: ${(resume?.data.skills.flatMap((s) => s.items).slice(0, 12) ?? []).j
     .returning();
 
   return saved;
+}
+
+export async function getCoverLettersByApplicationIds(applicationIds: string[]) {
+  const userId = await getAuthUserId();
+  if (applicationIds.length === 0) return [];
+
+  return db
+    .select()
+    .from(coverLetters)
+    .where(
+      and(
+        eq(coverLetters.userId, userId),
+        inArray(coverLetters.applicationId, applicationIds)
+      )
+    )
+    .orderBy(desc(coverLetters.updatedAt));
+}
+
+export async function updateCoverLetter(
+  coverLetterId: string,
+  content: string,
+  tone?: "professional" | "confident" | "friendly"
+) {
+  const userId = await getAuthUserId();
+  const trimmed = content.trim();
+  if (!trimmed) {
+    throw new Error("Cover letter content is required");
+  }
+
+  const [updated] = await db
+    .update(coverLetters)
+    .set({
+      content: trimmed,
+      ...(tone ? { tone } : {}),
+      updatedAt: new Date(),
+    })
+    .where(and(eq(coverLetters.id, coverLetterId), eq(coverLetters.userId, userId)))
+    .returning();
+
+  if (!updated) {
+    throw new Error("Cover letter not found or unauthorized");
+  }
+
+  return updated;
+}
+
+export async function deleteCoverLetter(coverLetterId: string) {
+  const userId = await getAuthUserId();
+
+  const [deleted] = await db
+    .delete(coverLetters)
+    .where(and(eq(coverLetters.id, coverLetterId), eq(coverLetters.userId, userId)))
+    .returning();
+
+  if (!deleted) {
+    throw new Error("Cover letter not found or unauthorized");
+  }
+
+  return deleted;
 }
