@@ -12,48 +12,89 @@ interface RateLimiterOptions {
   windowSeconds: number;
 }
 
+export interface RateLimitStore {
+  get(key: string): Promise<RateLimitEntry | null> | RateLimitEntry | null;
+  set(
+    key: string,
+    entry: RateLimitEntry,
+    ttlMs: number
+  ): Promise<void> | void;
+  delete?(key: string): Promise<void> | void;
+}
+
+export class InMemoryRateLimitStore implements RateLimitStore {
+  private readonly entries = new Map<string, RateLimitEntry>();
+  private readonly expirations = new Map<string, number>();
+
+  get(key: string): RateLimitEntry | null {
+    const expiresAt = this.expirations.get(key);
+    if (expiresAt !== undefined && Date.now() >= expiresAt) {
+      this.entries.delete(key);
+      this.expirations.delete(key);
+      return null;
+    }
+    return this.entries.get(key) ?? null;
+  }
+
+  set(key: string, entry: RateLimitEntry, ttlMs: number): void {
+    this.entries.set(key, entry);
+    this.expirations.set(key, Date.now() + ttlMs);
+  }
+
+  delete(key: string): void {
+    this.entries.delete(key);
+    this.expirations.delete(key);
+  }
+}
+
+function resolveMaybePromise<T>(value: Promise<T> | T): Promise<T> {
+  return Promise.resolve(value);
+}
+
 /**
  * Simple in-memory sliding-window rate limiter.
  * Each instance maintains its own counter map keyed by identifier (IP or user ID).
  * Stale entries are lazily cleaned up.
  */
 export function createRateLimiter({ limit, windowSeconds }: RateLimiterOptions) {
-  const entries = new Map<string, RateLimitEntry>();
+  const store = new InMemoryRateLimitStore();
+
+  return createRateLimiterWithStore({ limit, windowSeconds }, store);
+}
+
+export function createRateLimiterWithStore(
+  { limit, windowSeconds }: RateLimiterOptions,
+  store: RateLimitStore
+) {
   const windowMs = windowSeconds * 1000;
-
-  // Periodic cleanup of expired entries to prevent memory leaks (every 60s)
-  const CLEANUP_INTERVAL = 60_000;
-  let lastCleanup = Date.now();
-
-  function cleanup() {
-    const now = Date.now();
-    if (now - lastCleanup < CLEANUP_INTERVAL) return;
-    lastCleanup = now;
-    for (const [key, entry] of entries) {
-      if (now >= entry.resetTime) {
-        entries.delete(key);
-      }
-    }
-  }
 
   return {
     /**
      * Check if a request is allowed for the given key.
      * Returns { allowed: true } or { allowed: false, retryAfterSeconds }.
      */
-    check(key: string): { allowed: true } | { allowed: false; retryAfterSeconds: number } {
-      cleanup();
+    async check(
+      key: string
+    ): Promise<{ allowed: true } | { allowed: false; retryAfterSeconds: number }> {
       const now = Date.now();
-      const entry = entries.get(key);
+      const entry = await resolveMaybePromise(store.get(key));
 
       if (!entry || now >= entry.resetTime) {
         // First request in a new window
-        entries.set(key, { count: 1, resetTime: now + windowMs });
+        await resolveMaybePromise(
+          store.set(key, { count: 1, resetTime: now + windowMs }, windowMs)
+        );
         return { allowed: true };
       }
 
       if (entry.count < limit) {
-        entry.count++;
+        const nextEntry = {
+          count: entry.count + 1,
+          resetTime: entry.resetTime,
+        };
+        await resolveMaybePromise(
+          store.set(key, nextEntry, Math.max(entry.resetTime - now, 0))
+        );
         return { allowed: true };
       }
 
@@ -76,7 +117,13 @@ export function getClientIp(headers: Headers): string {
  */
 export function rateLimitResponse(retryAfterSeconds: number): NextResponse {
   return NextResponse.json(
-    { error: "Too many requests. Please try again later." },
+    {
+      ok: false,
+      error: {
+        code: "RATE_LIMITED",
+        message: "Too many requests. Please try again later.",
+      },
+    },
     {
       status: 429,
       headers: { "Retry-After": String(retryAfterSeconds) },
