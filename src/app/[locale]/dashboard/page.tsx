@@ -5,7 +5,6 @@ import { CreateResumeButton } from "@/components/dashboard/create-resume-button"
 import { ResumeCard } from "@/components/dashboard/resume-card";
 import { ProductsDropdown } from "@/components/layout/products-dropdown";
 import { Footer } from "@/components/layout/footer";
-import Image from "next/image";
 import { Link } from "@/i18n/routing";
 
 export default async function DashboardPage() {
