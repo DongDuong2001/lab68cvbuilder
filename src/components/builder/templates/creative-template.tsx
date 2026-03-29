@@ -14,7 +14,7 @@ export function CreativeTemplate({ data, labels, dateLocale, activeSection }: Te
   const l = labels ?? getPdfLabels("en");
   const dl = dateLocale ?? getDateLocale("en");
   const bulletSymbol = getResumeBulletSymbol(data, "▪");
-  const { personalInfo, experience, education, skills, projects, certifications, competitions = [], languages } = data;
+  const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
   const completeEducation = education.filter(
     (edu) =>
       edu.institution.trim() ||
