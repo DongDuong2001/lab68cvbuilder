@@ -90,6 +90,9 @@ export type ResumeData = {
     summary?: string;
     bulletSymbol?: string;
     avatarUrl?: string;
+    shareEmail?: boolean;
+    sharePhone?: boolean;
+    shareLocation?: boolean;
   };
   experience: Array<{
     id: string;
