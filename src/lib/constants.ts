@@ -14,6 +14,9 @@ export const EMPTY_RESUME_DATA: ResumeData = {
     github: "",
     summary: "",
     bulletSymbol: "•",
+    shareEmail: true,
+    sharePhone: true,
+    shareLocation: true,
   },
   experience: [],
   education: [],
@@ -50,6 +53,18 @@ export const TEMPLATES = [
     id: "executive",
     name: "Executive / Leadership",
     description: "Clean top-down structure. Boardroom ready.",
+    category: "professional",
+  },
+  {
+    id: "minimal",
+    name: "Minimal / Classic",
+    description: "Quiet typography for concise professional profiles.",
+    category: "professional",
+  },
+  {
+    id: "modern",
+    name: "Modern / Hybrid",
+    description: "Balanced modern hierarchy with executive clarity.",
     category: "professional",
   },
 ] as const;
