@@ -23,6 +23,7 @@ export function BuilderClient({ resume }: BuilderClientProps) {
   const [saveValidationError, setSaveValidationError] = useState<string | null>(null);
   const [isStoreReady, setIsStoreReady] = useState(false);
   const [showSaveToast, setShowSaveToast] = useState(false);
+  const [isMobilePreview, setIsMobilePreview] = useState(false);
   const hasTrackedOpenRef = useRef(false);
   const hasTrackedOnboardingRef = useRef(false);
 
@@ -151,18 +152,20 @@ export function BuilderClient({ resume }: BuilderClientProps) {
       {/* Header */}
       <BuilderHeader
         resumeId={resume.id}
+        isMobilePreview={isMobilePreview}
+        onToggleMobilePreview={() => setIsMobilePreview((prev) => !prev)}
         saveValidationError={saveValidationError}
       />
 
       {/* Split View */}
       <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
         {/* Top/Left Panel - Form */}
-        <div className="w-full lg:w-1/2 flex-1 lg:flex-none overflow-y-auto overscroll-y-contain border-b lg:border-b-0 lg:border-r border-black relative z-10 bg-white">
+        <div className={`w-full lg:w-1/2 flex-1 lg:flex-none overflow-y-auto overscroll-y-contain border-b lg:border-b-0 lg:border-r border-black relative z-10 bg-white ${isMobilePreview ? "hidden lg:block" : ""}`}>
           <BuilderForm />
         </div>
 
         {/* Bottom/Right Panel - Preview */}
-        <div className="w-full lg:w-1/2 h-[45vh] lg:h-auto overflow-y-auto overscroll-y-contain bg-gray-50 shrink-0">
+        <div className={`w-full lg:w-1/2 h-[45vh] lg:h-auto overflow-y-auto overscroll-y-contain bg-gray-50 shrink-0 ${isMobilePreview ? "block" : "hidden lg:block"}`}>
           <BuilderPreview />
         </div>
       </div>
