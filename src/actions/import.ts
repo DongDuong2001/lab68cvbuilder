@@ -1,6 +1,5 @@
 "use server";
 
-import { auth } from "@/auth";
 
 type GitHubUser = {
   login: string;
@@ -91,14 +90,6 @@ export type SocialImportResult = {
     certifications: ImportConfidence;
   };
 };
-
-async function getAuthUserId(): Promise<string> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized");
-  }
-  return session.user.id;
-}
 
 function parseGitHubUsername(input: string): string {
   const raw = input.trim();
