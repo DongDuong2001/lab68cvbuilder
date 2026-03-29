@@ -1,5 +1,4 @@
 import { Link } from "@/i18n/routing";
-import Image from "next/image";
 
 const SOCIAL_LINKS = [
   {
