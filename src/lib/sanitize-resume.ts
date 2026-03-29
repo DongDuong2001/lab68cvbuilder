@@ -35,6 +35,9 @@ export function sanitizeResumeData(data: ResumeData): ResumeData {
       location: sanitizeText(data.personalInfo.location),
       summary: sanitizeText(data.personalInfo.summary),
       bulletSymbol: sanitizeText(data.personalInfo.bulletSymbol ?? "").slice(0, 3),
+      shareEmail: data.personalInfo.shareEmail !== false,
+      sharePhone: data.personalInfo.sharePhone !== false,
+      shareLocation: data.personalInfo.shareLocation !== false,
     },
     experience: data.experience.map((exp) => ({
       ...exp,
