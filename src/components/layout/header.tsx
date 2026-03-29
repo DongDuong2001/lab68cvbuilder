@@ -1,5 +1,4 @@
 import { Link } from "@/i18n/routing";
-import Image from "next/image";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { getTranslations } from "next-intl/server";
 import { ProductsDropdownClient } from "./products-dropdown-client";
