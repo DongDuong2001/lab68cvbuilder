@@ -15,6 +15,11 @@ import React from "react";
 import type { ResumeData } from "@/db/schema";
 import { type PdfLabels, getPdfLabels, getDateLocale } from "@/lib/pdf-labels";
 import { createRateLimiter, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
+import {
+  mapErrorToApiResponse,
+  notFound,
+  unauthorized,
+} from "@/lib/api-error";
 
 const limiter = createRateLimiter({ limit: 10, windowSeconds: 60 });
 
@@ -25,6 +30,8 @@ const PDF_TEMPLATES: Record<TemplateId, PDFComponentType> = {
   "executive": ExecutivePDF,
   "harvard": HarvardPDF,
   "ats": AtsPDF,
+  "minimal": HarvardPDF,
+  "modern": ExecutivePDF,
 };
 
 export async function GET(
@@ -36,7 +43,7 @@ export async function GET(
 
     // Rate limit by client IP
     const ip = getClientIp(request.headers);
-    const rl = limiter.check(ip);
+    const rl = await limiter.check(ip);
     if (!rl.allowed) return rateLimitResponse(rl.retryAfterSeconds);
 
     // Read PDF locale from query string
@@ -45,13 +52,13 @@ export async function GET(
     // Check authentication
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return unauthorized();
     }
 
     // Fetch resume
     const resume = await getResume(id);
     if (!resume) {
-      return NextResponse.json({ error: "Resume not found" }, { status: 404 });
+      return notFound("Resume not found");
     }
 
     // Register the selected font for PDF rendering
@@ -88,9 +95,6 @@ export async function GET(
     });
   } catch (error: unknown) {
     console.error(`[export] Generic PDF generation error:`, error);
-    return new NextResponse(
-      `Error generating PDF: ${(error as Error).message || "Unknown error"}`,
-      { status: 500 }
-    );
+    return mapErrorToApiResponse(error, "Failed to generate PDF");
   }
 }
