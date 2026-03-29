@@ -28,9 +28,19 @@ Run these in staging or local with a real database and authenticated user. Valid
 | TC-18 | Homepage UI | Homepage open | Inspect achievements block and system-spec cards | #1 achievements appear and borders are consistent |
 | TC-19 | SSR Hydration | Dev and prod runs | Open homepage and check console | No header hydration mismatch warning |
 | TC-20 | DB Migration | Normalized migration history | Run db:migrate and inspect output | Baseline migration is not replayed |
+| TC-21 | Cover Letter Studio | Application exists | Generate cover letter with selected tone | New cover letter record appears under the application card |
+| TC-22 | Cover Letter Studio | Existing cover letter | Edit cover letter content and click Save Letter | Updated content persists after page reload |
+| TC-23 | Cover Letter Studio | Existing cover letter | Delete cover letter variant | Cover letter is removed from application card |
+| TC-24 | Public Share | Existing resume on dashboard | Enable public link and save share settings | Resume is marked public and public route is accessible |
+| TC-25 | Public Privacy | Public resume with privacy toggles off | Open public route for resume | Hidden fields (email/phone/location) are masked/empty on public page |
+| TC-26 | ATS Recommendations | Application linked to resume + JD keywords | Open application card in pipeline | Coverage percentage and recommendations are rendered |
+| TC-27 | Template Expansion | Builder open | Switch to Minimal and Modern templates in picker | Preview updates correctly and template selection persists |
+| TC-28 | Template Export | Resume using Minimal/Modern template | Export PDF | PDF generation succeeds with selected template |
 
 ## Execution Checklist
 
 - Capture screenshot evidence for TC-15, TC-17, and TC-18.
 - Record failing steps with exact input payload for TC-13 and TC-14.
 - Re-run TC-06 through TC-12 after any schema or save-flow change.
+- Capture screenshot evidence for TC-24 through TC-28.
+- Re-run TC-21 through TC-23 after any cover letter action changes.
