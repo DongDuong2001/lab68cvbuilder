@@ -8,6 +8,7 @@ import { ExecutiveTemplate } from "@/components/builder/templates/executive-temp
 import { MinimalTemplate } from "@/components/builder/templates/minimal-template";
 import { ModernTemplate } from "@/components/builder/templates/modern-template";
 import { getPdfLabels, getDateLocale } from "@/lib/pdf-labels";
+import { PublicActionBar } from "@/components/builder/public-action-bar";
 
 interface PublicResumePageProps {
   params: Promise<{
@@ -37,13 +38,16 @@ export default async function PublicResumePage({ params }: PublicResumePageProps
     TEMPLATE_MAP[resume.templateId as keyof typeof TEMPLATE_MAP] ?? HarvardTemplate;
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4">
-      <div className="mx-auto max-w-225 border border-black bg-white shadow-2xl">
-        <Template
-          data={getPublicResumeData(resume.data)}
-          labels={getPdfLabels(locale)}
-          dateLocale={getDateLocale(locale)}
-        />
+    <div className="min-h-screen bg-gray-100 print:bg-white pt-14 print:pt-0">
+      <PublicActionBar resumeTitle={resume.title} />
+      <div className="py-8 px-4 print:py-0 print:px-0">
+        <div className="mx-auto max-w-[900px] bg-white shadow-2xl print:shadow-none">
+          <Template
+            data={getPublicResumeData(resume.data)}
+            labels={getPdfLabels(locale)}
+            dateLocale={getDateLocale(locale)}
+          />
+        </div>
       </div>
     </div>
   );

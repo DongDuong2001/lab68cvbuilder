@@ -3,7 +3,7 @@
 import { Link } from "@/i18n/routing";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { deleteResume } from "@/actions/resume";
+import { deleteResume, updateResumeShareSettings } from "@/actions/resume";
 import type { Resume } from "@/db/schema";
 import { TEMPLATES } from "@/lib/constants";
 
@@ -22,6 +22,7 @@ export function ResumeCard({ resume }: ResumeCardProps) {
   const [shareLocation, setShareLocation] = useState(
     resume.data.personalInfo.shareLocation !== false
   );
+  const [isCopied, setIsCopied] = useState(false);
   const router = useRouter();
 
   const template = TEMPLATES.find((t) => t.id === resume.templateId);
@@ -44,21 +45,24 @@ export function ResumeCard({ resume }: ResumeCardProps) {
     }
   };
 
-  const publicLink = `/r/${resume.id}`;
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const absoluteLink = `${origin}/r/${resume.id}`;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(absoluteLink);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
 
   const handleSaveShare = async () => {
     setIsSavingShare(true);
     try {
-      const response = await fetch(`/api/resume/${resume.id}/share`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isPublic, shareEmail, sharePhone, shareLocation }),
+      await updateResumeShareSettings(resume.id, {
+        isPublic,
+        shareEmail,
+        sharePhone,
+        shareLocation,
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to save share settings");
-      }
-
       router.refresh();
     } catch (error) {
       console.error("Failed to save share settings:", error);
@@ -100,16 +104,16 @@ export function ResumeCard({ resume }: ResumeCardProps) {
 
       {/* Actions */}
       {!showDeleteConfirm ? (
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Link
             href={`/builder/${resume.id}`}
-            className="flex-1 border border-black bg-black text-white px-4 py-2 text-xs font-bold uppercase tracking-wider text-center hover:bg-white hover:text-black transition-colors duration-150"
+            className="flex-grow border border-black bg-black text-white px-4 py-2 text-xs font-bold uppercase tracking-wider text-center hover:bg-white hover:text-black transition-colors duration-150"
           >
             Edit
           </Link>
           <Link
             href={`/builder/${resume.id}?entry=import#personal`}
-            className="border border-gray-400 px-4 py-2 text-xs font-bold uppercase tracking-wider hover:border-black hover:bg-black hover:text-white transition-colors duration-150"
+            className="border border-gray-400 px-4 py-2 text-xs font-bold uppercase tracking-wider text-center hover:border-black hover:bg-black hover:text-white transition-colors duration-150"
           >
             Import
           </Link>
@@ -117,7 +121,8 @@ export function ResumeCard({ resume }: ResumeCardProps) {
             href={`/builder/${resume.id}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="border border-gray-400 px-4 py-2 text-xs font-bold uppercase tracking-wider hover:border-black hover:bg-black hover:text-white transition-colors duration-150"
+            title="Preview"
+            className="border border-gray-400 px-4 py-2 text-xs font-bold uppercase tracking-wider text-center hover:border-black hover:bg-black hover:text-white transition-colors duration-150"
           >
             ⧉
           </Link>
@@ -129,6 +134,7 @@ export function ResumeCard({ resume }: ResumeCardProps) {
           </button>
           <button
             onClick={() => setShowDeleteConfirm(true)}
+            title="Delete"
             className="border border-gray-400 px-4 py-2 text-xs font-bold uppercase tracking-wider hover:border-red-600 hover:text-red-600 transition-colors duration-150"
           >
             ×
@@ -196,14 +202,34 @@ export function ResumeCard({ resume }: ResumeCardProps) {
           </div>
 
           {isPublic ? (
-            <Link
-              href={publicLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex border border-black px-3 py-1 text-xs font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-150"
-            >
-              Open public link
-            </Link>
+            <div className="mt-2 space-y-2 border-t border-gray-200 pt-3">
+               <span className="text-xs text-gray-500 font-bold uppercase tracking-wider block">Public Link</span>
+               <div className="flex gap-2">
+                 <input
+                   type="text"
+                   readOnly
+                   value={absoluteLink}
+                   className="flex-1 border border-gray-300 px-3 py-2 text-xs font-mono bg-white focus:outline-none focus:border-black"
+                   onClick={(e) => e.currentTarget.select()}
+                 />
+                 <button
+                   onClick={handleCopy}
+                   className="border border-black bg-black text-white px-4 py-2 text-xs font-bold uppercase tracking-wider hover:bg-white hover:text-black transition-colors duration-150 min-w-[80px]"
+                 >
+                   {isCopied ? "Copied" : "Copy"}
+                 </button>
+               </div>
+               <div className="flex justify-end mt-1">
+                 <Link
+                   href={absoluteLink}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   className="text-[10px] text-gray-500 hover:text-black hover:underline uppercase tracking-wider"
+                 >
+                   Open in new tab ↗
+                 </Link>
+               </div>
+            </div>
           ) : null}
 
           <div className="flex gap-2">
