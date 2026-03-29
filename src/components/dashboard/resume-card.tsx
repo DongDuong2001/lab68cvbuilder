@@ -14,6 +14,14 @@ interface ResumeCardProps {
 export function ResumeCard({ resume }: ResumeCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showSharePanel, setShowSharePanel] = useState(false);
+  const [isSavingShare, setIsSavingShare] = useState(false);
+  const [isPublic, setIsPublic] = useState(resume.isPublic);
+  const [shareEmail, setShareEmail] = useState(resume.data.personalInfo.shareEmail !== false);
+  const [sharePhone, setSharePhone] = useState(resume.data.personalInfo.sharePhone !== false);
+  const [shareLocation, setShareLocation] = useState(
+    resume.data.personalInfo.shareLocation !== false
+  );
   const router = useRouter();
 
   const template = TEMPLATES.find((t) => t.id === resume.templateId);
@@ -33,6 +41,29 @@ export function ResumeCard({ resume }: ResumeCardProps) {
       console.error("Failed to delete resume:", error);
       setIsDeleting(false);
       setShowDeleteConfirm(false);
+    }
+  };
+
+  const publicLink = `/r/${resume.id}`;
+
+  const handleSaveShare = async () => {
+    setIsSavingShare(true);
+    try {
+      const response = await fetch(`/api/resume/${resume.id}/share`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isPublic, shareEmail, sharePhone, shareLocation }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save share settings");
+      }
+
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to save share settings:", error);
+    } finally {
+      setIsSavingShare(false);
     }
   };
 
@@ -91,6 +122,12 @@ export function ResumeCard({ resume }: ResumeCardProps) {
             ⧉
           </Link>
           <button
+            onClick={() => setShowSharePanel((prev) => !prev)}
+            className="border border-gray-400 px-4 py-2 text-xs font-bold uppercase tracking-wider hover:border-black hover:bg-black hover:text-white transition-colors duration-150"
+          >
+            Share
+          </button>
+          <button
             onClick={() => setShowDeleteConfirm(true)}
             className="border border-gray-400 px-4 py-2 text-xs font-bold uppercase tracking-wider hover:border-red-600 hover:text-red-600 transition-colors duration-150"
           >
@@ -119,6 +156,67 @@ export function ResumeCard({ resume }: ResumeCardProps) {
           </div>
         </div>
       )}
+
+      {showSharePanel && !showDeleteConfirm ? (
+        <div className="mt-4 border border-black p-3 space-y-3">
+          <span className="label-mono block">PUBLIC SHARE</span>
+          <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
+            <input
+              type="checkbox"
+              checked={isPublic}
+              onChange={(e) => setIsPublic(e.target.checked)}
+            />
+            Enable public link
+          </label>
+          <div className="grid gap-2 text-xs">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={shareEmail}
+                onChange={(e) => setShareEmail(e.target.checked)}
+              />
+              Show email
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={sharePhone}
+                onChange={(e) => setSharePhone(e.target.checked)}
+              />
+              Show phone
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={shareLocation}
+                onChange={(e) => setShareLocation(e.target.checked)}
+              />
+              Show location
+            </label>
+          </div>
+
+          {isPublic ? (
+            <Link
+              href={publicLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex border border-black px-3 py-1 text-xs font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-150"
+            >
+              Open public link
+            </Link>
+          ) : null}
+
+          <div className="flex gap-2">
+            <button
+              onClick={handleSaveShare}
+              disabled={isSavingShare}
+              className="border border-black bg-black text-white px-3 py-1 text-xs font-bold uppercase tracking-wider hover:bg-white hover:text-black transition-colors duration-150 disabled:opacity-50"
+            >
+              {isSavingShare ? "Saving..." : "Save share settings"}
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       {/* Public indicator */}
       {resume.isPublic && (
