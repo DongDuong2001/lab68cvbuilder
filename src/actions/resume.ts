@@ -78,6 +78,60 @@ export async function getResume(resumeId: string) {
   return resume;
 }
 
+export async function getPublicResume(resumeId: string) {
+  const [resume] = await db
+    .select()
+    .from(resumes)
+    .where(and(eq(resumes.id, resumeId), eq(resumes.isPublic, true)));
+
+  return resume ?? null;
+}
+
+export async function updateResumeShareSettings(
+  resumeId: string,
+  input: {
+    isPublic: boolean;
+    shareEmail: boolean;
+    sharePhone: boolean;
+    shareLocation: boolean;
+  }
+) {
+  const userId = await getAuthUserId();
+
+  const [existing] = await db
+    .select()
+    .from(resumes)
+    .where(and(eq(resumes.id, resumeId), eq(resumes.userId, userId)));
+
+  if (!existing) {
+    throw new Error("Resume not found or unauthorized");
+  }
+
+  const [updated] = await db
+    .update(resumes)
+    .set({
+      isPublic: input.isPublic,
+      data: {
+        ...existing.data,
+        personalInfo: {
+          ...existing.data.personalInfo,
+          shareEmail: input.shareEmail,
+          sharePhone: input.sharePhone,
+          shareLocation: input.shareLocation,
+        },
+      },
+      updatedAt: new Date(),
+    })
+    .where(and(eq(resumes.id, resumeId), eq(resumes.userId, userId)))
+    .returning();
+
+  if (!updated) {
+    throw new Error("Resume not found or unauthorized");
+  }
+
+  return updated;
+}
+
 // ── UPDATE ──────────────────────────────────────────────────
 
 export async function updateResume(
