@@ -13,6 +13,7 @@ import { registerPDFFont } from "@/lib/pdf-font-loader";
 import React from "react";
 import type { ResumeData } from "@/db/schema";
 import { createRateLimiter, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
+import { mapErrorToApiResponse, notFound } from "@/lib/api-error";
 
 const limiter = createRateLimiter({ limit: 3, windowSeconds: 60 });
 
@@ -23,19 +24,21 @@ const PDF_TEMPLATES: Record<TemplateId, PDFComponentType> = {
     "executive": ExecutivePDF,
     "harvard": HarvardPDF,
     "ats": AtsPDF,
+    "minimal": HarvardPDF,
+    "modern": ExecutivePDF,
 };
 
 export async function GET(request: NextRequest) {
     try {
         // Rate limit by client IP
         const ip = getClientIp(request.headers);
-        const rl = limiter.check(ip);
+        const rl = await limiter.check(ip);
         if (!rl.allowed) return rateLimitResponse(rl.retryAfterSeconds);
 
         const id = "f18ef1ef-109f-4089-b061-6ccf51135389";
         const resume = await getResume(id);
         if (!resume) {
-            return NextResponse.json({ error: "Resume not found" }, { status: 404 });
+            return notFound("Resume not found");
         }
 
         const fontConfig = getFontById(resume.fontFamily ?? "inter");
@@ -61,9 +64,6 @@ export async function GET(request: NextRequest) {
             },
         });
     } catch (error: unknown) {
-        return NextResponse.json(
-            { error: "Debug failure", message: (error as Error).message, stack: (error as Error).stack },
-            { status: 500 }
-        );
+        return mapErrorToApiResponse(error, "Debug failure");
     }
 }
