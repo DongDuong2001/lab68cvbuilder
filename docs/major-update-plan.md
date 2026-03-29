@@ -77,3 +77,53 @@ Ship in thin vertical slices so each phase is deployable on its own.
 - Use feature flags for each major module (`applicationTracker`, `tailorResume`, `coverLetter`, `publicShare`).
 - Add event tracking for conversion funnels before broad launch.
 - Keep backward compatibility for existing resumes and dashboard cards.
+
+## Week-by-Week Execution (Current Cycle)
+
+### Week 1 (Completed)
+- Hardened CI quality gates by adding `build` verification after lint, typecheck, and test.
+- Added baseline unit tests for core utility modules:
+  - `src/lib/__tests__/application-status.test.ts`
+  - `src/lib/__tests__/bullet-symbol.test.ts`
+  - `src/lib/__tests__/url-helpers.test.ts`
+- Resolved pre-existing type and lint blockers so all CI gates pass consistently.
+
+### Week 2 (Completed)
+- Implemented distributed-ready async rate-limit abstraction with pluggable store support.
+- Standardized API error response format and integrated route-level error mapping.
+- Added security regression test suite and wired dedicated `test:security` into CI.
+
+### Week 3 (Completed)
+- Added applications pipeline filters (search by company/role, status filter, sorting options).
+- Added duplicate detection for company + role in create-application flow.
+- Added regression tests for filter parsing/normalization and duplicate-key normalization helpers.
+
+### Week 4 (Completed)
+- Implemented cover letter studio directly in applications workflow: generate by tone, edit content, and delete variants.
+- Added cover letter data retrieval and CRUD actions for application-linked letter management.
+
+### Week 5 (Completed)
+- Added public share infrastructure with per-resume visibility settings and a dedicated public resume route.
+- Added privacy toggles for contact fields (email, phone, location) and masking logic for shared resumes.
+
+### Week 6 (Completed)
+- Implemented ATS recommendations utility (keyword coverage, missing terms, actionable suggestions).
+- Integrated ATS recommendations panel into the applications pipeline cards.
+
+### Week 7 (Completed)
+- Added two additional template options (`minimal`, `modern`) and wired them into builder preview + PDF export maps.
+- Added supporting template/PDF component aliases to keep output parity stable.
+
+### Week 8 (Completed)
+- Updated rollout artifacts and test matrix for new cover letter, share/privacy, ATS, and template-expansion flows.
+- Added additional regression tests for ATS and public-share data masking logic.
+
+## CI Rule Set (Required On Every PR)
+1. `npm run lint`
+2. `npm run typecheck`
+3. `npm run test`
+4. `npm run build`
+
+Merge policy:
+- No PR merge while any required check is failing.
+- Every new feature/fix PR must include or update tests for changed behavior.
