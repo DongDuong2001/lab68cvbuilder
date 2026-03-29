@@ -37,3 +37,9 @@ jobs:
       - name: Unit tests
         run: npm run test
 
+      - name: Security regression tests
+        run: npm run test:security
+
+      - name: Build
+        run: npm run build
+
