@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useResumeStore } from "@/store/resume-store";
 import {
   EMPTY_RESUME_DATA,
@@ -15,6 +15,7 @@ export function GuestBuilderClient() {
   const { setResume, data, title, templateId, fontFamily, isDirty } =
     useResumeStore();
   const isStoreReadyRef = useRef(false);
+  const [isMobilePreview, setIsMobilePreview] = useState(false);
 
   // Initialize store from localStorage or empty data
   useEffect(() => {
@@ -62,15 +63,17 @@ export function GuestBuilderClient() {
     <div className="h-dvh flex flex-col bg-white overflow-hidden">
       <BuilderHeader
         resumeId="guest"
+        isMobilePreview={isMobilePreview}
+        onToggleMobilePreview={() => setIsMobilePreview((prev) => !prev)}
         isGuest
       />
 
       <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
-        <div className="w-full lg:w-1/2 flex-1 lg:flex-none overflow-y-auto overscroll-y-contain border-b lg:border-b-0 lg:border-r border-black relative z-10 bg-white">
+        <div className={`w-full lg:w-1/2 flex-1 lg:flex-none overflow-y-auto overscroll-y-contain border-b lg:border-b-0 lg:border-r border-black relative z-10 bg-white ${isMobilePreview ? "hidden lg:block" : ""}`}>
           <BuilderForm />
         </div>
 
-        <div className="w-full lg:w-1/2 h-[45vh] lg:h-auto overflow-y-auto overscroll-y-contain bg-gray-50 shrink-0">
+        <div className={`w-full lg:w-1/2 h-[45vh] lg:h-auto overflow-y-auto overscroll-y-contain bg-gray-50 shrink-0 ${isMobilePreview ? "block" : "hidden lg:block"}`}>
           <BuilderPreview />
         </div>
       </div>
