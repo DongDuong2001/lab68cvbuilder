@@ -63,6 +63,32 @@ function MiniPreview({ id, active }: { id: string; active: boolean }) {
     );
   }
 
+  if (id === "minimal") {
+    return (
+      <div className={`${base} flex-col gap-0.5`}>
+        <div className="w-7 h-1.5 bg-gray-800 rounded-sm mx-auto" />
+        <div className="w-full h-px bg-gray-300 mt-0.5" />
+        <div className="w-full h-0.5 bg-gray-200 rounded-sm" />
+        <div className="w-4/5 h-0.5 bg-gray-200 rounded-sm" />
+        <div className="w-full h-0.5 bg-gray-200 rounded-sm" />
+        <div className="w-full h-0.5 bg-gray-200 rounded-sm" />
+      </div>
+    );
+  }
+
+  if (id === "modern") {
+    return (
+      <div className={`${base} flex-col gap-0.5`}>
+        <div className="h-1.5 bg-gray-800 w-full rounded-sm" />
+        <div className="w-10 h-0.5 bg-gray-500 rounded-sm" />
+        <div className="w-full h-px bg-gray-300 mt-0.5" />
+        <div className="w-full h-1 bg-gray-200 rounded-sm" />
+        <div className="w-5/6 h-1 bg-gray-200 rounded-sm" />
+        <div className="w-full h-1 bg-gray-300 rounded-sm" />
+      </div>
+    );
+  }
+
   // executive
   return (
     <div className={`${base} flex-col gap-0.5`}>
