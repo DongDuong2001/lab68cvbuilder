@@ -65,7 +65,7 @@ export function BuilderForm() {
     if (hiddenSections.includes(activeSection) && visibleSections.length > 0) {
       setActiveSection(visibleSections[0].id);
     }
-  }, [hiddenSections, activeSection, visibleSections]);
+  }, [hiddenSections, activeSection, visibleSections, setActiveSection]);
 
   const activeIndex = visibleSections.findIndex((s) => s.id === activeSection);
 
