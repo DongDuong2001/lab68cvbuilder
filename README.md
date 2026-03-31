@@ -3,7 +3,7 @@
 > A brutalist SaaS resume builder — engineered for speed, clarity, and pixel-perfect PDF output.
 
 <a href="https://unikorn.vn/p/lab68dev-cv-builder?ref=embed" target="_blank">
-  <img src="https://unikorn.vn/api/widgets/badge/lab68dev-cv-builder?theme=light" alt="lab68dev CV Builder trên Unikorn.vn" width="256" height="64" />
+  <img src="https://unikorn.vn/api/widgets/badge/lab68dev-cv-builder?theme=light" alt="lab68dev CV Builder trên Unikorn.vn" width="250" height="64" />
 </a>
 &nbsp;
 <a href="https://unikorn.vn/p/lab68dev-cv-builder?ref=embed" target="_blank">
@@ -12,8 +12,8 @@
 <a href="https://forg.to/products/lab68-cv-builder" target="_blank" rel="noopener">
   <img src="https://forg.to/api/badges/upvote/lab68-cv-builder?theme=dark&shape=rounded" alt="lab68-cv-builder - Upvote on Forg on forg." height="48" />
 </a>
-<a href="https://www.producthunt.com/products/lab68dev-cv-builder?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-lab68dev-cv-builder" target="_blank" rel="noopener noreferrer"><img alt="lab68dev CV Builder - Unlock Your Potential. Build Your Future. | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1093292&amp;theme=light&amp;t=1773540360352"></a>
-<a href="https://marketingdb.live" target="_blank"><img src="https://marketingdb.live/badge.svg" alt="Listed on MarketingDB" width="190" height="44"/></a>
+<a href="https://www.producthunt.com/products/lab68dev-cv-builder?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-lab68dev-cv-builder" target="_blank" rel="noopener noreferrer"><img alt="lab68dev CV Builder - Unlock Your Potential. Build Your Future. | Product Hunt" width="250" height="64" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1093292&amp;theme=light&amp;t=1773540360352"></a>
+<a href="https://marketingdb.live" target="_blank"><img src="https://marketingdb.live/badge.svg" alt="Listed on MarketingDB" width="250" height="64"/></a>
 
 **[View on Unikorn.vn](https://unikorn.vn/p/lab68dev-cv-builder)**
 
