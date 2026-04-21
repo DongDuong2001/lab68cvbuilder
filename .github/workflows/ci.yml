@@ -39,6 +39,8 @@ jobs:
 
       - name: Database Schema validation
         run: npx drizzle-kit check
+        env:
+          DATABASE_URL: postgresql://dummy:dummy@localhost/dummy
 
       - name: Security regression tests
         run: npm run test:security
