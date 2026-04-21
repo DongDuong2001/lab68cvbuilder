@@ -37,8 +37,14 @@ jobs:
       - name: Unit tests
         run: npm run test
 
+      - name: Database Schema validation
+        run: npx drizzle-kit check
+
       - name: Security regression tests
         run: npm run test:security
+        
+      - name: E2E Tests (Playwright)
+        run: npx playwright install chromium && npm run test:e2e
 
       - name: Build
         run: npm run build
