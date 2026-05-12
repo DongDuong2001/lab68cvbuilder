@@ -45,7 +45,7 @@ export const accounts = pgTable(
     primaryKey({
       columns: [account.provider, account.providerAccountId],
     }),
-  ]
+  ],
 );
 
 export const sessions = pgTable("sessions", {
@@ -67,7 +67,7 @@ export const verificationTokens = pgTable(
     primaryKey({
       columns: [verificationToken.identifier, verificationToken.token],
     }),
-  ]
+  ],
 );
 
 // ============================================================
@@ -181,7 +181,10 @@ export const jobs = pgTable("jobs", {
   location: text("location"),
   sourceUrl: text("source_url"),
   jdText: text("jd_text").notNull(),
-  extractedKeywords: jsonb("extracted_keywords").$type<string[]>().notNull().default([]),
+  extractedKeywords: jsonb("extracted_keywords")
+    .$type<string[]>()
+    .notNull()
+    .default([]),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
 });
@@ -211,10 +214,13 @@ export const applications = pgTable("applications", {
   jobId: uuid("job_id")
     .notNull()
     .references(() => jobs.id, { onDelete: "cascade" }),
-  resumeId: uuid("resume_id")
-    .references(() => resumes.id, { onDelete: "set null" }),
-  resumeVersionId: uuid("resume_version_id")
-    .references(() => resumeVersions.id, { onDelete: "set null" }),
+  resumeId: uuid("resume_id").references(() => resumes.id, {
+    onDelete: "set null",
+  }),
+  resumeVersionId: uuid("resume_version_id").references(
+    () => resumeVersions.id,
+    { onDelete: "set null" },
+  ),
   status: text("status").notNull().default("wishlist"),
   appliedAt: timestamp("applied_at", { mode: "date" }),
   nextStepAt: timestamp("next_step_at", { mode: "date" }),
@@ -243,8 +249,52 @@ export const usageEvents = pgTable("usage_events", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   eventName: text("event_name").notNull(),
-  metadata: jsonb("metadata").$type<Record<string, unknown>>().notNull().default({}),
+  metadata: jsonb("metadata")
+    .$type<Record<string, unknown>>()
+    .notNull()
+    .default({}),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const mockInterviews = pgTable("mock_interviews", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  applicationId: uuid("application_id")
+    .notNull()
+    .references(() => applications.id, { onDelete: "cascade" }),
+  questions: jsonb("questions")
+    .$type<Array<{ question: string; expectedContext: string }>>()
+    .notNull()
+    .default([]),
+  answers: jsonb("answers")
+    .$type<
+      Array<{
+        questionId: number;
+        answer: string;
+        feedback: string;
+        score: number;
+      }>
+    >()
+    .notNull()
+    .default([]),
+  status: text("status").notNull().default("pending"), // pending, in_progress, completed
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const resumeViews = pgTable("resume_views", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  resumeId: uuid("resume_id")
+    .notNull()
+    .references(() => resumes.id, { onDelete: "cascade" }),
+  viewerIpId: text("viewer_ip_id").notNull(), // hashed ip or session identifier
+  location: text("location"), // e.g. "San Francisco, CA"
+  durationSeconds: integer("duration_seconds").notNull().default(0),
+  clickedLinks: jsonb("clicked_links").$type<string[]>().notNull().default([]),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
 });
 
 // ============================================================
@@ -260,12 +310,21 @@ export const usersRelations = relations(users, ({ many }) => ({
   usageEvents: many(usageEvents),
   accounts: many(accounts),
   sessions: many(sessions),
+  mockInterviews: many(mockInterviews),
 }));
 
-export const resumesRelations = relations(resumes, ({ one }) => ({
+export const resumesRelations = relations(resumes, ({ one, many }) => ({
   user: one(users, {
     fields: [resumes.userId],
     references: [users.id],
+  }),
+  views: many(resumeViews),
+}));
+
+export const resumeViewsRelations = relations(resumeViews, ({ one }) => ({
+  resume: one(resumes, {
+    fields: [resumeViews.resumeId],
+    references: [resumes.id],
   }),
 }));
 
@@ -277,37 +336,43 @@ export const jobsRelations = relations(jobs, ({ one, many }) => ({
   applications: many(applications),
 }));
 
-export const resumeVersionsRelations = relations(resumeVersions, ({ one, many }) => ({
-  user: one(users, {
-    fields: [resumeVersions.userId],
-    references: [users.id],
+export const resumeVersionsRelations = relations(
+  resumeVersions,
+  ({ one, many }) => ({
+    user: one(users, {
+      fields: [resumeVersions.userId],
+      references: [users.id],
+    }),
+    resume: one(resumes, {
+      fields: [resumeVersions.resumeId],
+      references: [resumes.id],
+    }),
+    applications: many(applications),
   }),
-  resume: one(resumes, {
-    fields: [resumeVersions.resumeId],
-    references: [resumes.id],
-  }),
-  applications: many(applications),
-}));
+);
 
-export const applicationsRelations = relations(applications, ({ one, many }) => ({
-  user: one(users, {
-    fields: [applications.userId],
-    references: [users.id],
+export const applicationsRelations = relations(
+  applications,
+  ({ one, many }) => ({
+    user: one(users, {
+      fields: [applications.userId],
+      references: [users.id],
+    }),
+    job: one(jobs, {
+      fields: [applications.jobId],
+      references: [jobs.id],
+    }),
+    resume: one(resumes, {
+      fields: [applications.resumeId],
+      references: [resumes.id],
+    }),
+    resumeVersion: one(resumeVersions, {
+      fields: [applications.resumeVersionId],
+      references: [resumeVersions.id],
+    }),
+    coverLetters: many(coverLetters),
   }),
-  job: one(jobs, {
-    fields: [applications.jobId],
-    references: [jobs.id],
-  }),
-  resume: one(resumes, {
-    fields: [applications.resumeId],
-    references: [resumes.id],
-  }),
-  resumeVersion: one(resumeVersions, {
-    fields: [applications.resumeVersionId],
-    references: [resumeVersions.id],
-  }),
-  coverLetters: many(coverLetters),
-}));
+);
 
 export const coverLettersRelations = relations(coverLetters, ({ one }) => ({
   user: one(users, {

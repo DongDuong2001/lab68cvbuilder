@@ -15,7 +15,10 @@ import {
   updateCoverLetter,
 } from "@/actions/cover-letter";
 import { getUserResumes } from "@/actions/resume";
-import { APPLICATION_STATUSES, type ApplicationStatus } from "@/lib/application-status";
+import {
+  APPLICATION_STATUSES,
+  type ApplicationStatus,
+} from "@/lib/application-status";
 import {
   type ApplicationSort,
   parseApplicationFiltersFromSearchParams,
@@ -43,7 +46,9 @@ const SORT_OPTIONS: Array<{ value: ApplicationSort; label: string }> = [
   { value: "applied_asc", label: "Oldest applied" },
 ];
 
-export default async function ApplicationsPage({ searchParams }: ApplicationsPageProps) {
+export default async function ApplicationsPage({
+  searchParams,
+}: ApplicationsPageProps) {
   const session = await auth();
 
   if (!session?.user) {
@@ -71,7 +76,7 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
   ]);
 
   const coverLetters = await getCoverLettersByApplicationIds(
-    applications.map((application) => application.applicationId)
+    applications.map((application) => application.applicationId),
   );
 
   const coverLettersByApplication = new Map<string, typeof coverLetters>();
@@ -86,7 +91,9 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
       <header className="border-b border-black p-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div>
-            <span className="label-mono block mb-1">APPLICATIONS // TRACKER</span>
+            <span className="label-mono block mb-1">
+              APPLICATIONS // TRACKER
+            </span>
             <h1 className="text-3xl font-black tracking-tight">Job Pipeline</h1>
           </div>
           <Link
@@ -107,17 +114,37 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
               await createJob({
                 title: String(formData.get("title") || "").trim(),
                 company: String(formData.get("company") || "").trim(),
-                location: String(formData.get("location") || "").trim() || undefined,
-                sourceUrl: String(formData.get("sourceUrl") || "").trim() || undefined,
+                location:
+                  String(formData.get("location") || "").trim() || undefined,
+                sourceUrl:
+                  String(formData.get("sourceUrl") || "").trim() || undefined,
                 jdText: String(formData.get("jdText") || "").trim(),
               });
             }}
             className="space-y-3"
           >
-            <input name="title" required placeholder="Job title" className="w-full border border-black px-3 py-2 text-sm" />
-            <input name="company" required placeholder="Company" className="w-full border border-black px-3 py-2 text-sm" />
-            <input name="location" placeholder="Location (optional)" className="w-full border border-black px-3 py-2 text-sm" />
-            <input name="sourceUrl" placeholder="Source URL (optional)" className="w-full border border-black px-3 py-2 text-sm" />
+            <input
+              name="title"
+              required
+              placeholder="Job title"
+              className="w-full border border-black px-3 py-2 text-sm"
+            />
+            <input
+              name="company"
+              required
+              placeholder="Company"
+              className="w-full border border-black px-3 py-2 text-sm"
+            />
+            <input
+              name="location"
+              placeholder="Location (optional)"
+              className="w-full border border-black px-3 py-2 text-sm"
+            />
+            <input
+              name="sourceUrl"
+              placeholder="Source URL (optional)"
+              className="w-full border border-black px-3 py-2 text-sm"
+            />
             <textarea
               name="jdText"
               required
@@ -145,24 +172,36 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
             action={async (formData) => {
               "use server";
 
-              const selectedStatus = String(formData.get("status") || "wishlist");
+              const selectedStatus = String(
+                formData.get("status") || "wishlist",
+              );
               try {
                 await createApplication({
                   jobId: String(formData.get("jobId")),
                   resumeId: String(formData.get("resumeId") || "") || undefined,
                   status: selectedStatus as ApplicationStatus,
-                  notes: String(formData.get("notes") || "").trim() || undefined,
+                  notes:
+                    String(formData.get("notes") || "").trim() || undefined,
                 });
                 redirect("/applications");
               } catch (error: unknown) {
                 const message =
-                  error instanceof Error ? error.message : "Failed to create application";
-                redirect(`/applications?createError=${encodeURIComponent(message)}`);
+                  error instanceof Error
+                    ? error.message
+                    : "Failed to create application";
+                redirect(
+                  `/applications?createError=${encodeURIComponent(message)}`,
+                );
               }
             }}
             className="space-y-3"
           >
-            <select aria-label="Select job" name="jobId" required className="w-full border border-black px-3 py-2 text-sm bg-white">
+            <select
+              aria-label="Select job"
+              name="jobId"
+              required
+              className="w-full border border-black px-3 py-2 text-sm bg-white"
+            >
               <option value="">Select job</option>
               {jobs.map((job) => (
                 <option key={job.id} value={job.id}>
@@ -171,7 +210,11 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
               ))}
             </select>
 
-            <select aria-label="Select resume" name="resumeId" className="w-full border border-black px-3 py-2 text-sm bg-white">
+            <select
+              aria-label="Select resume"
+              name="resumeId"
+              className="w-full border border-black px-3 py-2 text-sm bg-white"
+            >
               <option value="">Attach resume (optional)</option>
               {resumes.map((resume) => (
                 <option key={resume.id} value={resume.id}>
@@ -180,7 +223,12 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
               ))}
             </select>
 
-            <select aria-label="Select status" name="status" defaultValue="wishlist" className="w-full border border-black px-3 py-2 text-sm bg-white">
+            <select
+              aria-label="Select status"
+              name="status"
+              defaultValue="wishlist"
+              className="w-full border border-black px-3 py-2 text-sm bg-white"
+            >
               {APPLICATION_STATUSES.map((status) => (
                 <option key={status} value={status}>
                   {status.toUpperCase()}
@@ -188,7 +236,12 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
               ))}
             </select>
 
-            <textarea name="notes" placeholder="Notes (optional)" rows={5} className="w-full border border-black px-3 py-2 text-sm" />
+            <textarea
+              name="notes"
+              placeholder="Notes (optional)"
+              rows={5}
+              className="w-full border border-black px-3 py-2 text-sm"
+            />
             <button
               type="submit"
               className="border border-black bg-black text-white px-4 py-2 text-xs font-bold uppercase tracking-wider hover:bg-white hover:text-black transition-colors duration-150"
@@ -209,9 +262,14 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
             </p>
           ) : null}
 
-          <form method="GET" className="border-b border-black p-4 grid gap-3 md:grid-cols-[1fr_auto_auto_auto] md:items-end">
+          <form
+            method="GET"
+            className="border-b border-black p-4 grid gap-3 md:grid-cols-[1fr_auto_auto_auto] md:items-end"
+          >
             <div>
-              <label htmlFor="q" className="label-mono mb-1 block">Search (company or role)</label>
+              <label htmlFor="q" className="label-mono mb-1 block">
+                Search (company or role)
+              </label>
               <input
                 id="q"
                 name="q"
@@ -221,7 +279,9 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
               />
             </div>
             <div>
-              <label htmlFor="status" className="label-mono mb-1 block">Status</label>
+              <label htmlFor="status" className="label-mono mb-1 block">
+                Status
+              </label>
               <select
                 id="status"
                 name="status"
@@ -237,7 +297,9 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
               </select>
             </div>
             <div>
-              <label htmlFor="sort" className="label-mono mb-1 block">Sort</label>
+              <label htmlFor="sort" className="label-mono mb-1 block">
+                Sort
+              </label>
               <select
                 id="sort"
                 name="sort"
@@ -268,22 +330,37 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
           </form>
 
           {applications.length === 0 ? (
-            <p className="p-6 text-sm text-gray-600">No applications yet. Add your first one above.</p>
+            <p className="p-6 text-sm text-gray-600">
+              No applications yet. Add your first one above.
+            </p>
           ) : (
             <div className="divide-y divide-black/10">
               {applications.map((item) => (
-                <div key={item.applicationId} className="p-6 grid gap-4 lg:grid-cols-[1fr_auto]">
+                <div
+                  key={item.applicationId}
+                  className="p-6 grid gap-4 lg:grid-cols-[1fr_auto]"
+                >
                   <div>
-                    <p className="text-lg font-black tracking-tight">{item.jobTitle}</p>
-                    <p className="text-sm text-gray-600">{item.company} {item.location ? `• ${item.location}` : ""}</p>
+                    <p className="text-lg font-black tracking-tight">
+                      {item.jobTitle}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {item.company} {item.location ? `• ${item.location}` : ""}
+                    </p>
                     <p className="text-xs text-gray-500 mt-2">
-                      Applied: {formatDate(item.appliedAt)} • Updated: {formatDate(item.updatedAt)}
+                      Applied: {formatDate(item.appliedAt)} • Updated:{" "}
+                      {formatDate(item.updatedAt)}
                     </p>
                     {item.resumeTitle ? (
-                      <p className="text-xs mt-2">Resume: <span className="font-bold">{item.resumeTitle}</span></p>
+                      <p className="text-xs mt-2">
+                        Resume:{" "}
+                        <span className="font-bold">{item.resumeTitle}</span>
+                      </p>
                     ) : null}
                     {item.notes ? (
-                      <p className="text-sm mt-3 border-l-2 border-black pl-3">{item.notes}</p>
+                      <p className="text-sm mt-3 border-l-2 border-black pl-3">
+                        {item.notes}
+                      </p>
                     ) : null}
 
                     <div className="mt-4 border border-gray-300 p-3">
@@ -291,22 +368,30 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
                       {(() => {
                         const ats = getAtsRecommendations(
                           item.resumeData,
-                          item.extractedKeywords
+                          item.extractedKeywords,
                         );
                         return (
                           <>
-                            <p className="text-sm font-bold mb-1">Keyword coverage: {ats.coveragePercent}%</p>
+                            <p className="text-sm font-bold mb-1">
+                              Keyword coverage: {ats.coveragePercent}%
+                            </p>
                             {ats.missingKeywords.length > 0 ? (
                               <p className="text-xs text-gray-600 mb-2">
-                                Missing: {ats.missingKeywords.slice(0, 8).join(", ")}
+                                Missing:{" "}
+                                {ats.missingKeywords.slice(0, 8).join(", ")}
                                 {ats.missingKeywords.length > 8 ? "..." : ""}
                               </p>
                             ) : (
-                              <p className="text-xs text-green-700 mb-2">No critical missing keywords detected.</p>
+                              <p className="text-xs text-green-700 mb-2">
+                                No critical missing keywords detected.
+                              </p>
                             )}
                             <ul className="list-disc pl-4 space-y-1">
                               {ats.recommendations.map((recommendation) => (
-                                <li key={recommendation} className="text-xs text-gray-700">
+                                <li
+                                  key={recommendation}
+                                  className="text-xs text-gray-700"
+                                >
                                   {recommendation}
                                 </li>
                               ))}
@@ -323,22 +408,31 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
                           "use server";
                           try {
                             await generateCoverLetter({
-                              applicationId: String(formData.get("applicationId")),
-                              tone: String(formData.get("tone") || "professional") as
-                                | "professional"
-                                | "confident"
-                                | "friendly",
+                              applicationId: String(
+                                formData.get("applicationId"),
+                              ),
+                              tone: String(
+                                formData.get("tone") || "professional",
+                              ) as "professional" | "confident" | "friendly",
                             });
                             redirect("/applications");
                           } catch (error: unknown) {
                             const message =
-                              error instanceof Error ? error.message : "Failed to generate cover letter";
-                            redirect(`/applications?coverError=${encodeURIComponent(message)}`);
+                              error instanceof Error
+                                ? error.message
+                                : "Failed to generate cover letter";
+                            redirect(
+                              `/applications?coverError=${encodeURIComponent(message)}`,
+                            );
                           }
                         }}
                         className="flex flex-wrap gap-2"
                       >
-                        <input type="hidden" name="applicationId" value={item.applicationId} />
+                        <input
+                          type="hidden"
+                          name="applicationId"
+                          value={item.applicationId}
+                        />
                         <select
                           aria-label="Cover letter tone"
                           name="tone"
@@ -357,30 +451,42 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
                         </button>
                       </form>
 
-                      {(coverLettersByApplication.get(item.applicationId) ?? []).map((letter) => (
+                      {(
+                        coverLettersByApplication.get(item.applicationId) ?? []
+                      ).map((letter) => (
                         <div key={letter.id}>
                           <form
                             action={async (formData) => {
-                            "use server";
-                            try {
-                              await updateCoverLetter(
-                                String(formData.get("coverLetterId")),
-                                String(formData.get("content") || ""),
-                                String(formData.get("tone") || "professional") as
-                                  | "professional"
-                                  | "confident"
-                                  | "friendly"
-                              );
-                              redirect("/applications");
-                            } catch (error: unknown) {
-                              const message =
-                                error instanceof Error ? error.message : "Failed to update cover letter";
-                              redirect(`/applications?coverError=${encodeURIComponent(message)}`);
-                            }
-                          }}
+                              "use server";
+                              try {
+                                await updateCoverLetter(
+                                  String(formData.get("coverLetterId")),
+                                  String(formData.get("content") || ""),
+                                  String(
+                                    formData.get("tone") || "professional",
+                                  ) as
+                                    | "professional"
+                                    | "confident"
+                                    | "friendly",
+                                );
+                                redirect("/applications");
+                              } catch (error: unknown) {
+                                const message =
+                                  error instanceof Error
+                                    ? error.message
+                                    : "Failed to update cover letter";
+                                redirect(
+                                  `/applications?coverError=${encodeURIComponent(message)}`,
+                                );
+                              }
+                            }}
                             className="border border-gray-300 p-2 space-y-2"
                           >
-                            <input type="hidden" name="coverLetterId" value={letter.id} />
+                            <input
+                              type="hidden"
+                              name="coverLetterId"
+                              value={letter.id}
+                            />
                             <div className="flex gap-2 items-center">
                               <select
                                 aria-label="Update cover letter tone"
@@ -388,11 +494,15 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
                                 defaultValue={letter.tone}
                                 className="border border-black px-2 py-1 text-xs bg-white"
                               >
-                                <option value="professional">Professional</option>
+                                <option value="professional">
+                                  Professional
+                                </option>
                                 <option value="confident">Confident</option>
                                 <option value="friendly">Friendly</option>
                               </select>
-                              <span className="text-xs text-gray-500">Updated: {formatDate(letter.updatedAt)}</span>
+                              <span className="text-xs text-gray-500">
+                                Updated: {formatDate(letter.updatedAt)}
+                              </span>
                             </div>
                             <textarea
                               aria-label="Cover letter content"
@@ -422,16 +532,26 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
                             action={async (formData) => {
                               "use server";
                               try {
-                                await deleteCoverLetter(String(formData.get("coverLetterId")));
+                                await deleteCoverLetter(
+                                  String(formData.get("coverLetterId")),
+                                );
                                 redirect("/applications");
                               } catch (error: unknown) {
                                 const message =
-                                  error instanceof Error ? error.message : "Failed to delete cover letter";
-                                redirect(`/applications?coverError=${encodeURIComponent(message)}`);
+                                  error instanceof Error
+                                    ? error.message
+                                    : "Failed to delete cover letter";
+                                redirect(
+                                  `/applications?coverError=${encodeURIComponent(message)}`,
+                                );
                               }
                             }}
                           >
-                            <input type="hidden" name="coverLetterId" value={letter.id} />
+                            <input
+                              type="hidden"
+                              name="coverLetterId"
+                              value={letter.id}
+                            />
                           </form>
                         </div>
                       ))}
@@ -443,23 +563,43 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
                       action={async (formData) => {
                         "use server";
                         await updateApplication(String(formData.get("id")), {
-                          status: String(formData.get("status")) as ApplicationStatus,
+                          status: String(
+                            formData.get("status"),
+                          ) as ApplicationStatus,
                         });
                       }}
                       className="flex gap-2"
                     >
-                      <input type="hidden" name="id" value={item.applicationId} />
-                      <select aria-label="Update application status" name="status" defaultValue={item.status} className="border border-black px-2 py-1 text-xs bg-white">
+                      <input
+                        type="hidden"
+                        name="id"
+                        value={item.applicationId}
+                      />
+                      <select
+                        aria-label="Update application status"
+                        name="status"
+                        defaultValue={item.status}
+                        className="border border-black px-2 py-1 text-xs bg-white"
+                      >
                         {APPLICATION_STATUSES.map((status) => (
                           <option key={status} value={status}>
                             {status.toUpperCase()}
                           </option>
                         ))}
                       </select>
-                      <button type="submit" className="border border-black px-3 py-1 text-xs font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-150">
+                      <button
+                        type="submit"
+                        className="border border-black px-3 py-1 text-xs font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-150"
+                      >
                         Save
                       </button>
                     </form>
+                    <Link
+                      href={`/applications/${item.applicationId}/interview`}
+                      className="border border-blue-600 bg-blue-50 text-blue-800 text-center px-3 py-2 text-xs font-bold uppercase tracking-wider hover:bg-blue-600 hover:text-white transition-colors duration-150"
+                    >
+                      Practice Interview
+                    </Link>
 
                     <form
                       action={async (formData) => {
@@ -467,8 +607,15 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
                         await deleteApplication(String(formData.get("id")));
                       }}
                     >
-                      <input type="hidden" name="id" value={item.applicationId} />
-                      <button type="submit" className="border border-red-600 text-red-600 px-3 py-1 text-xs font-bold uppercase tracking-wider hover:bg-red-600 hover:text-white transition-colors duration-150 w-full">
+                      <input
+                        type="hidden"
+                        name="id"
+                        value={item.applicationId}
+                      />
+                      <button
+                        type="submit"
+                        className="border border-red-600 text-red-600 px-3 py-1 text-xs font-bold uppercase tracking-wider hover:bg-red-600 hover:text-white transition-colors duration-150 w-full"
+                      >
                         Delete
                       </button>
                     </form>

@@ -4,14 +4,14 @@ import { useState } from "react";
 import { useResumeStore } from "@/store/resume-store";
 import type { ResumeData } from "@/db/schema";
 import { improveBullet, improveDescription } from "@/actions/ai";
-import { 
-  DndContext, 
-  closestCenter, 
-  KeyboardSensor, 
-  PointerSensor, 
-  useSensor, 
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
   useSensors,
-  DragEndEvent
+  DragEndEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -20,13 +20,20 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { SortableItem } from "./sortable-item";
+import { GithubSyncModal } from "./github-sync-modal";
+import { Github } from "lucide-react";
 
 export function ProjectsForm() {
   const { data, setData } = useResumeStore();
   const { projects } = data;
-  const [techInputValues, setTechInputValues] = useState<Record<string, string>>({});
+  const [techInputValues, setTechInputValues] = useState<
+    Record<string, string>
+  >({});
   const [improvingBullet, setImprovingBullet] = useState<string | null>(null);
-  const [improvingDescription, setImprovingDescription] = useState<string | null>(null);
+  const [improvingDescription, setImprovingDescription] = useState<
+    string | null
+  >(null);
+  const [isGithubModalOpen, setIsGithubModalOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -36,14 +43,14 @@ export function ProjectsForm() {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const handleImproveBullet = async (
     projId: string,
     idx: number,
     text: string,
-    projectName: string
+    projectName: string,
   ) => {
     if (!text.trim() || improvingBullet) return;
     const key = `${projId}-${idx}`;
@@ -61,13 +68,15 @@ export function ProjectsForm() {
   const handleImproveDescription = async (
     projId: string,
     text: string,
-    projectName: string
+    projectName: string,
   ) => {
     if (!text.trim() || improvingDescription) return;
     setImprovingDescription(projId);
     try {
       const { result } = await improveDescription(text, { title: projectName });
-      updateProject(projId, { description: result.slice(0, MAX_DESCRIPTION_LENGTH) });
+      updateProject(projId, {
+        description: result.slice(0, MAX_DESCRIPTION_LENGTH),
+      });
     } catch (err: unknown) {
       alert((err as Error).message || "AI improvement failed.");
     } finally {
@@ -116,12 +125,12 @@ export function ProjectsForm() {
 
   const updateProject = (
     id: string,
-    updates: Partial<ResumeData["projects"][0]>
+    updates: Partial<ResumeData["projects"][0]>,
   ) => {
     setData({
       ...data,
       projects: projects.map((proj) =>
-        proj.id === id ? { ...proj, ...updates } : proj
+        proj.id === id ? { ...proj, ...updates } : proj,
       ),
     });
   };
@@ -146,7 +155,7 @@ export function ProjectsForm() {
 
   const handleTechInputKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-    projectId: string
+    projectId: string,
   ) => {
     if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
@@ -207,12 +216,26 @@ export function ProjectsForm() {
   return (
     <div className="max-w-3xl space-y-8">
       <div>
-        <span className="label-mono block mb-4">SECTION_05 // PROJECTS</span>
+        <div className="flex items-center justify-between mb-4">
+          <span className="label-mono block">SECTION_05 // PROJECTS</span>
+          <button
+            onClick={() => setIsGithubModalOpen(true)}
+            className="flex items-center gap-2 border border-black px-3 py-1.5 text-xs font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-colors duration-150"
+          >
+            <Github className="w-4 h-4" />
+            Auto-Sync GitHub
+          </button>
+        </div>
         <h2 className="text-3xl font-black tracking-tight mb-2">Projects</h2>
         <p className="text-sm text-gray-600">
           Notable projects, open-source contributions, or side work
         </p>
       </div>
+
+      <GithubSyncModal
+        isOpen={isGithubModalOpen}
+        onClose={() => setIsGithubModalOpen(false)}
+      />
 
       <div className="space-y-8">
         {projects.map((project, index) => (
@@ -305,8 +328,16 @@ export function ProjectsForm() {
                   <label className="label-mono">DESCRIPTION *</label>
                   <button
                     type="button"
-                    onClick={() => handleImproveDescription(project.id, project.description, project.name)}
-                    disabled={!project.description.trim() || !!improvingDescription}
+                    onClick={() =>
+                      handleImproveDescription(
+                        project.id,
+                        project.description,
+                        project.name,
+                      )
+                    }
+                    disabled={
+                      !project.description.trim() || !!improvingDescription
+                    }
                     className="label-mono text-[10px] border border-black px-2 py-0.5 hover:bg-black hover:text-white transition-colors duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     {improvingDescription === project.id ? "..." : "✦"}
@@ -316,7 +347,9 @@ export function ProjectsForm() {
                   value={project.description}
                   onChange={(e) => {
                     if (e.target.value.length <= MAX_DESCRIPTION_LENGTH) {
-                      updateProject(project.id, { description: e.target.value });
+                      updateProject(project.id, {
+                        description: e.target.value,
+                      });
                     }
                   }}
                   placeholder="A full-stack e-commerce platform built with modern technologies..."
@@ -390,14 +423,23 @@ export function ProjectsForm() {
                                 type="text"
                                 value={highlight}
                                 onChange={(e) =>
-                                  updateHighlight(project.id, idx, e.target.value)
+                                  updateHighlight(
+                                    project.id,
+                                    idx,
+                                    e.target.value,
+                                  )
                                 }
                                 placeholder="Built scalable microservices architecture..."
                                 className="flex-1 border border-gray-400 bg-transparent px-3 py-2 focus:border-black focus:bg-black focus:text-white transition-all duration-150"
                               />
                               <button
                                 onClick={() =>
-                                  handleImproveBullet(project.id, idx, highlight, project.name)
+                                  handleImproveBullet(
+                                    project.id,
+                                    idx,
+                                    highlight,
+                                    project.name,
+                                  )
                                 }
                                 disabled={isImproving || !highlight.trim()}
                                 title="Improve with AI"
