@@ -42,9 +42,10 @@ export default function MockInterviewClient({
 
   useEffect(() => {
     // Check if SpeechRecognition is available
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const SpeechRecognition =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).SpeechRecognition ||
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).webkitSpeechRecognition;
     if (SpeechRecognition) {
       recognitionRef.current = new SpeechRecognition();
